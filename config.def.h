@@ -58,6 +58,7 @@ const char tags[][8] = { "1", "2", "3", "4", "5" };
 
 #include "tile.c"
 #include "grid.c"
+#include "vstack.c"
 #include "bstack.c"
 #include "fullscreen.c"
 
