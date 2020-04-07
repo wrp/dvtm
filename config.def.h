@@ -54,7 +54,7 @@ static Color colors[] = {
 /* curses attributes for not selected tags which with urgent windows */
 #define TAG_URGENT (COLOR(BLUE) | A_NORMAL | A_BLINK)
 
-const char tags[][8] = { "1", "2", "3", "4", "5" };
+const char tags[][8] = { "1", "2", "3", "4", "5", "6", "7", "8" };
 
 #include "tile.c"
 #include "grid.c"
@@ -75,7 +75,7 @@ static Layout layouts[] = {
 	{ { MOD, 'v', KEY,     }, { view,           { tags[TAG] }               } }, \
 	{ { MOD, 't', KEY,     }, { tag,            { tags[TAG] }               } }, \
 	{ { MOD, 'V', KEY,     }, { toggleview,     { tags[TAG] }               } }, \
-	{ { MOD, 'T', KEY,     }, { toggletag,      { tags[TAG] }               } },
+	{ { MOD, 'T', KEY,     }, { toggletag,      { tags[TAG] }               } }
 
 /* you can specifiy at most 3 arguments */
 static KeyBinding bindings[] = {
@@ -136,11 +136,14 @@ static KeyBinding bindings[] = {
 	{ { MOD, 'v', '0'      }, { view,           { NULL }                    } },
 	{ { MOD, 'v', '\t',    }, { viewprevtag,    { NULL }                    } },
 	{ { MOD, 't', '0'      }, { tag,            { NULL }                    } },
-	TAGKEYS( '1',                              0)
-	TAGKEYS( '2',                              1)
-	TAGKEYS( '3',                              2)
-	TAGKEYS( '4',                              3)
-	TAGKEYS( '5',                              4)
+	TAGKEYS( '1',                              0),
+	TAGKEYS( '2',                              1),
+	TAGKEYS( '3',                              2),
+	TAGKEYS( '4',                              3),
+	TAGKEYS( '5',                              4),
+	TAGKEYS( '6',                              5),
+	TAGKEYS( '7',                              6),
+	TAGKEYS( '8',                              7),
 };
 
 static const ColorRule colorrules[] = {
