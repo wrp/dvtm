@@ -34,8 +34,7 @@ clean:
 	@rm -f dvtm-editor
 
 dist: clean
-	@echo creating dist tarball
-	@git archive --prefix=dvtm-${VERSION}/ -o dvtm-${VERSION}.tar.gz HEAD
+	git archive --prefix=dvtm-${VERSION}/ -o dvtm-${VERSION}.tar.gz HEAD
 
 install: all
 	@mkdir -p ${DESTDIR}${PREFIX}/bin
