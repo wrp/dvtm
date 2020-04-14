@@ -61,6 +61,7 @@ const char tags[][8] = { "1", "2", "3", "4", "5", "6", "7", "8" };
 #include "vstack.c"
 #include "fibonacci.c"
 #include "bstack.c"
+#include "tstack.c"
 #include "fullscreen.c"
 
 /* by default the first layout entry is used */
@@ -69,6 +70,7 @@ static Layout layouts[] = {
 	{ "fib", spiral },
 	{ "[]=", tile },
 	{ "+++", grid },
+	{ "ttt", tstack },
 	{ "TTT", bstack },
 	{ "[ ]", fullscreen },
 };
