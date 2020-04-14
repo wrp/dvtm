@@ -815,7 +815,7 @@ static void
 tag(const char *args[]) {
 	if (!sel)
 		return;
-	sel->tags = bitoftag(args[0]) & TAGMASK;
+	sel->tags |= bitoftag(args[0]) & TAGMASK;
 	tagschanged();
 }
 
