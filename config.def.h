@@ -46,7 +46,7 @@ static Color colors[] = {
 /* scroll back buffer size in lines */
 #define SCROLL_HISTORY 500
 /* printf format string for the tag in the status bar */
-#define TAG_SYMBOL   "[%s]"
+#define TAG_SYMBOL   "[%d]"
 /* curses attributes for the currently selected tags */
 #define TAG_SEL      (COLOR(BLUE) | A_BOLD)
 /* curses attributes for not selected tags which contain no windows */
@@ -56,7 +56,7 @@ static Color colors[] = {
 /* curses attributes for not selected tags which with urgent windows */
 #define TAG_URGENT (COLOR(RED) | A_NORMAL | A_BLINK)
 
-const char tags[][8] = { "1", "2", "3", "4", "5", "6", "7", "8" };
+const int tags = 8;
 
 #include "wstack.c"
 #include "fullscreen.c"
@@ -69,10 +69,10 @@ static Layout layouts[] = {
 
 #define MOD  CTRL('g')
 #define TAGKEYS(KEY,TAG) \
-	{ { MOD, 'v', KEY,     }, { view,           { tags[TAG] }               } }, \
-	{ { MOD, 't', KEY,     }, { tag,            { tags[TAG] }               } }, \
-	{ { MOD, 'V', KEY,     }, { toggleview,     { tags[TAG] }               } }, \
-	{ { MOD, 'T', KEY,     }, { toggletag,      { tags[TAG] }               } }
+	{ { MOD, 'v', KEY,     }, { view,           { #TAG }               } }, \
+	{ { MOD, 't', KEY,     }, { tag,            { #TAG }               } }, \
+	{ { MOD, 'V', KEY,     }, { toggleview,     { #TAG }               } }, \
+	{ { MOD, 'T', KEY,     }, { toggletag,      { #TAG }               } }
 
 /* you can specifiy at most 3 arguments */
 static KeyBinding bindings[] = {
@@ -123,23 +123,23 @@ static KeyBinding bindings[] = {
 	{ { KEY_SPREVIOUS,     }, { scrollback,     { "-1" }                    } },
 	{ { KEY_SNEXT,         }, { scrollback,     { "1"  }                    } },
 	{ { MOD, '0',          }, { view,           { NULL }                    } },
-	{ { MOD, KEY_F(1),     }, { view,           { tags[0] }                 } },
-	{ { MOD, KEY_F(2),     }, { view,           { tags[1] }                 } },
-	{ { MOD, KEY_F(3),     }, { view,           { tags[2] }                 } },
-	{ { MOD, KEY_F(4),     }, { view,           { tags[3] }                 } },
-	{ { MOD, KEY_F(5),     }, { view,           { tags[4] }                 } },
+	{ { MOD, KEY_F(1),     }, { view,           { "1" }                 } },
+	{ { MOD, KEY_F(2),     }, { view,           { "2" }                 } },
+	{ { MOD, KEY_F(3),     }, { view,           { "3" }                 } },
+	{ { MOD, KEY_F(4),     }, { view,           { "4" }                 } },
+	{ { MOD, KEY_F(5),     }, { view,           { "5" }                 } },
 	{ { MOD, 'v', '0'      }, { view,           { NULL }                    } },
 	{ { MOD, 'v', '\t',    }, { viewprevtag,    { NULL }                    } },
 	{ { MOD, 't', '0'      }, { tag,            { NULL }                    } },
 	{ { MOD, 'T', '0'      }, { untag,          { NULL }                    } },
-	TAGKEYS( '1',                              0),
-	TAGKEYS( '2',                              1),
-	TAGKEYS( '3',                              2),
-	TAGKEYS( '4',                              3),
-	TAGKEYS( '5',                              4),
-	TAGKEYS( '6',                              5),
-	TAGKEYS( '7',                              6),
-	TAGKEYS( '8',                              7),
+	TAGKEYS( '1',                              1),
+	TAGKEYS( '2',                              2),
+	TAGKEYS( '3',                              3),
+	TAGKEYS( '4',                              4),
+	TAGKEYS( '5',                              5),
+	TAGKEYS( '6',                              6),
+	TAGKEYS( '7',                              7),
+	TAGKEYS( '8',                              8),
 };
 
 static const ColorRule colorrules[] = {

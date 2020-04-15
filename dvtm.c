@@ -169,7 +169,7 @@ typedef struct {
 #define LENGTH(arr) (sizeof(arr) / sizeof((arr)[0]))
 #define MAX(x, y)   ((x) > (y) ? (x) : (y))
 #define MIN(x, y)   ((x) < (y) ? (x) : (y))
-#define TAGMASK     ((1 << LENGTH(tags)) - 1)
+#define TAGMASK     ((1 << tags) - 1)
 
 #ifdef NDEBUG
  #define debug(format, args...)
@@ -343,7 +343,7 @@ drawbar(void) {
 	attrset(BAR_ATTR);
 	move(bar.y, 0);
 
-	for (unsigned int i = 0; i < LENGTH(tags); i++){
+	for (unsigned int i = 0; i < tags; i++){
 		if (tagset[seltags] & (1 << i))
 			attrset(TAG_SEL);
 		else if (urgent & (1 << i))
@@ -352,7 +352,7 @@ drawbar(void) {
 			attrset(TAG_OCCUPIED);
 		else
 			attrset(TAG_NORMAL);
-		printw(TAG_SYMBOL, tags[i]);
+		printw(TAG_SYMBOL, i + 1);
 	}
 
 	attrset(runinall ? TAG_SEL : TAG_NORMAL);
@@ -427,7 +427,7 @@ draw_border(Client *c) {
 		unsigned mask = 0x1;
 		int first = 1;
 		sprintf(tagmsg, " tags:");
-		for( int i=0; i < LENGTH(tags); i++, mask <<= 1 ) {
+		for( int i=0; i < tags; i++, mask <<= 1 ) {
 			if( (c->tags & mask) != 0) {
 				char b[32];
 				sprintf(b, "%s %d", first ? "" : ",", i + 1);
@@ -818,8 +818,8 @@ bitoftag(const char *tag) {
 	unsigned int i;
 	if (!tag)
 		return ~0;
-	for (i = 0; (i < LENGTH(tags)) && strcmp(tags[i], tag); i++);
-	return (i < LENGTH(tags)) ? (1 << i) : 0;
+	i = strtol(tag, NULL, 10) - 1;
+	return (i < (tags)) ? (1 << i) : 0;
 }
 
 static void
