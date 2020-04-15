@@ -59,13 +59,11 @@ static Color colors[] = {
 const char tags[][8] = { "1", "2", "3", "4", "5", "6", "7", "8" };
 
 #include "wstack.c"
-#include "grid.c"
 #include "fullscreen.c"
 
 /* by default the first layout entry is used */
 static Layout layouts[] = {
 	{ "---", wstack },
-	{ "+++", grid },
 	{ "[ ]", fullscreen },
 };
 
