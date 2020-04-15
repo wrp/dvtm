@@ -1429,8 +1429,6 @@ static void
 incnmaster(const char *args[]) {
 	int delta;
 
-	if (isarrange(fullscreen) || isarrange(grid))
-		return;
 	/* arg handling, manipulate nmaster */
 	if (args[0] == NULL) {
 		screen.nmaster = NMASTER;
@@ -1449,8 +1447,6 @@ static void
 setmfact(const char *args[]) {
 	float delta;
 
-	if (isarrange(fullscreen) || isarrange(grid))
-		return;
 	/* arg handling, manipulate mfact */
 	if (args[0] == NULL) {
 		screen.mfact = MFACT;
