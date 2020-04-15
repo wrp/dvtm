@@ -1146,6 +1146,7 @@ create(const char *args[]) {
 
 	if (args && args[2])
 		cwd = !strcmp(args[2], "$CWD") ? getcwd_by_pid(sel) : (char*)args[2];
+
 	c->pid = vt_forkpty(c->term, shell, pargs, cwd, env, NULL, NULL);
 	if (args && args[2] && !strcmp(args[2], "$CWD"))
 		free(cwd);
@@ -1159,6 +1160,11 @@ create(const char *args[]) {
 	attach(c);
 	focus(c);
 	arrange();
+
+	if( args && args[2] && ! strcmp(args[2], "master") ) {
+		const char *args[2] = { "+1", NULL };
+		incnmaster(args);
+	}
 }
 
 static void
