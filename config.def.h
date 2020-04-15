@@ -40,7 +40,7 @@ static Color colors[] = {
 /* whether status bar should be hidden if only one client exists */
 #define BAR_AUTOHIDE    true
 /* master width factor [0.1 .. 0.9] */
-#define MFACT 0.5
+#define MFACT 0.8
 /* number of clients in master area */
 #define NMASTER 1
 /* scroll back buffer size in lines */
