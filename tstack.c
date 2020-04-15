@@ -1,7 +1,11 @@
 static void tstack(void)
 {
-	unsigned int i, n, nx, ny, nw, nh, m, mw, mh, tw;
+	unsigned int i, nx, nw, nh, mw, tw;
 	Client *c;
+	unsigned ny; /* y coordinate of the next window */
+	unsigned n;  /* number of visible clients */
+	unsigned m;  /* number of clients in the master area */
+	unsigned mh; /* height of all windows in master area */
 
 	for (n = 0, c = nextvisible(clients); c; c = nextvisible(c->next))
 		if (!c->minimized)
