@@ -131,6 +131,7 @@ static KeyBinding bindings[] = {
 	{ { MOD, 'v', '0'      }, { view,           { NULL }                    } },
 	{ { MOD, 'v', '\t',    }, { viewprevtag,    { NULL }                    } },
 	{ { MOD, 't', '0'      }, { tag,            { NULL }                    } },
+	{ { MOD, 'T', '0'      }, { untag,          { NULL }                    } },
 	TAGKEYS( '1',                              0),
 	TAGKEYS( '2',                              1),
 	TAGKEYS( '3',                              2),

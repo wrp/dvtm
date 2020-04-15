@@ -210,6 +210,7 @@ static void togglemouse(const char *args[]);
 static void togglerunall(const char *args[]);
 static void toggletag(const char *args[]);
 static void toggleview(const char *args[]);
+static void untag(const char *args[]);
 static void viewprevtag(const char *args[]);
 static void view(const char *args[]);
 static void zoom(const char *args[]);
@@ -835,6 +836,15 @@ tagschanged() {
 		toggleminimize(NULL);
 	}
 	arrange();
+}
+
+
+static void
+untag(const char *args[]) {
+	if( sel ) {
+		sel->tags = 1;
+		tagschanged();
+	}
 }
 
 static void
