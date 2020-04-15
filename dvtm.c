@@ -430,7 +430,7 @@ draw_border(Client *c) {
 		for( int i=0; i < LENGTH(tags); i++, mask <<= 1 ) {
 			if( (c->tags & mask) != 0) {
 				char b[32];
-				sprintf(b, "%s %d", first ? "," : "", i + 1);
+				sprintf(b, "%s %d", first ? "" : ",", i + 1);
 				strcat(tagmsg, b);
 				first = 0;
 			}
