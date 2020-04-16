@@ -26,6 +26,9 @@ man:
 		sed -e "s/VERSION/${VERSION}/" "$$m" | mandoc -W warning -T utf8 -T xhtml -O man=%N.%S.html -O style=mandoc.css 1> "$$m.html" || true; \
 	done
 
+dvtm.1: dvtm.txt
+	asciidoctor -a version=${VERSION} -b manpage $<
+
 debug: clean
 	@$(MAKE) CFLAGS='${DEBUG_CFLAGS}'
 
