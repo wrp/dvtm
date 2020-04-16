@@ -166,7 +166,6 @@ typedef struct {
 #define LENGTH(arr) (sizeof(arr) / sizeof((arr)[0]))
 #define MAX(x, y)   ((x) > (y) ? (x) : (y))
 #define MIN(x, y)   ((x) < (y) ? (x) : (y))
-#define TAGMASK     ((1 << tags) - 1)
 
 #ifdef NDEBUG
  #define debug(format, args...)

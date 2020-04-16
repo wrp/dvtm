@@ -684,7 +684,7 @@ static void
 tag(const char *args[]) {
 	if (!sel)
 		return;
-	sel->tags |= bitoftag(args[0]) & TAGMASK;
+	sel->tags |= bitoftag(args[0]);
 	tagschanged();
 }
 
@@ -705,7 +705,6 @@ tagid(const char *args[]) {
 				else
 					ntags = bitoftag(args[i]);
 			}
-			ntags &= TAGMASK;
 			if (ntags) {
 				c->tags = ntags;
 				tagschanged();
@@ -719,7 +718,7 @@ static void
 toggletag(const char *args[]) {
 	if (!sel)
 		return;
-	unsigned int newtags = sel->tags ^ (bitoftag(args[0]) & TAGMASK);
+	unsigned int newtags = sel->tags ^ (bitoftag(args[0]));
 	if (newtags) {
 		sel->tags = newtags;
 		tagschanged();
@@ -728,7 +727,7 @@ toggletag(const char *args[]) {
 
 static void
 toggleview(const char *args[]) {
-	unsigned int newtagset = tagset[seltags] ^ (bitoftag(args[0]) & TAGMASK);
+	unsigned int newtagset = tagset[seltags] ^ (bitoftag(args[0]));
 	if (newtagset) {
 		tagset[seltags] = newtagset;
 		tagschanged();
@@ -737,7 +736,7 @@ toggleview(const char *args[]) {
 
 static void
 view(const char *args[]) {
-	unsigned int newtagset = bitoftag(args[0]) & TAGMASK;
+	unsigned int newtagset = bitoftag(args[0]);
 	if (tagset[seltags] != newtagset && newtagset) {
 		seltags ^= 1; /* toggle sel tagset */
 		tagset[seltags] = newtagset;
