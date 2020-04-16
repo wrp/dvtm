@@ -1595,7 +1595,7 @@ parse_args(int argc, char *argv[]) {
 			create(args);
 			continue;
 		}
-		if( argv[arg][1] != 'v' && argv[arg][1] != '?' && argv[ arg + 1] == NULL ) {
+		if( strchr("dhtscm", argv[arg][1]) != NULL && argv[arg + 1] == NULL ) {
 			error("%s requires an argument (-? for usage)\n", argv[arg]);
 		}
 		switch (argv[arg][1]) {
