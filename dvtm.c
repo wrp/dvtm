@@ -648,11 +648,11 @@ keybinding(KeyCombo keys, unsigned int keycount) {
 
 static unsigned int
 bitoftag(const char *tag) {
-	unsigned int i;
-	if (!tag)
-		return ~0;
-	i = strtol(tag, NULL, 10) - 1;
-	return (i < (tags)) ? (1 << i) : 0;
+	unsigned t = tag ? 0 : ~0;
+	if( tag && strchr("123456789", *tag) ) {
+		t = 1 << (*tag - '1');
+	}
+	return t;
 }
 
 static void
