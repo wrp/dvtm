@@ -265,10 +265,11 @@ draw_border(Client *c) {
 	}
 
 	mvwprintw(
-		c->window, 0, 2, "[%s%s#%d (%ld)%s %s]",
+		c->window, 0, 2, "[%s%s#%d (%d:%ld)%s %s]",
 		*c->title ? c->title : "",
 		*c->title ? " | " : "",
 		c->order,
+		c->id,
 		(long)c->pid,
 #ifdef WRPDEBUG
 		location,
