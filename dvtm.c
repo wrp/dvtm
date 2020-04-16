@@ -1608,11 +1608,15 @@ parse_args(int argc, char *argv[]) {
 			exit(EXIT_SUCCESS);
 		case 'm': {
 			char *mod = *++argv;
-			if (mod[0] == '^' && mod[1])
-				*mod = CTRL(mod[1]);
-			for (unsigned int b = 0; b < LENGTH(bindings); b++)
-				if (bindings[b].keys[0] == MOD)
-					bindings[b].keys[0] = *mod;
+			char new = *mod;
+			if( mod[0] == '^' && mod[1] != '\0' ) {
+				new = CTRL(mod[1]);
+			}
+			for( unsigned int b = 0; b < LENGTH(bindings); b++ ) {
+				if (bindings[b].keys[0] == MOD) {
+					bindings[b].keys[0] = new;
+				}
+			}
 			break;
 		}
 		case 'd':
