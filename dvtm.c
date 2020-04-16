@@ -42,7 +42,6 @@ static void tagid(const char *args[]);
 static void togglebar(const char *args[]);
 static void togglebarpos(const char *args[]);
 static void toggleminimize(const char *args[]);
-static void togglemouse(const char *args[]);
 static void togglerunall(const char *args[]);
 static void toggletag(const char *args[]);
 static void toggleview(const char *args[]);
@@ -51,11 +50,6 @@ static void viewprevtag(const char *args[]);
 static void view(const char *args[]);
 static void zoom(const char *args[]);
 
-/* commands for use by mouse bindings */
-static void mouse_focus(const char *args[]);
-static void mouse_fullscreen(const char *args[]);
-static void mouse_minimize(const char *args[]);
-static void mouse_zoom(const char *args[]);
 
 unsigned waw, wah, wax, way;
 Client *clients = NULL;
@@ -73,7 +67,6 @@ static Client *lastsel = NULL;
 static Client *msel = NULL;
 static unsigned int seltags;
 static unsigned int tagset[2] = { 1, 1 };
-static bool mouse_events_enabled = ENABLE_MOUSE;
 static Layout *layout = layouts;
 static StatusBar bar = { .fd = -1, .lastpos = BAR_POS, .pos = BAR_POS, .autohide = BAR_AUTOHIDE, .h = 1 };
 static CmdFifo cmdfifo = { .fd = -1 };
@@ -552,7 +545,6 @@ get_client_by_coord(unsigned int x, unsigned int y) {
 		return sel;
 	for (Client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
 		if (x >= c->x && x < c->x + c->w && y >= c->y && y < c->y + c->h) {
-			debug("mouse event, x: %d y: %d client: %d\n", x, y, c->order);
 			return c;
 		}
 	}
@@ -784,19 +776,6 @@ keypress(int code) {
 	}
 }
 
-static void
-mouse_setup(void) {
-#ifdef CONFIG_MOUSE
-	mmask_t mask = 0;
-
-	if (mouse_events_enabled) {
-		mask = BUTTON1_CLICKED | BUTTON2_CLICKED;
-		for (unsigned int i = 0; i < LENGTH(buttons); i++)
-			mask |= buttons[i].mask;
-	}
-	mousemask(mask, NULL);
-#endif /* CONFIG_MOUSE */
-}
 
 static bool
 checkshell(const char *shell) {
@@ -838,7 +817,6 @@ setup(void) {
 	noecho();
 	nonl();
 	keypad(stdscr, TRUE);
-	mouse_setup();
 	raw();
 	vt_init();
 	vt_keytable_set(keytable, LENGTH(keytable));
@@ -1377,12 +1355,6 @@ toggleminimize(const char *args[]) {
 }
 
 static void
-togglemouse(const char *args[]) {
-	mouse_events_enabled = !mouse_events_enabled;
-	mouse_setup();
-}
-
-static void
 togglerunall(const char *args[]) {
 	runinall = !runinall;
 	drawbar();
@@ -1408,31 +1380,6 @@ zoom(const char *args[]) {
 	arrange();
 }
 
-/* commands for use by mouse bindings */
-static void
-mouse_focus(const char *args[]) {
-	focus(msel);
-	if (msel->minimized)
-		toggleminimize(NULL);
-}
-
-static void
-mouse_fullscreen(const char *args[]) {
-	mouse_focus(NULL);
-	setlayout(isarrange(fullscreen) ? NULL : args);
-}
-
-static void
-mouse_minimize(const char *args[]) {
-	focus(msel);
-	toggleminimize(NULL);
-}
-
-static void
-mouse_zoom(const char *args[]) {
-	focus(msel);
-	zoom(NULL);
-}
 
 static Cmd *
 get_cmd_by_name(const char *name) {
@@ -1538,30 +1485,6 @@ handle_cmdfifo(void) {
 	}
 }
 
-static void
-handle_mouse(void) {
-#ifdef CONFIG_MOUSE
-	MEVENT event;
-	unsigned int i;
-	if (getmouse(&event) != OK)
-		return;
-	msel = get_client_by_coord(event.x, event.y);
-
-	if (!msel)
-		return;
-
-	debug("mouse x:%d y:%d cx:%d cy:%d mask:%d\n", event.x, event.y, event.x - msel->x, event.y - msel->y, event.bstate);
-
-	vt_mouse(msel->term, event.x - msel->x, event.y - msel->y, event.bstate);
-
-	for (i = 0; i < LENGTH(buttons); i++) {
-		if (event.bstate & buttons[i].mask)
-			buttons[i].action.cmd(buttons[i].action.args);
-	}
-
-	msel = NULL;
-#endif /* CONFIG_MOUSE */
-}
 
 static void
 handle_statusbar(void) {
@@ -1675,9 +1598,6 @@ parse_args(int argc, char *argv[]) {
 			case 'v':
 				puts("dvtm-"VERSION" © 2007-2016 Marc André Tanner");
 				exit(EXIT_SUCCESS);
-			case 'M':
-				mouse_events_enabled = !mouse_events_enabled;
-				break;
 			case 'm': {
 				char *mod = argv[++arg];
 				if (mod[0] == '^' && mod[1])
@@ -1789,10 +1709,7 @@ main(int argc, char *argv[]) {
 			if (code >= 0) {
 				keys[key_index++] = code;
 				KeyBinding *binding = NULL;
-				if (code == KEY_MOUSE) {
-					key_index = 0;
-					handle_mouse();
-				} else if ((binding = keybinding(keys, key_index))) {
+				if ((binding = keybinding(keys, key_index))) {
 					unsigned int key_length = MAX_KEYS;
 					while (key_length > 1 && !binding->keys[key_length-1])
 						key_length--;
