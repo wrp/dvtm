@@ -165,3 +165,45 @@ typedef struct {
 #else
  #define debug(format, args...)
 #endif
+
+
+#ifdef PDCURSES
+int ESCDELAY;
+#endif
+
+#ifndef NCURSES_REENTRANT
+# define set_escdelay(d) (ESCDELAY = (d))
+#endif
+
+#define COLOR(c)        COLOR_PAIR(colors[c].pair)
+/* curses attributes for the currently focused window */
+#define SELECTED_ATTR   (COLOR(BLUE) | A_NORMAL)
+/* curses attributes for normal (not selected) windows */
+#define NORMAL_ATTR     (COLOR(DEFAULT) | A_NORMAL)
+/* curses attributes for a window with pending urgent flag */
+#define URGENT_ATTR     NORMAL_ATTR
+/* curses attributes for the status bar */
+#define BAR_ATTR        (COLOR(BLUE) | A_NORMAL)
+/* characters for beginning and end of status bar message */
+#define BAR_BEGIN       '['
+#define BAR_END         ']'
+/* status bar (command line option -s) position */
+#define BAR_POS         BAR_TOP /* BAR_BOTTOM, BAR_OFF */
+/* whether status bar should be hidden if only one client exists */
+#define BAR_AUTOHIDE    true
+/* master width factor [0.1 .. 0.9] */
+#define MFACT 0.8
+/* number of clients in master area */
+#define NMASTER 1
+/* scroll back buffer size in lines */
+#define SCROLL_HISTORY 500
+/* printf format string for the tag in the status bar */
+#define TAG_SYMBOL   "[%d]"
+/* curses attributes for the currently selected tags */
+#define TAG_SEL      (COLOR(BLUE) | A_BOLD)
+/* curses attributes for not selected tags which contain no windows */
+#define TAG_NORMAL   (COLOR(DEFAULT) | A_NORMAL)
+/* curses attributes for not selected tags which contain windows */
+#define TAG_OCCUPIED (COLOR(RED) | A_NORMAL)
+/* curses attributes for not selected tags which with urgent windows */
+#define TAG_URGENT (COLOR(RED) | A_NORMAL | A_BLINK)
