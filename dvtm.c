@@ -1581,8 +1581,9 @@ parse_args(int argc, char *argv[]) {
 	bool init = false;
 	const char *name = argv[0];
 
-	if (name && (name = strrchr(name, '/')))
+	if( name && (name = strrchr(name, '/')) != NULL ) {
 		dvtm_name = name + 1;
+	}
 	if (!getenv("ESCDELAY"))
 		set_escdelay(100);
 	for (int arg = 1; arg < argc; arg++) {
