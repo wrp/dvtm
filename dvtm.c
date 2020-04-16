@@ -11,6 +11,8 @@
  * See LICENSE for details.
  */
 
+#include "config.h"
+
 /* commands for use by keybindings */
 static void create(const char *args[]);
 static void copymode(const char *args[]);
@@ -225,8 +227,6 @@ static void push_action(const Action *a);
 unsigned waw, wah, wax, way;
 Client *clients = NULL;
 char *title;
-
-#include "config.h"
 
 /* global variables */
 static Action *actions = NULL; /* actions are executed when dvtm is started */

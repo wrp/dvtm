@@ -11,7 +11,7 @@ LT_INIT
 AC_CONFIG_HEADERS([config.h])
 
 AC_PROG_CC
-AC_CHECK_HEADERS([unistd.h util.h libutil.h])
+AC_CHECK_HEADERS([unistd.h util.h libutil.h termios.h])
 AC_TYPE_SIZE_T
 AC_TYPE_SSIZE_T
 

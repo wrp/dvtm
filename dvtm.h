@@ -21,7 +21,7 @@
 #include <stdbool.h>
 #include <errno.h>
 #include <pwd.h>
-#if defined __CYGWIN__ || defined __sun
+#if HAVE_TERMIOS_H
 # include <termios.h>
 #endif
 #include "vt.h"
