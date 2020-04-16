@@ -246,16 +246,15 @@ draw_border(Client *c) {
 		c->title[maxlen] = '\0';
 	}
 
-	sprintf(location, "%dx%d@(%d,%d)", c->h, c->w, c->y, c->x);
+	sprintf(location, " %dx%d@(%d,%d)", c->h, c->w, c->y, c->x);
 
 	if(c->tags) {
 		unsigned mask = 0x1;
 		int first = 1;
-		sprintf(tagmsg, " tags:");
 		for( int i=0; i < tags; i++, mask <<= 1 ) {
 			if( (c->tags & mask) != 0) {
 				char b[32];
-				sprintf(b, "%s %d", first ? "" : ",", i + 1);
+				sprintf(b, "%s%d", first ? "" : ",", i + 1);
 				strcat(tagmsg, b);
 				first = 0;
 			}
@@ -263,10 +262,11 @@ draw_border(Client *c) {
 	}
 
 	mvwprintw(
-		c->window, 0, 2, "[%s%s#%d %s%s]",
+		c->window, 0, 2, "[%s%s#%d (%ld)%s %s]",
 		*c->title ? c->title : "",
 		*c->title ? " | " : "",
 		c->order,
+		(long)c->pid,
 #ifdef WRPDEBUG
 		location,
 #else
