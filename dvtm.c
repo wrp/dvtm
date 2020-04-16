@@ -10,6 +10,8 @@
  *
  * See LICENSE for details.
  */
+
+#define COPYRIGHT "© 2007-2016 Marc André Tanner"
 #include "dvtm.h"
 
 
@@ -1602,7 +1604,7 @@ parse_args(int argc, char *argv[]) {
 			       "[-s status-fifo] [-c cmd-fifo] [cmd...]\n");
 			exit(EXIT_SUCCESS);
 		case 'v':
-			puts("dvtm-"VERSION" © 2007-2016 Marc André Tanner");
+			puts("dvtm-"VERSION" "COPYRIGHT);
 			exit(EXIT_SUCCESS);
 		case 'm': {
 			char *mod = *++argv;
