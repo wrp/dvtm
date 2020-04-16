@@ -50,6 +50,8 @@ static void viewprevtag(const char *args[]);
 static void view(const char *args[]);
 static void zoom(const char *args[]);
 
+/* forward declarations of internal functions */
+static void cleanup(void);
 
 unsigned waw, wah, wax, way;
 Client *clients = NULL;
@@ -89,6 +91,7 @@ eprint(const char *errstr, ...) {
 
 static void
 error(const char *errstr, ...) {
+	cleanup();
 	va_list ap;
 	va_start(ap, errstr);
 	vfprintf(stderr, errstr, ap);
@@ -1568,9 +1571,9 @@ open_or_create_fifo(const char *name, const char **name_created) {
 static void
 usage(void) {
 	cleanup();
-	eprint("usage: dvtm [-v] [-M] [-m mod] [-d delay] [-h lines] [-t title] "
+	printf("usage: dvtm [-v] [-M] [-m mod] [-d delay] [-h lines] [-t title] "
 	       "[-s status-fifo] [-c cmd-fifo] [cmd...]\n");
-	exit(EXIT_FAILURE);
+	exit(EXIT_SUCCESS);
 }
 
 static bool
@@ -1592,9 +1595,12 @@ parse_args(int argc, char *argv[]) {
 			create(args);
 			continue;
 		}
-		if (argv[arg][1] != 'v' && argv[arg][1] != 'M' && (arg + 1) >= argc)
-			usage();
+		if( argv[arg][1] != 'v' && argv[arg][1] != '?' && argv[ arg + 1] == NULL ) {
+			error("%s requires an argument (-? for usage)\n", argv[arg]);
+		}
 		switch (argv[arg][1]) {
+			case '?':
+				usage();
 			case 'v':
 				puts("dvtm-"VERSION" © 2007-2016 Marc André Tanner");
 				exit(EXIT_SUCCESS);
@@ -1633,7 +1639,7 @@ parse_args(int argc, char *argv[]) {
 				break;
 			}
 			default:
-				usage();
+				error("unknown option: -%c (-? for usage)\n", argv[arg][1]);
 		}
 	}
 	return init;
