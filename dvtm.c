@@ -759,6 +759,8 @@ resize_screen(void) {
 
 static KeyBinding*
 keybinding(KeyCombo keys, unsigned int keycount) {
+	/* TODO: stop doing a linear search on all bindings for
+	   every keystroke. */
 	for (unsigned int b = 0; b < LENGTH(bindings); b++) {
 		for (unsigned int k = 0; k < keycount; k++) {
 			if (keys[k] != bindings[b].keys[k])
