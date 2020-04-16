@@ -1604,7 +1604,7 @@ parse_args(int argc, char *argv[]) {
 			       "[-s status-fifo] [-c cmd-fifo] [cmd...]\n");
 			exit(EXIT_SUCCESS);
 		case 'v':
-			puts("dvtm-"VERSION" "COPYRIGHT);
+			printf("%s-%s %s\n", dvtm_name, VERSION, COPYRIGHT);
 			exit(EXIT_SUCCESS);
 		case 'm': {
 			char *mod = *++argv;
