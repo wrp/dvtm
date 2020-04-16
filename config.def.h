@@ -58,9 +58,7 @@ static Color colors[] = {
 
 const int tags = 8;
 
-#include "wstack.c"
-#include "fullscreen.c"
-
+extern void wstack(void);
 /* by default the first layout entry is used */
 static Layout layouts[] = {
 	{ "---", wstack },

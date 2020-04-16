@@ -14,8 +14,8 @@ all: dvtm dvtm-editor
 config.h: config.def.h
 	cp config.def.h config.h
 
-dvtm: config.h config.mk *.c *.h
-	${CC} ${CFLAGS} ${SRC} ${LDFLAGS} ${LIBS} -o $@
+dvtm: config.h config.mk *.c *.h wstack.o
+	${CC} ${CFLAGS} ${SRC} ${LDFLAGS} ${LIBS} wstack.o -o $@
 
 dvtm-editor: dvtm-editor.c
 	${CC} ${CFLAGS} $^ ${LDFLAGS} -o $@
@@ -30,9 +30,9 @@ debug: clean
 	@$(MAKE) CFLAGS='${DEBUG_CFLAGS}'
 
 clean:
-	@echo cleaning
-	@rm -f dvtm
-	@rm -f dvtm-editor
+	rm -f dvtm
+	rm -f dvtm-editor
+	rm -f *.o
 
 dist: clean
 	git archive --prefix=dvtm-${VERSION}/ -o dvtm-${VERSION}.tar.gz HEAD

@@ -1,8 +1,9 @@
+#include "dvtm.h"
 
 /* layout the tile windows with vertical splits, master windows
  * with horizontal splits */
 
-static void
+void
 wstack(void)
 {
 	Client *c;
