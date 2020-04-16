@@ -160,8 +160,8 @@ typedef struct {
 #define MAX(x, y)   ((x) > (y) ? (x) : (y))
 #define MIN(x, y)   ((x) < (y) ? (x) : (y))
 
-#ifdef NDEBUG
- #define debug(format, args...)
-#else
+#ifdef DEBUG
  #define debug eprint
+#else
+ #define debug(format, args...)
 #endif
