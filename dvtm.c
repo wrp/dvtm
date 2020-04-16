@@ -1597,7 +1597,7 @@ parse_args(int argc, char *argv[]) {
 		}
 		switch (arg[1]) {
 		case '?':
-			printf("usage: dvtm [-v] [-M] [-m mod] [-d delay] [-h lines] [-t title] "
+			printf("usage: dvtm [-v] [-?] [-m mod] [-d delay] [-h lines] [-t title] "
 			       "[-s status-fifo] [-c cmd-fifo] [cmd...]\n");
 			exit(EXIT_SUCCESS);
 		case 'v':
