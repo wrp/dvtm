@@ -150,14 +150,14 @@ static KeyBinding bindings[] = {
 	{ { MOD, 'v', '\t',    }, { viewprevtag,    { NULL }                    } },
 	{ { MOD, 't', '0'      }, { tag,            { NULL }                    } },
 	{ { MOD, 'T', '0'      }, { untag,          { NULL }                    } },
-	TAGKEYS( '1',                              1),
-	TAGKEYS( '2',                              2),
-	TAGKEYS( '3',                              3),
-	TAGKEYS( '4',                              4),
-	TAGKEYS( '5',                              5),
-	TAGKEYS( '6',                              6),
-	TAGKEYS( '7',                              7),
-	TAGKEYS( '8',                              8),
+	TAGKEYS( '1', 1),
+	TAGKEYS( '2', 2),
+	TAGKEYS( '3', 3),
+	TAGKEYS( '4', 4),
+	TAGKEYS( '5', 5),
+	TAGKEYS( '6', 6),
+	TAGKEYS( '7', 7),
+	TAGKEYS( '8', 8),
 };
 
 static const ColorRule colorrules[] = {
