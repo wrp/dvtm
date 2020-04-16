@@ -1579,6 +1579,7 @@ usage(void) {
 static bool
 parse_args(int argc, char *argv[]) {
 	bool init = false;
+	char *arg;
 	const char *name = argv[0];
 
 	if( name && (name = strrchr(name, '/')) != NULL ) {
@@ -1586,9 +1587,9 @@ parse_args(int argc, char *argv[]) {
 	}
 	if (!getenv("ESCDELAY"))
 		set_escdelay(100);
-	for (int arg = 1; arg < argc; arg++) {
-		if (argv[arg][0] != '-') {
-			const char *args[] = { argv[arg], NULL, NULL };
+	while( (arg = *++argv) != NULL ) {
+		if (arg[0] != '-') {
+			const char *args[] = { arg, NULL, NULL };
 			if (!init) {
 				setup();
 				init = true;
@@ -1596,17 +1597,17 @@ parse_args(int argc, char *argv[]) {
 			create(args);
 			continue;
 		}
-		if( strchr("dhtscm", argv[arg][1]) != NULL && argv[arg + 1] == NULL ) {
-			error("%s requires an argument (-? for usage)\n", argv[arg]);
+		if( strchr("dhtscm", arg[1]) != NULL && argv[1] == NULL ) {
+			error("%s requires an argument (-? for usage)\n", arg);
 		}
-		switch (argv[arg][1]) {
+		switch (arg[1]) {
 		case '?':
 			usage();
 		case 'v':
 			puts("dvtm-"VERSION" © 2007-2016 Marc André Tanner");
 			exit(EXIT_SUCCESS);
 		case 'm': {
-			char *mod = argv[++arg];
+			char *mod = *++argv;
 			if (mod[0] == '^' && mod[1])
 				*mod = CTRL(mod[1]);
 			for (unsigned int b = 0; b < LENGTH(bindings); b++)
@@ -1615,32 +1616,32 @@ parse_args(int argc, char *argv[]) {
 			break;
 		}
 		case 'd':
-			set_escdelay(atoi(argv[++arg]));
+			set_escdelay(atoi(*++argv));
 			if (ESCDELAY < 50)
 				set_escdelay(50);
 			else if (ESCDELAY > 1000)
 				set_escdelay(1000);
 			break;
 		case 'h':
-			screen.history = atoi(argv[++arg]);
+			screen.history = atoi(*++argv);
 			break;
 		case 't':
-			title = argv[++arg];
+			title = *++argv;
 			break;
 		case 's':
-			bar.fd = open_or_create_fifo(argv[++arg], &bar.file);
+			bar.fd = open_or_create_fifo(*++argv, &bar.file);
 			updatebarpos();
 			break;
 		case 'c': {
-			const char *fifo;
-			cmdfifo.fd = open_or_create_fifo(argv[++arg], &cmdfifo.file);
-			if (!(fifo = realpath(argv[arg], NULL)))
-				error("%s\n", strerror(errno));
+			const char *fifo = *++argv;;
+			cmdfifo.fd = open_or_create_fifo(fifo, &cmdfifo.file);
+			if (!(fifo = realpath(fifo, NULL)))
+				error("%s: %s\n", *argv, strerror(errno));
 			setenv("DVTM_CMD_FIFO", fifo, 1);
 			break;
 		}
 		default:
-			error("unknown option: -%c (-? for usage)\n", argv[arg][1]);
+			error("unknown option: %s (-? for usage)\n", arg);
 		}
 	}
 	return init;
