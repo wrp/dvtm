@@ -66,7 +66,7 @@ struct Client {
 	unsigned int tags;
 };
 
-/* functions and variables available to layouts via config.h */
+/* functions and variables available to layouts */
 Client* nextvisible(Client *c);
 void focus(Client *c);
 void resize(Client *c, int x, int y, int w, int h);
