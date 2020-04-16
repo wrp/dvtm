@@ -1574,13 +1574,6 @@ open_or_create_fifo(const char *name, const char **name_created) {
 	return fd;
 }
 
-static void
-usage(void) {
-	cleanup();
-	printf("usage: dvtm [-v] [-M] [-m mod] [-d delay] [-h lines] [-t title] "
-	       "[-s status-fifo] [-c cmd-fifo] [cmd...]\n");
-	exit(EXIT_SUCCESS);
-}
 
 static void
 parse_args(int argc, char *argv[]) {
@@ -1604,7 +1597,9 @@ parse_args(int argc, char *argv[]) {
 		}
 		switch (arg[1]) {
 		case '?':
-			usage();
+			printf("usage: dvtm [-v] [-M] [-m mod] [-d delay] [-h lines] [-t title] "
+			       "[-s status-fifo] [-c cmd-fifo] [cmd...]\n");
+			exit(EXIT_SUCCESS);
 		case 'v':
 			puts("dvtm-"VERSION" © 2007-2016 Marc André Tanner");
 			exit(EXIT_SUCCESS);
