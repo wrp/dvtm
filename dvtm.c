@@ -1555,8 +1555,10 @@ handle_editor(Client *c) {
 }
 
 static int
-open_or_create_fifo(const char *name, const char **name_created) {
+open_or_create_fifo(const char *name, const char **name_created, const char *env_name)
+{
 	struct stat info;
+	char *abs_name;
 	int fd;
 
 	do {
@@ -1569,10 +1571,17 @@ open_or_create_fifo(const char *name, const char **name_created) {
 		}
 	} while (fd == -1);
 
-	if (fstat(fd, &info) == -1)
+	if (fstat(fd, &info) == -1) {
 		error("%s\n", strerror(errno));
-	if (!S_ISFIFO(info.st_mode))
+	} else if (!S_ISFIFO(info.st_mode)) {
 		error("%s is not a named pipe\n", name);
+	}
+
+	if( ( abs_name = realpath(name, NULL)) == NULL ) {
+		error("%s: %s\n", name, strerror(errno));
+	}
+	setenv(env_name, abs_name, 1);
+	free(abs_name);
 	return fd;
 }
 
@@ -1633,15 +1642,11 @@ parse_args(int argc, char *argv[]) {
 			title = *++argv;
 			break;
 		case 's':
-			bar.fd = open_or_create_fifo(*++argv, &bar.file);
+			bar.fd = open_or_create_fifo(*++argv, &bar.file, "DVTM_STATUS_FIFO");
 			updatebarpos();
 			break;
 		case 'c': {
-			const char *fifo = *++argv;;
-			cmdfifo.fd = open_or_create_fifo(fifo, &cmdfifo.file);
-			if (!(fifo = realpath(fifo, NULL)))
-				error("%s: %s\n", *argv, strerror(errno));
-			setenv("DVTM_CMD_FIFO", fifo, 1);
+			cmdfifo.fd = open_or_create_fifo(*++argv, &cmdfifo.file, "DVTM_CMD_FIFO");
 			break;
 		}
 		default:
