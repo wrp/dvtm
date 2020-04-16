@@ -75,13 +75,6 @@ extern unsigned waw, wah, wax, way;
 extern Client *clients;
 extern char *title;
 
-#ifdef PDCURSES
-int ESCDELAY;
-#endif
-
-#ifndef NCURSES_REENTRANT
-# define set_escdelay(d) (ESCDELAY = (d))
-#endif
 
 typedef struct {
 	short fg;

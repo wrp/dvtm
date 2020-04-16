@@ -75,6 +75,14 @@ static Color colors[] = {
 	[RED]     = { .fg = COLOR_RED,  .bg = -1, .fg256 = 68, .bg256 = -1, },
 };
 
+#ifdef PDCURSES
+int ESCDELAY;
+#endif
+
+#ifndef NCURSES_REENTRANT
+# define set_escdelay(d) (ESCDELAY = (d))
+#endif
+
 #define COLOR(c)        COLOR_PAIR(colors[c].pair)
 /* curses attributes for the currently focused window */
 #define SELECTED_ATTR   (COLOR(BLUE) | A_NORMAL)
