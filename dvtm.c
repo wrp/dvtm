@@ -52,6 +52,7 @@ static void zoom(const char *args[]);
 
 /* forward declarations of internal functions */
 static void cleanup(void);
+static void push_action(const Action *a);
 
 unsigned waw, wah, wax, way;
 Client *clients = NULL;
@@ -61,6 +62,8 @@ static void fullscreen(void);
 #include "config.h"
 
 /* global variables */
+static Action *actions = NULL; /* actions are executed when dvtm is started */
+
 static const char *dvtm_name = "dvtm";
 Screen screen = { .mfact = MFACT, .nmaster = NMASTER, .history = SCROLL_HISTORY };
 static Client *stack = NULL;
@@ -886,7 +889,7 @@ destroy(Client *c) {
 	wnoutrefresh(c->window);
 	vt_destroy(c->term);
 	delwin(c->window);
-	if (!clients && LENGTH(actions)) {
+	if (!clients && actions) {
 		if (!strcmp(c->cmd, shell))
 			quit(NULL);
 		else
@@ -1289,8 +1292,10 @@ setmfact(const char *args[]) {
 
 static void
 startup(const char *args[]) {
-	for (unsigned int i = 0; i < LENGTH(actions); i++)
-		actions[i].cmd(actions[i].args);
+	Action *a = actions;
+	for( ; a && a->cmd; a++ ) {
+		a->cmd(a->args);
+	}
 }
 
 static void
@@ -1577,9 +1582,8 @@ usage(void) {
 	exit(EXIT_SUCCESS);
 }
 
-static bool
+static void
 parse_args(int argc, char *argv[]) {
-	bool init = false;
 	char *arg;
 	const char *name = argv[0];
 
@@ -1590,12 +1594,9 @@ parse_args(int argc, char *argv[]) {
 		set_escdelay(100);
 	while( (arg = *++argv) != NULL ) {
 		if (arg[0] != '-') {
-			const char *args[] = { arg, NULL, NULL };
-			if (!init) {
-				setup();
-				init = true;
-			}
-			create(args);
+			char *args[] = { arg, NULL, NULL };
+			Action a = { create, {arg, NULL, NULL}};
+			push_action(&a);
 			continue;
 		}
 		if( strchr("dhtscm", arg[1]) != NULL && argv[1] == NULL ) {
@@ -1645,7 +1646,23 @@ parse_args(int argc, char *argv[]) {
 			error("unknown option: %s (-? for usage)\n", arg);
 		}
 	}
-	return init;
+	return;
+}
+
+static void
+push_action(const Action *a)
+{
+	int count = 0;
+	while( actions && actions[count].cmd ) {
+		count += 1;
+	}
+
+	actions = realloc( actions, ( count + 2 ) * sizeof *actions );
+	if( actions == NULL ) {
+		error("realloc: %s\n", strerror(errno));
+	}
+	memcpy(actions + count, a, sizeof *a);
+	actions[count + 1].cmd = NULL;
 }
 
 int
@@ -1655,10 +1672,14 @@ main(int argc, char *argv[]) {
 	memset(keys, 0, sizeof(keys));
 
 	setenv("DVTM", VERSION, 1);
-	if (!parse_args(argc, argv)) {
-		setup();
-		startup(NULL);
+
+	parse_args(argc, argv);
+	if( actions == NULL ) {
+		Action defaults = { create, { NULL } };
+		push_action(&defaults);
 	}
+	setup();
+	startup(NULL);
 
 	while (running) {
 		int r, nfds = 0;

@@ -154,11 +154,6 @@ static Cmd commands[] = {
 	{ "tag",    { tagid,	{ NULL } } },
 };
 
-/* gets executed when dvtm is started */
-static Action actions[] = {
-	{ create, { NULL } },
-};
-
 static char const * const keytable[] = {
 	/* add your custom key escape sequences */
 };
