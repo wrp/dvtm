@@ -908,28 +908,25 @@ keypress(int code) {
 	}
 }
 
-
-static bool
-checkshell(const char *shell) {
-	if (shell == NULL || *shell == '\0' || *shell != '/')
-		return false;
-	if (!strcmp(strrchr(shell, '/')+1, dvtm_name))
-		return false;
-	if (access(shell, X_OK))
-		return false;
-	return true;
-}
-
 static const char *
 getshell(void) {
 	const char *shell = getenv("SHELL");
-	struct passwd *pw;
 
-	if (checkshell(shell))
-		return shell;
-	if ((pw = getpwuid(getuid())) && checkshell(pw->pw_shell))
-		return pw->pw_shell;
-	return "/bin/sh";
+	if( shell == NULL ) {
+		struct passwd *pw;
+		pw = getpwuid(getuid());
+		shell = pw != NULL ? pw->pw_shell : "/bin/sh";
+	}
+	if(
+		shell == NULL
+		|| *shell != '/'
+		|| strcmp(strrchr(shell, '/') + 1, dvtm_name) == 0
+		|| access(shell, X_OK)
+	) {
+		fprintf(stderr, "SHELL (%s) is invalid\n", shell);
+		exit(EXIT_FAILURE);
+	}
+	return shell;
 }
 
 static bool
