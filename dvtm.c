@@ -11,6 +11,13 @@
  * See LICENSE for details.
  */
 
+/*
+ * TODO:
+ *   in the status bar, show that we are in command mode
+ *   show the current contents of command buffer
+ *   get proper curses code for ESC.  (The current implementation
+ *   only works on my laptop, and not in the docker debian)
+ */
 #include "config.h"
 #include "dvtm.h"
 
@@ -80,7 +87,6 @@ static Color colors[] = {
 const int tags = 8;
 
 extern void wstack(void);
-/* by default the first layout entry is used */
 static Layout layouts[] = {
 	{ "---", wstack },
 	{ "[ ]", fullscreen },
