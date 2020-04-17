@@ -352,8 +352,7 @@ static void
 draw_border(Client *c) {
 	char t = '\0';
 	int x, y, maxlen, attrs = NORMAL_ATTR;
-	char tagmsg[128] = "";
-	char location[128] = "";
+	char taglist[128] = "";
 
 	if (!show_border())
 		return;
@@ -373,8 +372,6 @@ draw_border(Client *c) {
 		c->title[maxlen] = '\0';
 	}
 
-	sprintf(location, " %dx%d@(%d,%d)", c->h, c->w, c->y, c->x);
-
 	if(c->tags) {
 		unsigned mask = 0x1;
 		int first = 1;
@@ -382,25 +379,20 @@ draw_border(Client *c) {
 			if( (c->tags & mask) != 0) {
 				char b[32];
 				sprintf(b, "%s%d", first ? "" : ",", i + 1);
-				strcat(tagmsg, b);
+				strcat(taglist, b);
 				first = 0;
 			}
 		}
 	}
 
 	mvwprintw(
-		c->window, 0, 2, "[%s%s#%d (%d:%ld)%s %s]",
+		c->window, 0, 2, "[%s%s#%d (%d:%ld) %s]",
 		*c->title ? c->title : "",
 		*c->title ? " | " : "",
 		c->order,
 		c->id,
 		(long)c->pid,
-#ifdef WRPDEBUG
-		location,
-#else
-		"",
-#endif
-		tagmsg
+		taglist
 	);
 	if (t)
 		c->title[maxlen] = t;
