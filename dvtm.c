@@ -759,12 +759,14 @@ keybinding(KeyCombo keys, unsigned int keycount) {
 	KeyBinding *b = bindings;
 	KeyBinding *e = bindings + LENGTH(bindings);
 	for( ; b < e; b++) {
-		for (unsigned int k = 0; k < keycount; k++) {
+		unsigned k = 1;
+		assert(b->keys[0] == MOD);
+		for (; k < keycount; k++) {
 			if (keys[k] != b->keys[k])
 				break;
-			if (k == keycount - 1)
-				return b;
 		}
+		if (k == keycount)
+			return b;
 	}
 	return NULL;
 }
@@ -1868,7 +1870,7 @@ main(int argc, char *argv[]) {
 			if (code >= 0) {
 				keys[key_index++] = code;
 				KeyBinding *binding = NULL;
-				if ((binding = keybinding(keys, key_index))) {
+				if( keys[0] == MOD && (binding = keybinding(keys, key_index))) {
 					unsigned int key_length = MAX_KEYS;
 					while (key_length > 1 && !binding->keys[key_length-1])
 						key_length--;
