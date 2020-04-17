@@ -6,7 +6,7 @@
 void
 wstack(void)
 {
-	Client *c;
+	struct client *c;
 	unsigned i;
 	unsigned ny; /* y coordinate of the next window */
 	unsigned nx; /* x coordinate of the next window */

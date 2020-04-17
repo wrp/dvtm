@@ -167,7 +167,7 @@ static void cleanup(void);
 static void push_action(const Action *a);
 
 unsigned waw, wah, wax, way;
-Client *clients = NULL;
+struct client *clients = NULL;
 char *title;
 
 /* global variables */
@@ -176,10 +176,10 @@ static Action *actions = NULL; /* actions are executed when dvtm is started */
 struct screen screen = { .mfact = MFACT, .nmaster = NMASTER, .history = SCROLL_HISTORY };
 
 static const char *dvtm_name = "dvtm";
-static Client *stack = NULL;
-static Client *sel = NULL;
-static Client *lastsel = NULL;
-static Client *msel = NULL;
+static struct client *stack = NULL;
+static struct client *sel = NULL;
+static struct client *lastsel = NULL;
+static struct client *msel = NULL;
 static unsigned int seltags;
 static unsigned int tagset[2] = { 1, 1 };
 static Layout *layout = layouts;
@@ -223,12 +223,12 @@ isarrange(void (*func)()) {
 }
 
 static bool
-isvisible(Client *c) {
+isvisible(struct client *c) {
 	return c->tags & tagset[seltags];
 }
 
 static bool
-is_content_visible(Client *c) {
+is_content_visible(struct client *c) {
 	if (!c)
 		return false;
 	if (isarrange(fullscreen))
@@ -236,8 +236,8 @@ is_content_visible(Client *c) {
 	return isvisible(c) && !c->minimized;
 }
 
-Client*
-nextvisible(Client *c) {
+struct client*
+nextvisible(struct client *c) {
 	for (; c && !isvisible(c); c = c->next);
 	return c;
 }
@@ -279,7 +279,7 @@ drawbar(void) {
 	if (bar.pos == BAR_OFF)
 		return;
 
-	for (Client *c = clients; c; c = c->next) {
+	for (struct client *c = clients; c; c = c->next) {
 		occupied |= c->tags;
 		if (c->urgent)
 			urgent |= c->tags;
@@ -343,7 +343,7 @@ show_border(void) {
 }
 
 static void
-draw_border(Client *c) {
+draw_border(struct client *c) {
 	char t = '\0';
 	int x, y, maxlen, attrs = NORMAL_ATTR;
 	char taglist[128] = "";
@@ -394,12 +394,12 @@ draw_border(Client *c) {
 }
 
 static void
-draw_content(Client *c) {
+draw_content(struct client *c) {
 	vt_draw(c->term, c->window, c->has_title_line, 0);
 }
 
 static void
-draw(Client *c) {
+draw(struct client *c) {
 	if (is_content_visible(c)) {
 		redrawwin(c->window);
 		draw_content(c);
@@ -421,7 +421,7 @@ draw_all(void) {
 	}
 
 	if (!isarrange(fullscreen)) {
-		for (Client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
+		for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
 			if (c != sel)
 				draw(c);
 		}
@@ -437,7 +437,7 @@ draw_all(void) {
 static void
 arrange(void) {
 	unsigned int m = 0, n = 0;
-	for (Client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
+	for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
 		c->order = ++n;
 		if (c->minimized)
 			m++;
@@ -456,7 +456,7 @@ arrange(void) {
 	layout->arrange();
 	if (m && !isarrange(fullscreen)) {
 		unsigned int i = 0, nw = waw / m, nx = wax;
-		for (Client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
+		for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
 			if (c->minimized) {
 				resize(c, nx, way+wah, ++i == m ? waw - nx : nw, 1);
 				nx += nw;
@@ -471,7 +471,7 @@ arrange(void) {
 }
 
 static void
-attach(Client *c) {
+attach(struct client *c) {
 	if (clients)
 		clients->prev = c;
 	c->next = clients;
@@ -482,7 +482,7 @@ attach(Client *c) {
 }
 
 static void
-attachafter(Client *c, Client *a) { /* attach c after a */
+attachafter(struct client *c, struct client *a) { /* attach c after a */
 	if (c == a)
 		return;
 	if (!a)
@@ -500,14 +500,14 @@ attachafter(Client *c, Client *a) { /* attach c after a */
 }
 
 static void
-attachstack(Client *c) {
+attachstack(struct client *c) {
 	c->snext = stack;
 	stack = c;
 }
 
 static void
-detach(Client *c) {
-	Client *d;
+detach(struct client *c) {
+	struct client *d;
 	if (c->prev)
 		c->prev->next = c->next;
 	if (c->next) {
@@ -521,7 +521,7 @@ detach(Client *c) {
 }
 
 static void
-settitle(Client *c) {
+settitle(struct client *c) {
 	char *term, *t = title;
 	if (!t && sel == c && *c->title)
 		t = c->title;
@@ -532,14 +532,14 @@ settitle(Client *c) {
 }
 
 static void
-detachstack(Client *c) {
-	Client **tc;
+detachstack(struct client *c) {
+	struct client **tc;
 	for (tc = &stack; *tc && *tc != c; tc = &(*tc)->snext);
 	*tc = c->snext;
 }
 
 void
-focus(Client *c) {
+focus(struct client *c) {
 	if (!c)
 		for (c = stack; c && !isvisible(c); c = c->snext);
 	if (sel == c)
@@ -570,7 +570,7 @@ focus(Client *c) {
 }
 
 static void
-applycolorrules(Client *c) {
+applycolorrules(struct client *c) {
 	const struct color_rule *r = colorrules;
 	const struct color_rule *e = r + LENGTH(colorrules);
 	short fg = r->color->fg, bg = r->color->bg;
@@ -590,7 +590,7 @@ applycolorrules(Client *c) {
 
 static void
 term_title_handler(Vt *term, const char *title) {
-	Client *c = (Client *)vt_data_get(term);
+	struct client *c = (struct client *)vt_data_get(term);
 	if (title)
 		strncpy(c->title, title, sizeof(c->title) - 1);
 	c->title[title ? sizeof(c->title) - 1 : 0] = '\0';
@@ -602,7 +602,7 @@ term_title_handler(Vt *term, const char *title) {
 
 static void
 term_urgent_handler(Vt *term) {
-	Client *c = (Client *)vt_data_get(term);
+	struct client *c = (struct client *)vt_data_get(term);
 	c->urgent = true;
 	printf("\a");
 	fflush(stdout);
@@ -612,7 +612,7 @@ term_urgent_handler(Vt *term) {
 }
 
 static void
-move_client(Client *c, int x, int y) {
+move_client(struct client *c, int x, int y) {
 	if (c->x == x && c->y == y)
 		return;
 	debug("moving, x: %d y: %d\n", x, y);
@@ -625,7 +625,7 @@ move_client(Client *c, int x, int y) {
 }
 
 static void
-resize_client(Client *c, int w, int h) {
+resize_client(struct client *c, int w, int h) {
 	bool has_title_line = show_border();
 	bool resize_window = c->w != w || c->h != h;
 	if (resize_window) {
@@ -646,18 +646,18 @@ resize_client(Client *c, int w, int h) {
 }
 
 void
-resize(Client *c, int x, int y, int w, int h) {
+resize(struct client *c, int x, int y, int w, int h) {
 	resize_client(c, w, h);
 	move_client(c, x, y);
 }
 
-static Client*
+static struct client*
 get_client_by_coord(unsigned int x, unsigned int y) {
 	if (y < way || y >= way+wah)
 		return NULL;
 	if (isarrange(fullscreen))
 		return sel;
-	for (Client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
+	for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
 		if (x >= c->x && x < c->x + c->w && y >= c->y && y < c->y + c->h) {
 			return c;
 		}
@@ -688,7 +688,7 @@ handle_sigchld() {
 
 		debug("child with pid %d died\n", pid);
 
-		for (Client *c = clients; c; c = c->next) {
+		for (struct client *c = clients; c; c = c->next) {
 			if (c->pid == pid) {
 				c->died = true;
 				break;
@@ -761,7 +761,7 @@ bitoftag(const char *tag) {
 static void
 tagschanged() {
 	bool allminimized = true;
-	for (Client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
+	for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
 		if (!c->minimized) {
 			allminimized = false;
 			break;
@@ -797,7 +797,7 @@ tagid(const char *args[]) {
 		return;
 
 	const int win_id = atoi(args[0]);
-	for (Client *c = clients; c; c = c->next) {
+	for (struct client *c = clients; c; c = c->next) {
 		if (c->id == win_id) {
 			unsigned int ntags = c->tags;
 			for (unsigned int i = 1; i < MAX_ARGS && args[i]; i++) {
@@ -872,7 +872,7 @@ keypress(int code) {
 		nodelay(stdscr, FALSE);
 	}
 
-	for (Client *c = runinall ? nextvisible(clients) : sel; c; c = nextvisible(c->next)) {
+	for (struct client *c = runinall ? nextvisible(clients) : sel; c; c = nextvisible(c->next)) {
 		if (is_content_visible(c)) {
 			c->urgent = false;
 			if (code == '\e')
@@ -969,13 +969,13 @@ setup(void) {
 }
 
 static void
-destroy(Client *c) {
+destroy(struct client *c) {
 	if (sel == c)
 		focusnextnm(NULL);
 	detach(c);
 	detachstack(c);
 	if (sel == c) {
-		Client *next = nextvisible(clients);
+		struct client *next = nextvisible(clients);
 		if (next) {
 			focus(next);
 			toggleminimize(NULL);
@@ -1017,7 +1017,7 @@ cleanup(void) {
 		unlink(cmdfifo.file);
 }
 
-static char *getcwd_by_pid(Client *c) {
+static char *getcwd_by_pid(struct client *c) {
 	if (!c)
 		return NULL;
 	char buf[32];
@@ -1039,7 +1039,7 @@ create(const char *args[]) {
 		pargs[2] = args[0];
 		pargs[3] = NULL;
 	}
-	Client *c = calloc(1, sizeof(Client));
+	struct client *c = calloc(1, sizeof *c);
 	if (!c)
 		return;
 	c->tags = tagset[seltags];
@@ -1148,7 +1148,7 @@ copymode(const char *args[]) {
 
 static void
 focusn(const char *args[]) {
-	for (Client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
+	for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
 		if (c->order == atoi(args[0])) {
 			focus(c);
 			if (c->minimized)
@@ -1164,7 +1164,7 @@ focusid(const char *args[]) {
 		return;
 
 	const int win_id = atoi(args[0]);
-	for (Client *c = clients; c; c = c->next) {
+	for (struct client *c = clients; c; c = c->next) {
 		if (c->id == win_id) {
 			focus(c);
 			if (c->minimized)
@@ -1180,7 +1180,7 @@ focusid(const char *args[]) {
 
 static void
 focusnext(const char *args[]) {
-	Client *c;
+	struct client *c;
 	if (!sel)
 		return;
 	for (c = sel->next; c && !isvisible(c); c = c->next);
@@ -1194,7 +1194,7 @@ static void
 focusnextnm(const char *args[]) {
 	if (!sel)
 		return;
-	Client *c = sel;
+	struct client *c = sel;
 	do {
 		c = nextvisible(c->next);
 		if (!c)
@@ -1205,7 +1205,7 @@ focusnextnm(const char *args[]) {
 
 static void
 focusprev(const char *args[]) {
-	Client *c;
+	struct client *c;
 	if (!sel)
 		return;
 	for (c = sel->prev; c && !isvisible(c); c = c->prev);
@@ -1221,7 +1221,7 @@ static void
 focusprevnm(const char *args[]) {
 	if (!sel)
 		return;
-	Client *c = sel;
+	struct client *c = sel;
 	do {
 		for (c = c->prev; c && !isvisible(c); c = c->prev);
 		if (!c) {
@@ -1243,7 +1243,7 @@ focusup(const char *args[]) {
 	if (!sel)
 		return;
 	/* avoid vertical separator, hence +1 in x direction */
-	Client *c = get_client_by_coord(sel->x + 1, sel->y - 1);
+	struct client *c = get_client_by_coord(sel->x + 1, sel->y - 1);
 	if (c)
 		focus(c);
 	else
@@ -1254,7 +1254,7 @@ static void
 focusdown(const char *args[]) {
 	if (!sel)
 		return;
-	Client *c = get_client_by_coord(sel->x, sel->y + sel->h);
+	struct client *c = get_client_by_coord(sel->x, sel->y + sel->h);
 	if (c)
 		focus(c);
 	else
@@ -1265,7 +1265,7 @@ static void
 focusleft(const char *args[]) {
 	if (!sel)
 		return;
-	Client *c = get_client_by_coord(sel->x - 2, sel->y);
+	struct client *c = get_client_by_coord(sel->x - 2, sel->y);
 	if (c)
 		focus(c);
 	else
@@ -1276,7 +1276,7 @@ static void
 focusright(const char *args[]) {
 	if (!sel)
 		return;
-	Client *c = get_client_by_coord(sel->x + sel->w + 1, sel->y);
+	struct client *c = get_client_by_coord(sel->x + sel->w + 1, sel->y);
 	if (c)
 		focus(c);
 	else
@@ -1304,7 +1304,7 @@ quit(const char *args[]) {
 
 static void
 redraw(const char *args[]) {
-	for (Client *c = clients; c; c = c->next) {
+	for (struct client *c = clients; c; c = c->next) {
 		if (!c->minimized) {
 			vt_dirty(c->term);
 			wclear(c->window);
@@ -1425,7 +1425,7 @@ togglebarpos(const char *args[]) {
 
 static void
 toggleminimize(const char *args[]) {
-	Client *c, *m, *t;
+	struct client *c, *m, *t;
 	unsigned int n;
 	if (!sel)
 		return;
@@ -1472,7 +1472,7 @@ togglerunall(const char *args[]) {
 
 static void
 zoom(const char *args[]) {
-	Client *c;
+	struct client *c;
 
 	if (!sel)
 		return;
@@ -1620,7 +1620,7 @@ handle_statusbar(void) {
 }
 
 static void
-handle_editor(Client *c) {
+handle_editor(struct client *c) {
 	if (!copyreg.data && (copyreg.data = malloc(screen.history)))
 		copyreg.size = screen.history;
 	copyreg.len = 0;
@@ -1779,13 +1779,13 @@ set_fd_mask(int fd, fd_set *r, int *nfds) {
 void
 check_client_fds(fd_set *rd, int *nfds)
 {
-	Client *c = clients;
+	struct client *c = clients;
 	while(c != NULL) {
 		if( c->editor && c->editor_died ) {
 			handle_editor(c);
 		}
 		if( !c->editor && c->died ) {
-			Client *t = c->next;
+			struct client *t = c->next;
 			destroy(c);
 			c = t;
 			continue;
@@ -1901,7 +1901,7 @@ main(int argc, char *argv[]) {
 		if (bar.fd != -1 && FD_ISSET(bar.fd, &rd))
 			handle_statusbar();
 
-		for (Client *c = clients; c; c = c->next) {
+		for (struct client *c = clients; c; c = c->next) {
 			if (FD_ISSET(vt_pty_get(c->term), &rd)) {
 				if (vt_process(c->term) < 0 && errno == EIO) {
 					if (c->editor)
@@ -1931,6 +1931,6 @@ main(int argc, char *argv[]) {
 
 static void fullscreen(void)
 {
-	for (Client *c = nextvisible(clients); c; c = nextvisible(c->next))
+	for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next))
 		resize(c, wax, way, waw, wah);
 }

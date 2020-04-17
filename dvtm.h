@@ -41,8 +41,7 @@ typedef struct {
 	void (*arrange)(void);
 } Layout;
 
-typedef struct Client Client;
-struct Client {
+struct client {
 	WINDOW *window;
 	Vt *term;
 	Vt *editor, *app;
@@ -61,19 +60,19 @@ struct Client {
 	bool minimized;
 	bool urgent;
 	volatile sig_atomic_t died;
-	Client *next;
-	Client *prev;
-	Client *snext;
+	struct client *next;
+	struct client *prev;
+	struct client *snext;
 	unsigned int tags;
 };
 
 /* functions and variables available to layouts */
-Client* nextvisible(Client *c);
-void focus(Client *c);
-void resize(Client *c, int x, int y, int w, int h);
+struct client* nextvisible(struct client *c);
+void focus(struct client *c);
+void resize(struct client *c, int x, int y, int w, int h);
 extern struct screen screen;
 extern unsigned waw, wah, wax, way;
-extern Client *clients;
+extern struct client *clients;
 extern char *title;
 
 
