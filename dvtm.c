@@ -749,14 +749,12 @@ resize_screen(void) {
 		screen.w = ws.ws_col;
 		screen.h = ws.ws_row;
 	}
-
-	debug("resize_screen(), w: %d h: %d\n", screen.w, screen.h);
-
 	resizeterm(screen.h, screen.w);
 	wresize(stdscr, screen.h, screen.w);
 	updatebarpos();
 	clear();
 	arrange();
+	screen.need_resize = false;
 }
 
 static struct key_binding *
@@ -1846,9 +1844,8 @@ main(int argc, char *argv[]) {
 		int r, nfds = 0;
 		fd_set rd;
 
-		if (screen.need_resize) {
+		if( screen.need_resize ) {
 			resize_screen();
-			screen.need_resize = false;
 		}
 
 		FD_ZERO(&rd);
