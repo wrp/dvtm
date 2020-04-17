@@ -611,6 +611,19 @@ static bool is_valid_csi_ender(int c)
 	    || (c == '@' || c == '`');
 }
 
+/* valid curses attributes are:
+ *
+ * A_NORMAL        Normal display (no highlight)
+ * A_STANDOUT      Best highlighting mode of the terminal.
+ * A_UNDERLINE     Underlining
+ * A_REVERSE       Reverse video
+ * A_BLINK         Blinking
+ * A_DIM           Half bright
+ * A_BOLD          Extra bright or bold
+ * A_PROTECT       Protected mode
+ * A_INVIS         Invisible or blank mode
+ */
+
 /* interprets a 'set attribute' (SGR) CSI escape sequence */
 static void interpret_csi_sgr(Vt *t, int param[], int pcount)
 {

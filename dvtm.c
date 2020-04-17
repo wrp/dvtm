@@ -62,19 +62,6 @@ static void view(const char *args[]);
 static void zoom(const char *args[]);
 static void fullscreen(void);
 
-/* valid curses attributes are listed below they can be ORed
- *
- * A_NORMAL        Normal display (no highlight)
- * A_STANDOUT      Best highlighting mode of the terminal.
- * A_UNDERLINE     Underlining
- * A_REVERSE       Reverse video
- * A_BLINK         Blinking
- * A_DIM           Half bright
- * A_BOLD          Extra bright or bold
- * A_PROTECT       Protected mode
- * A_INVIS         Invisible or blank mode
- */
-
 enum {
 	DEFAULT,
 	BLUE,
