@@ -91,14 +91,7 @@ struct color_rule {
 	struct color *color;
 };
 
-#define ALT(k)      ((k) + (161 - 'a'))
-#if defined CTRL && defined _AIX
-  #undef CTRL
-#endif
-#ifndef CTRL
-  #define CTRL(k)   ((k) & 0x1F)
-#endif
-#define CTRL_ALT(k) ((k) + (129 - 'a'))
+#define ESC 0x1b
 
 #define MAX_ARGS 8
 

@@ -1871,8 +1871,7 @@ main(int argc, char *argv[]) {
 					mode = keypress_mode;
 					keypress(code);
 				}
-			/* On my current box, 1b is ESC.  Need to find the proper ncurses code */
-			} else if( code == 0x1b ) {
+			} else if( code == ESC ) {
 				switch(mode) {
 				case keypress_mode: keypress(code); break;
 				case command: mode = keypress_mode;

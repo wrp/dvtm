@@ -72,13 +72,6 @@
 # define MAX_COLOR_PAIRS COLOR_PAIRS
 #endif
 
-#if defined _AIX && defined CTRL
-# undef CTRL
-#endif
-#ifndef CTRL
-# define CTRL(k)   ((k) & 0x1F)
-#endif
-
 #define IS_CONTROL(ch) !((ch) & 0xffffff60UL)
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 #define LENGTH(arr) (sizeof(arr) / sizeof((arr)[0]))
