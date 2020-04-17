@@ -33,7 +33,7 @@ struct screen {
 	int history;
 	int w;
 	int h;
-	bool need_resize;
+	int winched;
 };
 
 typedef struct {

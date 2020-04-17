@@ -732,7 +732,7 @@ sigwinch_handler(int sig) {
 
 static void
 handle_sigwinch() {
-	screen.need_resize = true;
+	screen.winched = 1;
 }
 
 static void
@@ -755,7 +755,7 @@ resize_screen(void) {
 	updatebarpos();
 	clear();
 	arrange();
-	screen.need_resize = false;
+	screen.winched = 0;
 }
 
 static struct key_binding *
@@ -1845,7 +1845,7 @@ main(int argc, char *argv[]) {
 		int r, nfds = 0;
 		fd_set rd;
 
-		if( screen.need_resize ) {
+		if( screen.winched ) {
 			resize_screen();
 		}
 
