@@ -207,7 +207,7 @@ static StatusBar bar = { .fd = -1, .lastpos = BAR_POS, .pos = BAR_POS, .autohide
 static CmdFifo cmdfifo = { .fd = -1 };
 static const char *shell;
 static Register copyreg;
-static volatile sig_atomic_t running = true;
+static volatile sig_atomic_t stop_requested = 0;
 static bool runinall = false;
 static int sigwinch_pipe[] = {-1, -1};
 static int sigchld_pipe[] = {-1, -1};
@@ -730,7 +730,7 @@ sigwinch_handler(int sig) {
 
 static void
 sigterm_handler(int sig) {
-	running = false;
+	stop_requested = 1;
 }
 
 static void
@@ -1012,7 +1012,7 @@ destroy(Client *c) {
 	delwin(c->window);
 	if (!clients && actions) {
 		if (!strcmp(c->cmd, shell)) {
-			running = false;
+			stop_requested = 1;
 		} else {
 			create(NULL);
 		}
@@ -1320,7 +1320,7 @@ paste(const char *args[]) {
 
 static void
 quit(const char *args[]) {
-	running = false;
+	stop_requested = 1;
 }
 
 static void
@@ -1834,7 +1834,7 @@ main(int argc, char *argv[]) {
 	setup();
 	startup(NULL);
 
-	while (running) {
+	while( !stop_requested ) {
 		int r, nfds = 0;
 		fd_set rd;
 
