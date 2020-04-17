@@ -193,8 +193,9 @@ char *title;
 /* global variables */
 static Action *actions = NULL; /* actions are executed when dvtm is started */
 
+struct screen screen = { .mfact = MFACT, .nmaster = NMASTER, .history = SCROLL_HISTORY };
+
 static const char *dvtm_name = "dvtm";
-Screen screen = { .mfact = MFACT, .nmaster = NMASTER, .history = SCROLL_HISTORY };
 static Client *stack = NULL;
 static Client *sel = NULL;
 static Client *lastsel = NULL;

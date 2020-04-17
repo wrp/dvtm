@@ -27,14 +27,14 @@
 #endif
 #include "vt.h"
 
-typedef struct {
+struct screen {
 	float mfact;
 	unsigned int nmaster;
 	int history;
 	int w;
 	int h;
 	bool need_resize;
-} Screen;
+};
 
 typedef struct {
 	const char *symbol;
@@ -71,7 +71,7 @@ struct Client {
 Client* nextvisible(Client *c);
 void focus(Client *c);
 void resize(Client *c, int x, int y, int w, int h);
-extern Screen screen;
+extern struct screen screen;
 extern unsigned waw, wah, wax, way;
 extern Client *clients;
 extern char *title;
