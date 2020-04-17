@@ -84,7 +84,7 @@ enum {
 static struct color colors[] = {
 	[DEFAULT] = { .fg = -1,         .bg = -1, .fg256 = -1, .bg256 = -1, },
 	[BLUE]    = { .fg = COLOR_BLUE, .bg = -1, .fg256 = 68, .bg256 = -1, },
-	[RED]     = { .fg = COLOR_RED,  .bg = -1, .fg256 = 68, .bg256 = -1, },
+	[RED]     = { .fg = COLOR_RED,  .bg = -1, .fg256 = 0, .bg256 = 0, },
 };
 
 const int tags = 8;
