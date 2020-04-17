@@ -34,7 +34,6 @@ static void quit(const char *args[]);
 static void redraw(const char *args[]);
 static void scrollback(const char *args[]);
 static void send(const char *args[]);
-static void send_mod(const char *args[]);
 static void setlayout(const char *args[]);
 static void incnmaster(const char *args[]);
 static void setmfact(const char *args[]);
@@ -140,7 +139,6 @@ static KeyBinding bindings[] = {
 	{ { MOD, KEY_PPAGE,    }, { scrollback,     { "-1" }                    } },
 	{ { MOD, KEY_NPAGE,    }, { scrollback,     { "1"  }                    } },
 	{ { MOD, '?',          }, { create,         { "man dvtm", "dvtm help" } } },
-	{ { MOD, MOD,          }, { send_mod,       { NULL }                    } },
 	{ { MOD, 'u',          }, { scrollback,     { "-1" }                    } },
 	{ { MOD, 'n',          }, { scrollback,     { "1"  }                    } },
 	{ { MOD, '0',          }, { view,           { NULL }                    } },
@@ -1355,14 +1353,6 @@ scrollback(const char *args[]) {
 
 	draw(sel);
 	curs_set(vt_cursor_visible(sel->term));
-}
-
-static void
-send_mod(const char *args[]) {
-	if( sel ) {
-		char b[2] = {modifier_key, 0};;
-		vt_write(sel->term, b, 1);
-	}
 }
 
 static void
