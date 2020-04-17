@@ -1011,10 +1011,11 @@ destroy(Client *c) {
 	vt_destroy(c->term);
 	delwin(c->window);
 	if (!clients && actions) {
-		if (!strcmp(c->cmd, shell))
-			quit(NULL);
-		else
+		if (!strcmp(c->cmd, shell)) {
+			running = false;
+		} else {
 			create(NULL);
+		}
 	}
 	free(c);
 	arrange();
