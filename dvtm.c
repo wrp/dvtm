@@ -1804,6 +1804,27 @@ set_fd_mask(int fd, fd_set *r, int *nfds) {
 }
 
 
+void
+check_client_fds(fd_set *rd, int *nfds)
+{
+	Client *c = clients;
+	while(c != NULL) {
+		if( c->editor && c->editor_died ) {
+			handle_editor(c);
+		}
+		if( !c->editor && c->died ) {
+			Client *t = c->next;
+			destroy(c);
+			c = t;
+			continue;
+		}
+		int pty = c->editor ? vt_pty_get(c->editor) : vt_pty_get(c->app);
+		set_fd_mask(pty, rd, nfds);
+		c = c->next;
+	}
+}
+
+
 enum mode { keypress_mode, command };
 
 int
@@ -1838,20 +1859,7 @@ main(int argc, char *argv[]) {
 		set_fd_mask(cmdfifo.fd, &rd, &nfds);
 		set_fd_mask(bar.fd, &rd, &nfds);
 
-		for (Client *c = clients; c; ) {
-			if (c->editor && c->editor_died)
-				handle_editor(c);
-			if (!c->editor && c->died) {
-				Client *t = c->next;
-				destroy(c);
-				c = t;
-				continue;
-			}
-			int pty = c->editor ? vt_pty_get(c->editor) : vt_pty_get(c->app);
-			FD_SET(pty, &rd);
-			nfds = MAX(nfds, pty);
-			c = c->next;
-		}
+		check_client_fds(&rd, &nfds);
 
 		doupdate();
 		r = select(nfds + 1, &rd, NULL, NULL, NULL);
