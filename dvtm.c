@@ -162,10 +162,6 @@ static Cmd commands[] = {
 	{ "tag",    { tagid,	{ NULL } } },
 };
 
-static char const * const keytable[] = {
-	/* add your custom key escape sequences */
-};
-
 /* forward declarations of internal functions */
 static void cleanup(void);
 static void push_action(const Action *a);
@@ -934,7 +930,6 @@ setup(void) {
 	keypad(stdscr, TRUE);
 	raw();
 	vt_init();
-	vt_keytable_set(keytable, LENGTH(keytable));
 	for( struct color *t = colors; t < colors + LENGTH(colors); t++) {
 		if (COLORS == 256) {
 			if (t->fg256)

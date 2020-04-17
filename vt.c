@@ -1848,15 +1848,6 @@ void vt_init(void)
 		COLORS >= 256 ? "-256color" : "");
 }
 
-void vt_keytable_set(const char * const keytable_overlay[], int count)
-{
-	for (int k = 0; k < count && k < KEY_MAX; k++) {
-		const char *keyseq = keytable_overlay[k];
-		if (keyseq)
-			keytable[k] = keyseq;
-	}
-}
-
 void vt_shutdown(void)
 {
 	free(color2palette);
