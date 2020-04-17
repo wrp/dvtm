@@ -212,8 +212,6 @@ static bool runinall = false;
 static int sigwinch_pipe[] = {-1, -1};
 static int sigchld_pipe[] = {-1, -1};
 
-enum {PIPE_RD, PIPE_WR};
-
 static void
 eprint(const char *errstr, ...) {
 	va_list ap;
@@ -689,7 +687,7 @@ get_client_by_coord(unsigned int x, unsigned int y) {
 
 static void
 sigchld_handler(int sig) {
-	write(sigchld_pipe[PIPE_WR], "\0", 1);
+	write(sigchld_pipe[1], "\0", 1);
 }
 
 static void
@@ -727,12 +725,7 @@ handle_sigchld() {
 
 static void
 sigwinch_handler(int sig) {
-	write(sigwinch_pipe[PIPE_WR], "\0", 1);
-}
-
-static void
-handle_sigwinch() {
-	screen.winched = 1;
+	write(sigwinch_pipe[1], "\0", 1);
 }
 
 static void
@@ -1861,7 +1854,7 @@ main(int argc, char *argv[]) {
 		doupdate();
 		r = select(nfds + 1, &rd, NULL, NULL, NULL);
 
-		if (r < 0) {
+		if( r < 0 ) {
 			if (errno == EINTR)
 				continue;
 			perror("select()");
@@ -1908,15 +1901,19 @@ main(int argc, char *argv[]) {
 				continue;
 		}
 
-		if (FD_ISSET(sigwinch_pipe[PIPE_RD], &rd)) {
+		if( FD_ISSET(sigwinch_pipe[0], &rd) ) {
 			char buf[512];
-			while (read(sigwinch_pipe[PIPE_RD], &buf, sizeof(buf)) > 0);
-			handle_sigwinch();
+			if( read(sigwinch_pipe[0], &buf, sizeof(buf)) < 0 ) {
+				error(1, "read from sigwinch pipe");
+			}
+			screen.winched = 1;
 		}
 
-		if (FD_ISSET(sigchld_pipe[PIPE_RD], &rd)) {
+		if( FD_ISSET(sigchld_pipe[0], &rd) ) {
 			char buf[512];
-			while (read(sigchld_pipe[PIPE_RD], &buf, sizeof(buf)) > 0);
+			if( read(sigchld_pipe[0], &buf, sizeof(buf)) < 0) {
+				error(1, "read from sigchld pipe");
+			}
 			handle_sigchld();
 		}
 
