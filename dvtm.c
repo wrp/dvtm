@@ -750,9 +750,9 @@ keybinding(KeyCombo keys, unsigned int keycount) {
 	KeyBinding *b = bindings;
 	KeyBinding *e = bindings + LENGTH(bindings);
 	for( ; b < e; b++) {
-		unsigned k = 1;
+		unsigned k = 0;
 		for (; k < keycount; k++) {
-			if (keys[k] != b->keys[k-1])
+			if (keys[k] != b->keys[k])
 				break;
 		}
 		if (k == keycount)
@@ -1860,7 +1860,6 @@ main(int argc, char *argv[]) {
 					state = command;
 					key_index = 0;
 					memset(keys, 0, sizeof(keys));
-					keys[key_index++] = code;
 				} else {
 					state = enter;
 					keypress(code);
@@ -1874,18 +1873,16 @@ main(int argc, char *argv[]) {
 
 					if( NULL != (binding = keybinding(keys, key_index)) ) {
 						unsigned int key_length = MAX_KEYS;
-						while (key_length > 1 && !binding->keys[key_length-2])
+						while (key_length > 1 && !binding->keys[key_length-1])
 							key_length--;
 						if (key_index == key_length) {
 							binding->action.cmd(binding->action.args);
 							key_index = 0;
 							memset(keys, 0, sizeof(keys));
-							keys[key_index++] = modifier_key;
 						}
 					} else {
 						key_index = 0;
 						memset(keys, 0, sizeof(keys));
-						keys[key_index++] = modifier_key;
 					}
 				}
 			}
