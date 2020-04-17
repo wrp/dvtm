@@ -43,12 +43,6 @@
 
 #include "vt.h"
 
-#ifdef _AIX
-# include "forkpty-aix.c"
-#elif defined __sun
-# include "forkpty-sunos.c"
-#endif
-
 #ifndef NCURSES_ATTR_SHIFT
 # define NCURSES_ATTR_SHIFT 8
 #endif
