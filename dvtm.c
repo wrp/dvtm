@@ -1788,7 +1788,6 @@ main(int argc, char *argv[]) {
 	enum state state = enter;
 	KeyCombo keys;
 	unsigned int key_index = 0;
-	memset(keys, 0, sizeof(keys));
 
 	setenv("DVTM", VERSION, 1);
 
@@ -1859,7 +1858,6 @@ main(int argc, char *argv[]) {
 				if( state == enter) {
 					state = command;
 					key_index = 0;
-					memset(keys, 0, sizeof(keys));
 				} else {
 					state = enter;
 					keypress(code);
@@ -1868,10 +1866,7 @@ main(int argc, char *argv[]) {
 			} else if( code == 0x1b ) {
 				switch(state) {
 				case enter: keypress(code); break;
-				case command:
-					state = enter;
-					key_index = 0;
-					memset(keys, 0, sizeof(keys));
+				case command: state = enter;
 				}
 			} else if (code >= 0) {
 				if( state == enter) {
@@ -1887,11 +1882,9 @@ main(int argc, char *argv[]) {
 						if (key_index == key_length) {
 							binding->action.cmd(binding->action.args);
 							key_index = 0;
-							memset(keys, 0, sizeof(keys));
 						}
 					} else {
 						key_index = 0;
-						memset(keys, 0, sizeof(keys));
 					}
 				}
 			}
