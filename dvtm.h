@@ -108,13 +108,10 @@ typedef struct {
 } Action;
 
 #define MAX_KEYS 3
-
-typedef unsigned int KeyCombo[MAX_KEYS];
-
-typedef struct {
-	KeyCombo keys;
+struct key_binding {
+	unsigned keys[MAX_KEYS];
 	Action action;
-} KeyBinding;
+};
 
 typedef struct {
 	mmask_t mask;

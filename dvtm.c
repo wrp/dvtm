@@ -104,7 +104,7 @@ unsigned modifier_key = CTRL('g');
 	{ { 'T', KEY,     }, { toggletag,      { #TAG }               } }
 
 /* you can specifiy at most 3 arguments */
-static KeyBinding bindings[] = {
+static struct key_binding bindings[] = {
 	{ { 'c',          }, { create,         { NULL, NULL, "master" }    } },
 	{ { 'C',          }, { create,         { NULL, NULL, "$CWD" }      } },
 	{ { 'x', 'x',     }, { killclient,     { NULL }                    } },
@@ -759,12 +759,12 @@ resize_screen(void) {
 	arrange();
 }
 
-static KeyBinding*
-keybinding(KeyCombo keys, unsigned int keycount) {
+static struct key_binding *
+keybinding(unsigned keys[MAX_KEYS], unsigned int keycount) {
 	/* TODO: stop doing a linear search on all bindings for
 	   every keystroke. */
-	KeyBinding *b = bindings;
-	KeyBinding *e = bindings + LENGTH(bindings);
+	struct key_binding *b = bindings;
+	struct key_binding *e = bindings + LENGTH(bindings);
 	for( ; b < e; b++) {
 		unsigned k = 0;
 		for (; k < keycount; k++) {
@@ -1809,7 +1809,7 @@ enum state { enter, command };
 int
 main(int argc, char *argv[]) {
 	enum state state = enter;
-	KeyCombo keys;
+	unsigned keys[MAX_KEYS];
 	unsigned int key_index = 0;
 
 	setenv("DVTM", VERSION, 1);
@@ -1883,7 +1883,7 @@ main(int argc, char *argv[]) {
 				if( state == enter) {
 					keypress(code);
 				} else {
-					KeyBinding *binding;
+					struct key_binding *binding;
 					keys[key_index++] = code;
 
 					if( NULL != (binding = keybinding(keys, key_index)) ) {
