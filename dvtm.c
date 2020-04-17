@@ -222,12 +222,19 @@ eprint(const char *errstr, ...) {
 }
 
 static void
-error(const char *errstr, ...) {
+error(int include_errstr, const char *errstr, ...) {
+	int save_errno = errno;
 	cleanup();
-	va_list ap;
-	va_start(ap, errstr);
-	vfprintf(stderr, errstr, ap);
-	va_end(ap);
+	if( errstr != NULL ) {
+		va_list ap;
+		va_start(ap, errstr);
+		vfprintf(stderr, errstr, ap);
+		va_end(ap);
+	}
+	if(include_errstr) {
+		fprintf(stderr, ": %s", strerror(save_errno));
+	}
+	fputc('\n', stderr);
 	exit(EXIT_FAILURE);
 }
 
@@ -937,6 +944,8 @@ set_blocking(int fd, bool blocking) {
 	return !fcntl(fd, F_SETFL, flags);
 }
 
+
+
 static void
 setup(void) {
 	shell = getshell();
@@ -960,14 +969,11 @@ setup(void) {
 	}
 	resize_screen();
 
-	int *pipes[] = {&sigwinch_pipe[0], &sigchld_pipe[0]};
+	int *pipes[] = { sigwinch_pipe, sigchld_pipe };
 	for (int i = 0; i < 2; ++i) {
-		int r = pipe(pipes[i]);
-		if (r < 0) {
-			perror("pipe()");
-			exit(EXIT_FAILURE);
+		if( pipe(pipes[i]) < 0 ) {
+			error(1, "pipe");
 		}
-
 		for (int j = 0; j < 2; ++j) {
 			if (!set_blocking(pipes[i][j], false)) {
 				perror("fcntl()");
@@ -1687,18 +1693,18 @@ open_or_create_fifo(const char *name, const char **name_created, const char *env
 				*name_created = name;
 				continue;
 			}
-			error("%s\n", strerror(errno));
+			error(1, "%s", name );
 		}
 	} while (fd == -1);
 
 	if (fstat(fd, &info) == -1) {
-		error("%s\n", strerror(errno));
+		error(1, "%s", name);
 	} else if (!S_ISFIFO(info.st_mode)) {
-		error("%s is not a named pipe\n", name);
+		error(0, "%s is not a named pipe", name);
 	}
 
 	if( ( abs_name = realpath(name, NULL)) == NULL ) {
-		error("%s: %s\n", name, strerror(errno));
+		error(1, "%s", name);
 	}
 	setenv(env_name, abs_name, 1);
 	free(abs_name);
@@ -1725,7 +1731,7 @@ parse_args(int argc, char *argv[]) {
 			continue;
 		}
 		if( strchr("dhtscm", arg[1]) != NULL && argv[1] == NULL ) {
-			error("%s requires an argument (-? for usage)\n", arg);
+			error(0, "%s requires an argument (-? for usage)", arg);
 		}
 		switch (arg[1]) {
 		case '?':
@@ -1765,7 +1771,7 @@ parse_args(int argc, char *argv[]) {
 			break;
 		}
 		default:
-			error("unknown option: %s (-? for usage)\n", arg);
+			error(0, "unknown option: %s (-? for usage)", arg);
 		}
 	}
 	return;
@@ -1781,7 +1787,7 @@ push_action(const Action *a)
 
 	actions = realloc( actions, ( count + 2 ) * sizeof *actions );
 	if( actions == NULL ) {
-		error("realloc: %s\n", strerror(errno));
+		error(1, "realloc");
 	}
 	memcpy(actions + count, a, sizeof *a);
 	actions[count + 1].cmd = NULL;
