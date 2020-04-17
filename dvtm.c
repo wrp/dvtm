@@ -950,6 +950,7 @@ static void
 setup(void) {
 	shell = getshell();
 	setlocale(LC_CTYPE, "");
+	setenv("DVTM", VERSION, 1);
 	initscr();
 	start_color(); /* initializes globals COLORS and COLOR_PAIRS */
 	noecho();
@@ -1832,8 +1833,6 @@ main(int argc, char *argv[]) {
 	enum mode mode = keypress_mode;
 	unsigned keys[MAX_KEYS];
 	unsigned int key_index = 0;
-
-	setenv("DVTM", VERSION, 1);
 
 	parse_args(argc, argv);
 	if( actions == NULL ) {
