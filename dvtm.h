@@ -102,7 +102,7 @@ typedef struct {
 
 #define MAX_ARGS 8
 
-typedef struct {
+typedef struct action {
 	void (*cmd)(const char *args[]);
 	const char *args[3];
 } Action;
@@ -111,7 +111,7 @@ typedef struct {
 
 typedef unsigned int KeyCombo[MAX_KEYS];
 
-typedef struct {
+typedef struct keybinding {
 	KeyCombo keys;
 	Action action;
 } KeyBinding;

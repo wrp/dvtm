@@ -94,8 +94,25 @@ unsigned modifier_key = CTRL('g');
 	{ { 'V', KEY,     }, { toggleview,     { #TAG }               } }, \
 	{ { 'T', KEY,     }, { toggletag,      { #TAG }               } }
 
-/* you can specifiy at most 3 arguments */
-static KeyBinding bindings[] = {
+static struct keybinding *bindings = NULL;
+static size_t binding_count = 0;
+
+static void add_binding(const char *b, const struct action *a) {
+	struct keybinding *t;
+	binding_count += 1;
+	bindings = realloc(bindings, binding_count * sizeof *bindings);
+	if( bindings == NULL ) {
+		perror("realloc");
+		exit(EXIT_FAILURE);
+	}
+	t = bindings + binding_count - 1;
+	for( int i=0; i < MAX_KEYS; i++ ) {
+		t->keys[i] = b[i];
+		memcpy(&t->action, a, sizeof t->action);
+	}
+}
+
+static struct keybinding set_bindings[] = {
 	{ { 'c',          }, { create,         { NULL, NULL, "master" }    } },
 	{ { 'C',          }, { create,         { NULL, NULL, "$CWD" }      } },
 	{ { 'x', 'x',     }, { killclient,     { NULL }                    } },
@@ -749,7 +766,7 @@ keybinding(KeyCombo keys, unsigned int keycount) {
 	/* TODO: stop doing a linear search on all bindings for
 	   every keystroke. */
 	KeyBinding *b = bindings;
-	KeyBinding *e = bindings + LENGTH(bindings);
+	KeyBinding *e = bindings + binding_count;
 	for( ; b < e; b++) {
 		unsigned k = 1;
 		for (; k < keycount; k++) {
@@ -1766,6 +1783,14 @@ parse_args(int argc, char *argv[]) {
 	return;
 }
 
+static void * xrealloc(void *p, size_t s) {
+	void *r = realloc(p, s);
+	if( r == NULL ) {
+		error("realloc: %s\n", strerror(errno));
+	}
+	return r;
+}
+
 static void
 push_action(const Action *a)
 {
@@ -1774,10 +1799,7 @@ push_action(const Action *a)
 		count += 1;
 	}
 
-	actions = realloc( actions, ( count + 2 ) * sizeof *actions );
-	if( actions == NULL ) {
-		error("realloc: %s\n", strerror(errno));
-	}
+	actions = xrealloc( actions, ( count + 2 ) * sizeof *actions );
 	memcpy(actions + count, a, sizeof *a);
 	actions[count + 1].cmd = NULL;
 }
@@ -1791,6 +1813,9 @@ main(int argc, char *argv[]) {
 	setenv("DVTM", VERSION, 1);
 
 	parse_args(argc, argv);
+	bindings = xrealloc(NULL, sizeof set_bindings);
+	binding_count = LENGTH(set_bindings);
+	memcpy(bindings, set_bindings, sizeof set_bindings);
 	if( actions == NULL ) {
 		Action defaults = { create, { NULL } };
 		push_action(&defaults);
