@@ -164,7 +164,7 @@ static KeyBinding bindings[] = {
 	TAGKEYS( '8', 8),
 };
 
-static const ColorRule colorrules[] = {
+static const struct color_rule colorrules[] = {
 	{ "", A_NORMAL, &colors[DEFAULT] }, /* default */
 };
 
@@ -585,8 +585,8 @@ focus(Client *c) {
 
 static void
 applycolorrules(Client *c) {
-	const ColorRule *r = colorrules;
-	const ColorRule *e = r + LENGTH(colorrules);
+	const struct color_rule *r = colorrules;
+	const struct color_rule *e = r + LENGTH(colorrules);
 	short fg = r->color->fg, bg = r->color->bg;
 	attr_t attrs = r->attrs;
 
@@ -949,14 +949,14 @@ setup(void) {
 	raw();
 	vt_init();
 	vt_keytable_set(keytable, LENGTH(keytable));
-	for (unsigned int i = 0; i < LENGTH(colors); i++) {
+	for( struct color *t = colors; t < colors + LENGTH(colors); t++) {
 		if (COLORS == 256) {
-			if (colors[i].fg256)
-				colors[i].fg = colors[i].fg256;
-			if (colors[i].bg256)
-				colors[i].bg = colors[i].bg256;
+			if (t->fg256)
+				t->fg = t->fg256;
+			if (t->bg256)
+				t->bg = t->bg256;
 		}
-		colors[i].pair = vt_color_reserve(colors[i].fg, colors[i].bg);
+		t->pair = vt_color_reserve(t->fg, t->bg);
 	}
 	resize_screen();
 

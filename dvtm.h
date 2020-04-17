@@ -85,11 +85,11 @@ struct color {
 	short pair;
 };
 
-typedef struct {
+struct color_rule {
 	const char *title;
 	attr_t attrs;
 	struct color *color;
-} ColorRule;
+};
 
 #define ALT(k)      ((k) + (161 - 'a'))
 #if defined CTRL && defined _AIX
