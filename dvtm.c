@@ -942,7 +942,7 @@ setup(void) {
 	shell = getshell();
 	setlocale(LC_CTYPE, "");
 	initscr();
-	start_color();
+	start_color(); /* initializes globals COLORS and COLOR_PAIRS */
 	noecho();
 	nonl();
 	keypad(stdscr, TRUE);
