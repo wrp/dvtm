@@ -156,7 +156,7 @@ static const struct color_rule colorrules[] = {
 };
 
 
-static Cmd commands[] = {
+static struct command commands[] = {
 	{ "create", { create,	{ NULL } } },
 	{ "focus",  { focusid,	{ NULL } } },
 	{ "tag",    { tagid,	{ NULL } } },
@@ -1490,7 +1490,7 @@ zoom(const char *args[]) {
 }
 
 
-static Cmd *
+static struct command *
 get_cmd_by_name(const char *name) {
 	for (unsigned int i = 0; i < LENGTH(commands); i++) {
 		if (!strcmp(name, commands[i].name))
@@ -1503,7 +1503,7 @@ static void
 handle_cmdfifo(void) {
 	int r;
 	char *p, *s, cmdbuf[512], c;
-	Cmd *cmd;
+	struct command *cmd;
 
 	r = read(cmdfifo.fd, cmdbuf, sizeof cmdbuf - 1);
 	if (r <= 0) {

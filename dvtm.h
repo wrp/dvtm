@@ -111,10 +111,10 @@ typedef struct {
 	Action action;
 } Button;
 
-typedef struct {
+struct command {
 	const char *name;
 	Action action;
-} Cmd;
+};
 
 enum { BAR_TOP, BAR_BOTTOM, BAR_OFF };
 
