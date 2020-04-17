@@ -77,18 +77,18 @@ extern Client *clients;
 extern char *title;
 
 
-typedef struct {
+struct color {
 	short fg;
 	short bg;
 	short fg256;
 	short bg256;
 	short pair;
-} Color;
+};
 
 typedef struct {
 	const char *title;
 	attr_t attrs;
-	Color *color;
+	struct color *color;
 } ColorRule;
 
 #define ALT(k)      ((k) + (161 - 'a'))
