@@ -578,11 +578,11 @@ focus(Client *c) {
 static void
 applycolorrules(Client *c) {
 	const ColorRule *r = colorrules;
+	const ColorRule *e = r + LENGTH(colorrules);
 	short fg = r->color->fg, bg = r->color->bg;
 	attr_t attrs = r->attrs;
 
-	for (unsigned int i = 1; i < LENGTH(colorrules); i++) {
-		r = &colorrules[i];
+	for( r += 1; r < e; r++) {
 		if (strstr(c->title, r->title)) {
 			attrs = r->attrs;
 			fg = r->color->fg;
