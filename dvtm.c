@@ -1804,11 +1804,11 @@ set_fd_mask(int fd, fd_set *r, int *nfds) {
 }
 
 
-enum state { enter, command };
+enum mode { keypress_mode, command };
 
 int
 main(int argc, char *argv[]) {
-	enum state state = enter;
+	enum mode mode = keypress_mode;
 	unsigned keys[MAX_KEYS];
 	unsigned int key_index = 0;
 
@@ -1866,21 +1866,21 @@ main(int argc, char *argv[]) {
 		if (FD_ISSET(STDIN_FILENO, &rd)) {
 			int code = getch();
 			if( code == modifier_key ) {
-				if( state == enter) {
-					state = command;
+				if( mode == keypress_mode) {
+					mode = command;
 					key_index = 0;
 				} else {
-					state = enter;
+					mode = keypress_mode;
 					keypress(code);
 				}
 			/* On my current box, 1b is ESC.  Need to find the proper ncurses code */
 			} else if( code == 0x1b ) {
-				switch(state) {
-				case enter: keypress(code); break;
-				case command: state = enter;
+				switch(mode) {
+				case keypress_mode: keypress(code); break;
+				case command: mode = keypress_mode;
 				}
 			} else if (code >= 0) {
-				if( state == enter) {
+				if( mode == keypress_mode) {
 					keypress(code);
 				} else {
 					struct key_binding *binding;
