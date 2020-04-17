@@ -1864,6 +1864,15 @@ main(int argc, char *argv[]) {
 					state = enter;
 					keypress(code);
 				}
+			/* On my current box, 1b is ESC.  Need to find the proper ncurses code */
+			} else if( code == 0x1b ) {
+				switch(state) {
+				case enter: keypress(code); break;
+				case command:
+					state = enter;
+					key_index = 0;
+					memset(keys, 0, sizeof(keys));
+				}
 			} else if (code >= 0) {
 				if( state == enter) {
 					keypress(code);
