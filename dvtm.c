@@ -1320,8 +1320,7 @@ paste(const char *args[]) {
 
 static void
 quit(const char *args[]) {
-	cleanup();
-	exit(EXIT_SUCCESS);
+	running = false;
 }
 
 static void
