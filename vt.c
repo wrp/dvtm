@@ -15,6 +15,7 @@
  * IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
  * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
+#include "config.h"
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
@@ -32,11 +33,11 @@
 #include <sys/types.h>
 #include <termios.h>
 #include <wchar.h>
-#if defined(__linux__) || defined(__CYGWIN__)
+#if HAVE_PTY_H
 # include <pty.h>
-#elif defined(__FreeBSD__) || defined(__DragonFly__)
+#elif HAVE_LIBUTIL_H
 # include <libutil.h>
-#elif defined(__OpenBSD__) || defined(__NetBSD__) || defined(__APPLE__)
+#elif HAVE_UTIL_H
 # include <util.h>
 #endif
 
