@@ -1793,6 +1793,17 @@ push_action(const Action *a)
 	actions[count + 1].cmd = NULL;
 }
 
+static void
+set_fd_mask(int fd, fd_set *r, int *nfds) {
+	if( fd != -1 ) {
+		FD_SET(fd, r);
+		if( fd > *nfds ) {
+			*nfds = fd;
+		}
+	}
+}
+
+
 enum state { enter, command };
 
 int
@@ -1821,23 +1832,11 @@ main(int argc, char *argv[]) {
 		}
 
 		FD_ZERO(&rd);
-		FD_SET(STDIN_FILENO, &rd);
-
-		FD_SET(sigwinch_pipe[PIPE_RD], &rd);
-		nfds = MAX(nfds, sigwinch_pipe[PIPE_RD]);
-
-		FD_SET(sigchld_pipe[PIPE_RD], &rd);
-		nfds = MAX(nfds, sigchld_pipe[PIPE_RD]);
-
-		if (cmdfifo.fd != -1) {
-			FD_SET(cmdfifo.fd, &rd);
-			nfds = MAX(nfds, cmdfifo.fd);
-		}
-
-		if (bar.fd != -1) {
-			FD_SET(bar.fd, &rd);
-			nfds = MAX(nfds, bar.fd);
-		}
+		set_fd_mask(STDIN_FILENO, &rd, &nfds);
+		set_fd_mask(sigwinch_pipe[0], &rd, &nfds);
+		set_fd_mask(sigchld_pipe[0], &rd, &nfds);
+		set_fd_mask(cmdfifo.fd, &rd, &nfds);
+		set_fd_mask(bar.fd, &rd, &nfds);
 
 		for (Client *c = clients; c; ) {
 			if (c->editor && c->editor_died)
