@@ -160,7 +160,6 @@ static const ColorRule colorrules[] = {
 };
 
 
-
 static Cmd commands[] = {
 	/* create [cmd]: create a new window, run `cmd` in the shell if specified */
 	{ "create", { create,	{ NULL } } },
@@ -1782,8 +1781,11 @@ push_action(const Action *a)
 	actions[count + 1].cmd = NULL;
 }
 
+enum state { enter, command };
+
 int
 main(int argc, char *argv[]) {
+	enum state state = enter;
 	KeyCombo keys;
 	unsigned int key_index = 0;
 	memset(keys, 0, sizeof(keys));
@@ -1853,22 +1855,38 @@ main(int argc, char *argv[]) {
 
 		if (FD_ISSET(STDIN_FILENO, &rd)) {
 			int code = getch();
-			if (code >= 0) {
-				keys[key_index++] = code;
-				KeyBinding *binding = NULL;
-				if( keys[0] == modifier_key && (binding = keybinding(keys, key_index))) {
-					unsigned int key_length = MAX_KEYS;
-					while (key_length > 1 && !binding->keys[key_length-2])
-						key_length--;
-					if (key_index == key_length) {
-						binding->action.cmd(binding->action.args);
-						key_index = 0;
-						memset(keys, 0, sizeof(keys));
-					}
-				} else {
+			if( code == modifier_key ) {
+				if( state == enter) {
+					state = command;
 					key_index = 0;
 					memset(keys, 0, sizeof(keys));
+					keys[key_index++] = code;
+				} else {
+					state = enter;
 					keypress(code);
+				}
+			} else if (code >= 0) {
+				if( state == enter) {
+					keypress(code);
+				} else {
+					KeyBinding *binding;
+					keys[key_index++] = code;
+
+					if( NULL != (binding = keybinding(keys, key_index)) ) {
+						unsigned int key_length = MAX_KEYS;
+						while (key_length > 1 && !binding->keys[key_length-2])
+							key_length--;
+						if (key_index == key_length) {
+							binding->action.cmd(binding->action.args);
+							key_index = 0;
+							memset(keys, 0, sizeof(keys));
+							keys[key_index++] = modifier_key;
+						}
+					} else {
+						key_index = 0;
+						memset(keys, 0, sizeof(keys));
+						keys[key_index++] = modifier_key;
+					}
 				}
 			}
 			if (r == 1) /* no data available on pty's */
