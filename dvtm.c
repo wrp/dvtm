@@ -34,6 +34,7 @@ static void quit(const char *args[]);
 static void redraw(const char *args[]);
 static void scrollback(const char *args[]);
 static void send(const char *args[]);
+static void send_mod(const char *args[]);
 static void setlayout(const char *args[]);
 static void incnmaster(const char *args[]);
 static void setmfact(const char *args[]);
@@ -87,6 +88,8 @@ static Layout layouts[] = {
 };
 
 #define MOD  CTRL('g')
+unsigned modifier_key = MOD;
+
 #define TAGKEYS(KEY,TAG) \
 	{ { MOD, 'v', KEY,     }, { view,           { #TAG }               } }, \
 	{ { MOD, 't', KEY,     }, { tag,            { #TAG }               } }, \
@@ -137,7 +140,7 @@ static KeyBinding bindings[] = {
 	{ { MOD, KEY_PPAGE,    }, { scrollback,     { "-1" }                    } },
 	{ { MOD, KEY_NPAGE,    }, { scrollback,     { "1"  }                    } },
 	{ { MOD, '?',          }, { create,         { "man dvtm", "dvtm help" } } },
-	{ { MOD, MOD,          }, { send,           { (const char []){MOD, 0} } } },
+	{ { MOD, MOD,          }, { send_mod,       { NULL }                    } },
 	{ { MOD, 'u',          }, { scrollback,     { "-1" }                    } },
 	{ { MOD, 'n',          }, { scrollback,     { "1"  }                    } },
 	{ { MOD, '0',          }, { view,           { NULL }                    } },
@@ -1355,6 +1358,14 @@ scrollback(const char *args[]) {
 }
 
 static void
+send_mod(const char *args[]) {
+	if( sel ) {
+		char b[2] = {modifier_key, 0};;
+		vt_write(sel->term, b, 1);
+	}
+}
+
+static void
 send(const char *args[]) {
 	if (sel && args && args[0])
 		vt_write(sel->term, args[0], strlen(args[0]));
@@ -1741,14 +1752,9 @@ parse_args(int argc, char *argv[]) {
 			exit(EXIT_SUCCESS);
 		case 'm': {
 			char *mod = *++argv;
-			char new = *mod;
+			modifier_key = *mod;
 			if( mod[0] == '^' && mod[1] != '\0' ) {
-				new = CTRL(mod[1]);
-			}
-			for( unsigned int b = 0; b < LENGTH(bindings); b++ ) {
-				if (bindings[b].keys[0] == MOD) {
-					bindings[b].keys[0] = new;
-				}
+				modifier_key = CTRL(mod[1]);
 			}
 			break;
 		}
@@ -1870,7 +1876,7 @@ main(int argc, char *argv[]) {
 			if (code >= 0) {
 				keys[key_index++] = code;
 				KeyBinding *binding = NULL;
-				if( keys[0] == MOD && (binding = keybinding(keys, key_index))) {
+				if( keys[0] == modifier_key && (binding = keybinding(keys, key_index))) {
 					unsigned int key_length = MAX_KEYS;
 					while (key_length > 1 && !binding->keys[key_length-1])
 						key_length--;
