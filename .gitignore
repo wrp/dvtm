@@ -16,3 +16,5 @@
 /ltmain.sh
 /missing
 /dvtm.1
+/dvtm.log
+/testsuite.sh.log
