@@ -16,4 +16,4 @@ version:
 dvtm.1: dvtm.txt
 	asciidoctor -a ver=${PACKAGE_VERSION} -b manpage $<
 
-dvtm_SOURCES = dvtm.c vt.c wstack.c
+dvtm_SOURCES = dvtm.c vt.c wstack.c keybindings.c

@@ -104,6 +104,8 @@ struct key_binding {
 	unsigned keys[MAX_KEYS];
 	Action action;
 };
+extern struct key_binding bindings[];
+extern size_t key_binding_length;
 
 typedef struct {
 	mmask_t mask;
