@@ -22,10 +22,10 @@ wstack(void)
 	}
 
 	m  = MAX(1, MIN(n, screen.nmaster));
-	mh = n == m ? wah : screen.mfact * wah;
+	mh = n == m ? available_height : screen.mfact * available_height;
 	tw = n == m ? 0 : available_width / (n - m);
 	nx = wax;
-	ny = way + wah - mh;
+	ny = way + available_height - mh;
 
 	for( i = 0, c = nextvisible(clients); c; c = nextvisible(c->next) ) {
 		unsigned nh; /* height of the current window */
@@ -41,7 +41,7 @@ wstack(void)
 			ny = way;
 			if (i == m) {
 				nx = wax;
-				nh = (way + wah) - ny - mh;
+				nh = (way + available_height) - ny - mh;
 			}
 			if (i > m) {
 				mvvline(ny, nx, ACS_VLINE, nh);

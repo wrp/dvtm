@@ -54,7 +54,8 @@ void cleanup(void);
 void push_action(const struct action *a);
 
 unsigned available_width;
-unsigned wah, wax, way;
+unsigned available_height;
+unsigned wax, way;
 struct client *clients = NULL;
 char *title;
 
@@ -134,14 +135,14 @@ updatebarpos(void) {
 	bar.y = 0;
 	wax = 0;
 	way = 0;
-	wah = screen.h;
+	available_height = screen.h;
 	available_width = screen.w;
 	if (bar.pos == BAR_TOP) {
-		wah -= bar.h;
+		available_height -= bar.h;
 		way += bar.h;
 	} else if (bar.pos == BAR_BOTTOM) {
-		wah -= bar.h;
-		bar.y = wah;
+		available_height -= bar.h;
+		bar.y = available_height;
 	}
 }
 
@@ -341,17 +342,17 @@ arrange(void) {
 		updatebarpos();
 	}
 	if (m && !isarrange(fullscreen))
-		wah--;
+		available_height--;
 	layout->arrange();
 	if (m && !isarrange(fullscreen)) {
 		unsigned int i = 0, nw = available_width / m, nx = wax;
 		for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
 			if (c->minimized) {
-				resize(c, nx, way+wah, ++i == m ? available_width - nx : nw, 1);
+				resize(c, nx, way+available_height, ++i == m ? available_width - nx : nw, 1);
 				nx += nw;
 			}
 		}
-		wah++;
+		available_height++;
 	}
 	focus(NULL);
 	wnoutrefresh(stdscr);
@@ -542,7 +543,7 @@ resize(struct client *c, int x, int y, int w, int h) {
 
 struct client*
 get_client_by_coord(unsigned int x, unsigned int y) {
-	if (y < way || y >= way+wah)
+	if (y < way || y >= way+available_height)
 		return NULL;
 	if (isarrange(fullscreen))
 		return sel;
@@ -935,7 +936,7 @@ create(const char *args[]) {
 	c->id = ++cmdfifo.id;
 	snprintf(buf, sizeof buf, "%d", c->id);
 
-	if (!(c->window = newwin(wah, available_width, way, wax))) {
+	if (!(c->window = newwin(available_height, available_width, way, wax))) {
 		free(c);
 		return;
 	}
@@ -1821,5 +1822,5 @@ main(int argc, char *argv[]) {
 void fullscreen(void)
 {
 	for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next))
-		resize(c, wax, way, available_width, wah);
+		resize(c, wax, way, available_width, available_height);
 }
