@@ -197,3 +197,41 @@ int ESCDELAY;
 #define TAG_OCCUPIED (COLOR(RED) | A_NORMAL)
 /* curses attributes for not selected tags which with urgent windows */
 #define TAG_URGENT (COLOR(RED) | A_NORMAL | A_BLINK)
+
+/* commands for use by keybindings */
+void create(const char *args[]);
+void copymode(const char *args[]);
+void focusn(const char *args[]);
+void focusid(const char *args[]);
+void focusnext(const char *args[]);
+void focusnextnm(const char *args[]);
+void focusprev(const char *args[]);
+void focusprevnm(const char *args[]);
+void focuslast(const char *args[]);
+void focusup(const char *args[]);
+void focusdown(const char *args[]);
+void focusleft(const char *args[]);
+void focusright(const char *args[]);
+void killclient(const char *args[]);
+void paste(const char *args[]);
+void quit(const char *args[]);
+void redraw(const char *args[]);
+void scrollback(const char *args[]);
+void send(const char *args[]);
+void setlayout(const char *args[]);
+void incnmaster(const char *args[]);
+void setmfact(const char *args[]);
+void startup(const char *args[]);
+void tag(const char *args[]);
+void tagid(const char *args[]);
+void togglebar(const char *args[]);
+void togglebarpos(const char *args[]);
+void toggleminimize(const char *args[]);
+void togglerunall(const char *args[]);
+void toggletag(const char *args[]);
+void toggleview(const char *args[]);
+void untag(const char *args[]);
+void viewprevtag(const char *args[]);
+void view(const char *args[]);
+void zoom(const char *args[]);
+void fullscreen(void);
