@@ -30,8 +30,6 @@ struct color colors[] = {
 	[RED]     = { .fg = COLOR_RED,  .bg = -1, .fg256 =   9, .bg256 = -1, },
 };
 
-const int tags = 8;
-
 extern void wstack(void);
 Layout layouts[] = {
 	{ "---", wstack },
@@ -178,15 +176,17 @@ drawbar(void) {
 	attrset(BAR_ATTR);
 	move(bar.y, 0);
 
-	for (unsigned int i = 0; i < tags; i++){
-		if (tagset[seltags] & (1 << i))
+	for( unsigned i = 0; i < TAG_COUNT; i++ ) {
+		unsigned mask = 1 << i;
+		if( tagset[seltags] & mask ) {
 			attrset(TAG_SEL);
-		else if (urgent & (1 << i))
+		} else if( urgent & mask ) {
 			attrset(TAG_URGENT);
-		else if (occupied & (1 << i))
+		} else if( occupied & mask ) {
 			attrset(TAG_OCCUPIED);
-		else
+		} else {
 			attrset(TAG_NORMAL);
+		}
 		printw(TAG_SYMBOL, i + 1);
 	}
 
@@ -258,7 +258,7 @@ draw_border(struct client *c) {
 	if(c->tags) {
 		unsigned mask = 0x1;
 		int first = 1;
-		for( int i=0; i < tags; i++, mask <<= 1 ) {
+		for( int i=0; i < TAG_COUNT; i++, mask <<= 1 ) {
 			if( (c->tags & mask) != 0) {
 				char b[32];
 				sprintf(b, "%s%d", first ? "" : ",", i + 1);

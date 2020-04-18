@@ -189,16 +189,12 @@ int ESCDELAY;
 #define NMASTER 1
 /* scroll back buffer size in lines */
 #define SCROLL_HISTORY 500
-/* printf format string for the tag in the status bar */
-#define TAG_SYMBOL   "[%d]"
-/* curses attributes for the currently selected tags */
-#define TAG_SEL      (COLOR(BLUE) | A_BOLD)
-/* curses attributes for not selected tags which contain no windows */
-#define TAG_NORMAL   (COLOR(DEFAULT) | A_NORMAL)
-/* curses attributes for not selected tags which contain windows */
-#define TAG_OCCUPIED (COLOR(RED) | A_NORMAL)
-/* curses attributes for not selected tags which with urgent windows */
-#define TAG_URGENT (COLOR(RED) | A_NORMAL | A_BLINK)
+#define TAG_COUNT    8
+#define TAG_SYMBOL   "[%d]" /* format string for the tag in the status bar */
+#define TAG_SEL      (COLOR(BLUE) | A_BOLD)       /* attributes for the currently selected tags */
+#define TAG_NORMAL   (COLOR(DEFAULT) | A_NORMAL)  /* attributes for unselected empty tags */
+#define TAG_OCCUPIED (COLOR(RED) | A_NORMAL)      /* attributes for unselected nonempty tags */
+#define TAG_URGENT (COLOR(RED) | A_NORMAL | A_BLINK) /* attributes for unselected tags with urgent windows */
 
 /* commands for use by keybindings */
 void create(const char *args[]);
