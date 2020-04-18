@@ -235,9 +235,8 @@ show_border(void) {
 
 void
 draw_border(struct client *c) {
-	char t = '\0';
-	int x, y, maxlen, attrs = NORMAL_ATTR;
-	char taglist[128] = "";
+	int x, y, attrs = NORMAL_ATTR;
+	char border_title[128];
 
 	if (!show_border())
 		return;
@@ -249,13 +248,11 @@ draw_border(struct client *c) {
 	wattrset(c->window, attrs);
 	getyx(c->window, y, x);
 	mvwhline(c->window, 0, 0, ACS_HLINE, c->w);
-	maxlen = c->w - 10;
-	if (maxlen < 0)
-		maxlen = 0;
-	if ((size_t)maxlen < sizeof(c->title)) {
-		t = c->title[maxlen];
-		c->title[maxlen] = '\0';
-	}
+
+	snprintf(border_title, sizeof border_title, "%s%s#%d (%d:%ld)",
+		*c->title ? c->title : "",
+		*c->title ? " | " : "",
+		c->order, c->id, (long)c->pid);
 
 	if(c->tags) {
 		unsigned mask = 0x1;
@@ -264,23 +261,13 @@ draw_border(struct client *c) {
 			if( (c->tags & mask) != 0) {
 				char b[32];
 				sprintf(b, "%s%d", first ? "" : ",", i + 1);
-				strcat(taglist, b);
+				strcat(border_title, b);
 				first = 0;
 			}
 		}
 	}
 
-	mvwprintw(
-		c->window, 0, 2, "[%s%s#%d (%d:%ld) %s]",
-		*c->title ? c->title : "",
-		*c->title ? " | " : "",
-		c->order,
-		c->id,
-		(long)c->pid,
-		taglist
-	);
-	if (t)
-		c->title[maxlen] = t;
+	mvwprintw(c->window, 0, 2, "[%s]", border_title);
 	wmove(c->window, y, x);
 }
 
