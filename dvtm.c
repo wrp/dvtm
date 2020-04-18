@@ -474,7 +474,7 @@ static void set_client_title(struct client *c, const char *title) {
 	char *d = c->title;
 	char *e = c->title + sizeof c->title - 1;
 	for( ; title && *title && d < e; title += 1 ) {
-		if( isprint(*title) ) {
+		if( isprint(*title) && ! isspace(*title)) {
 			*d++ = *title;
 		} else if( d > c->title && d[-1] != ' ') {
 			*d++ = ' ';
