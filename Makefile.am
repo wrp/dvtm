@@ -1,5 +1,5 @@
 
-bin_PROGRAMS = dvtm dvtm-editor
+bin_PROGRAMS = dvtm mvtm-editor
 bin_SCRIPTS = dvtm-status dvtm-pager
 man1_MANS = dvtm.1 dvtm-editor.1 dvtm-pager.1
 AM_CPPFLAGS = -D_DARWIN_C_SOURCE -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 \
