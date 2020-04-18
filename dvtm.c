@@ -205,9 +205,7 @@ drawbar(void) {
 	size_t numchars = mbstowcs(wbuf, bar.text, sizeof bar.text);
 
 	if (numchars != (size_t)-1 && (width = wcswidth(wbuf, maxwidth)) != -1) {
-		int pos;
-		for (pos = 0; pos + width < maxwidth; pos++)
-			addch(' ');
+		int pos = 0;
 
 		for (size_t i = 0; i < numchars; i++) {
 			pos += wcwidth(wbuf[i]);
@@ -215,7 +213,6 @@ drawbar(void) {
 				break;
 			addnwstr(wbuf+i, 1);
 		}
-
 		clrtoeol();
 	}
 
