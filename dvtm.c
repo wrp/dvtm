@@ -411,11 +411,15 @@ detach(struct client *c) {
 	c->next = c->prev = NULL;
 }
 
-void
-settitle(struct client *c) {
+static void
+set_term_title(char *new_title) {
 	char *term, *t = title;
-	if (!t && sel == c && *c->title)
-		t = c->title;
+
+	assert(new_title == sel->title);
+	if( !t && *new_title ) {
+		t = new_title;
+	}
+
 	if (t && (term = getenv("TERM")) && !strstr(term, "linux")) {
 		printf("\033]0;%s\007", t);
 		fflush(stdout);
@@ -448,7 +452,7 @@ focus(struct client *c) {
 	if (c) {
 		detachstack(c);
 		attachstack(c);
-		settitle(c);
+		set_term_title(c->title);
 		c->urgent = false;
 		if (isarrange(fullscreen)) {
 			draw(c);
@@ -479,15 +483,26 @@ applycolorrules(struct client *c) {
 	vt_default_colors_set(c->term, attrs, fg, bg);
 }
 
-void
-term_title_handler(Vt *term, const char *t) {
-	struct client *c = (struct client *)vt_data_get(term);
-	char *d = c->title, *e = c->title + sizeof c->title - 1;
-	while( t && *t && d < e ) {
-		*d++ = *t++;
+static void set_client_title(struct client *c, const char *title) {
+	char *d = c->title;
+	char *e = c->title + sizeof c->title - 1;
+	for( ; title && *title && d < e; title += 1 ) {
+		if( isprint(*title) ) {
+			*d++ = *title;
+		} else if( d > c->title && d[-1] != ' ') {
+			*d++ = ' ';
+		}
 	}
 	*d = '\0';
-	settitle(c);
+}
+
+void
+term_title_handler(Vt *term, const char *title) {
+	struct client *c = (struct client *)vt_data_get(term);
+	set_client_title(c, title);
+	if( sel == c ) {
+		set_term_title(c->title);
+	}
 	if (!isarrange(fullscreen) || sel == c)
 		draw_border(c);
 	applycolorrules(c);
