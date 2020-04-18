@@ -955,17 +955,15 @@ create(const char *args[]) {
 
 	if (args && args[0]) {
 		c->cmd = args[0];
-		char name[PATH_MAX];
-		strncpy(name, args[0], sizeof(name));
-		name[sizeof(name)-1] = '\0';
-		strncpy(c->title, basename(name), sizeof(c->title));
 	} else {
 		c->cmd = shell;
 	}
 
-	if (args && args[1])
-		strncpy(c->title, args[1], sizeof(c->title));
-	c->title[sizeof(c->title)-1] = '\0';
+	if( args && args[1] ) {
+		set_client_title(c, args[1]);
+	} else {
+		set_client_title(c, c->cmd);
+	}
 
 	if (args && args[2])
 		cwd = !strcmp(args[2], "$CWD") ? getcwd_by_pid(sel) : (char*)args[2];
