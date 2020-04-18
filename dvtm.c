@@ -1668,12 +1668,10 @@ set_fd_mask(int fd, fd_set *r, int *nfds) {
 	}
 }
 
-
 void
-check_client_fds(fd_set *rd, int *nfds)
+cleanup_dead_clients(struct client *c)
 {
-	struct client *c = clients;
-	while(c != NULL) {
+	while( c != NULL ) {
 		if( c->editor && c->editor_died ) {
 			handle_editor(c);
 		}
@@ -1683,6 +1681,14 @@ check_client_fds(fd_set *rd, int *nfds)
 			c = t;
 			continue;
 		}
+		c = c->next;
+	}
+}
+
+void
+check_client_fds(fd_set *rd, int *nfds, struct client *c)
+{
+	while(c != NULL) {
 		int pty = c->editor ? vt_pty_get(c->editor) : vt_pty_get(c->app);
 		set_fd_mask(pty, rd, nfds);
 		c = c->next;
@@ -1721,7 +1727,7 @@ main(int argc, char *argv[]) {
 		set_fd_mask(cmdfifo.fd, &rd, &nfds);
 		set_fd_mask(bar.fd, &rd, &nfds);
 
-		check_client_fds(&rd, &nfds);
+		check_client_fds(&rd, &nfds, clients);
 
 		doupdate();
 		r = select(nfds + 1, &rd, NULL, NULL, NULL);
@@ -1816,6 +1822,7 @@ main(int argc, char *argv[]) {
 			curs_set(vt_cursor_visible(sel->term));
 			wnoutrefresh(sel->window);
 		}
+		cleanup_dead_clients(clients);
 	}
 
 	cleanup();
