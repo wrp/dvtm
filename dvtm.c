@@ -25,42 +25,42 @@
 #include "dvtm.h"
 
 /* commands for use by keybindings */
-static void create(const char *args[]);
-static void copymode(const char *args[]);
-static void focusn(const char *args[]);
-static void focusid(const char *args[]);
-static void focusnext(const char *args[]);
-static void focusnextnm(const char *args[]);
-static void focusprev(const char *args[]);
-static void focusprevnm(const char *args[]);
-static void focuslast(const char *args[]);
-static void focusup(const char *args[]);
-static void focusdown(const char *args[]);
-static void focusleft(const char *args[]);
-static void focusright(const char *args[]);
-static void killclient(const char *args[]);
-static void paste(const char *args[]);
-static void quit(const char *args[]);
-static void redraw(const char *args[]);
-static void scrollback(const char *args[]);
-static void send(const char *args[]);
-static void setlayout(const char *args[]);
-static void incnmaster(const char *args[]);
-static void setmfact(const char *args[]);
-static void startup(const char *args[]);
-static void tag(const char *args[]);
-static void tagid(const char *args[]);
-static void togglebar(const char *args[]);
-static void togglebarpos(const char *args[]);
-static void toggleminimize(const char *args[]);
-static void togglerunall(const char *args[]);
-static void toggletag(const char *args[]);
-static void toggleview(const char *args[]);
-static void untag(const char *args[]);
-static void viewprevtag(const char *args[]);
-static void view(const char *args[]);
-static void zoom(const char *args[]);
-static void fullscreen(void);
+void create(const char *args[]);
+void copymode(const char *args[]);
+void focusn(const char *args[]);
+void focusid(const char *args[]);
+void focusnext(const char *args[]);
+void focusnextnm(const char *args[]);
+void focusprev(const char *args[]);
+void focusprevnm(const char *args[]);
+void focuslast(const char *args[]);
+void focusup(const char *args[]);
+void focusdown(const char *args[]);
+void focusleft(const char *args[]);
+void focusright(const char *args[]);
+void killclient(const char *args[]);
+void paste(const char *args[]);
+void quit(const char *args[]);
+void redraw(const char *args[]);
+void scrollback(const char *args[]);
+void send(const char *args[]);
+void setlayout(const char *args[]);
+void incnmaster(const char *args[]);
+void setmfact(const char *args[]);
+void startup(const char *args[]);
+void tag(const char *args[]);
+void tagid(const char *args[]);
+void togglebar(const char *args[]);
+void togglebarpos(const char *args[]);
+void toggleminimize(const char *args[]);
+void togglerunall(const char *args[]);
+void toggletag(const char *args[]);
+void toggleview(const char *args[]);
+void untag(const char *args[]);
+void viewprevtag(const char *args[]);
+void view(const char *args[]);
+void zoom(const char *args[]);
+void fullscreen(void);
 
 enum {
 	DEFAULT,
@@ -68,7 +68,7 @@ enum {
 	RED,
 };
 
-static struct color colors[] = {
+struct color colors[] = {
 	[DEFAULT] = { .fg = -1,         .bg = -1, .fg256 =  -1, .bg256 = -1, },
 	[BLUE]    = { .fg = COLOR_BLUE, .bg = -1, .fg256 =  68, .bg256 = -1, },
 	[RED]     = { .fg = COLOR_RED,  .bg = -1, .fg256 =   9, .bg256 = -1, },
@@ -77,7 +77,7 @@ static struct color colors[] = {
 const int tags = 8;
 
 extern void wstack(void);
-static Layout layouts[] = {
+Layout layouts[] = {
 	{ "---", wstack },
 	{ "[ ]", fullscreen },
 };
@@ -91,7 +91,7 @@ unsigned modifier_key = CTRL('g');
 	{ { 'T', KEY,     }, { toggletag,      { #TAG }               } }
 
 /* you can specifiy at most 3 arguments */
-static struct key_binding bindings[] = {
+struct key_binding bindings[] = {
 	{ { 'c',          }, { create,         { NULL, NULL, "master" }    } },
 	{ { 'C',          }, { create,         { NULL, NULL, "$CWD" }      } },
 	{ { 'x', 'x',     }, { killclient,     { NULL }                    } },
@@ -151,48 +151,48 @@ static struct key_binding bindings[] = {
 	TAGKEYS( '8', 8),
 };
 
-static const struct color_rule colorrules[] = {
+const struct color_rule colorrules[] = {
 	{ "", A_NORMAL, &colors[DEFAULT] }, /* default */
 };
 
 
-static struct command commands[] = {
+struct command commands[] = {
 	{ "create", { create,	{ NULL } } },
 	{ "focus",  { focusid,	{ NULL } } },
 	{ "tag",    { tagid,	{ NULL } } },
 };
 
 /* forward declarations of internal functions */
-static void cleanup(void);
-static void push_action(const Action *a);
+void cleanup(void);
+void push_action(const Action *a);
 
 unsigned waw, wah, wax, way;
 struct client *clients = NULL;
 char *title;
 
 /* global variables */
-static Action *actions = NULL; /* actions are executed when dvtm is started */
+Action *actions = NULL; /* actions are executed when dvtm is started */
 
 struct screen screen = { .mfact = MFACT, .nmaster = NMASTER, .history = SCROLL_HISTORY };
 
-static const char *dvtm_name = "dvtm";
-static struct client *stack = NULL;
-static struct client *sel = NULL;
-static struct client *lastsel = NULL;
-static struct client *msel = NULL;
-static unsigned int seltags;
-static unsigned int tagset[2] = { 1, 1 };
-static Layout *layout = layouts;
-static StatusBar bar = { .fd = -1, .lastpos = BAR_POS, .pos = BAR_POS, .autohide = BAR_AUTOHIDE, .h = 1 };
-static CmdFifo cmdfifo = { .fd = -1 };
-static const char *shell;
-static Register copyreg;
-static volatile sig_atomic_t stop_requested = 0;
-static bool runinall = false;
-static int sigwinch_pipe[] = {-1, -1};
-static int sigchld_pipe[] = {-1, -1};
+const char *dvtm_name = "dvtm";
+struct client *stack = NULL;
+struct client *sel = NULL;
+struct client *lastsel = NULL;
+struct client *msel = NULL;
+unsigned int seltags;
+unsigned int tagset[2] = { 1, 1 };
+Layout *layout = layouts;
+StatusBar bar = { .fd = -1, .lastpos = BAR_POS, .pos = BAR_POS, .autohide = BAR_AUTOHIDE, .h = 1 };
+CmdFifo cmdfifo = { .fd = -1 };
+const char *shell;
+Register copyreg;
+volatile sig_atomic_t stop_requested = 0;
+bool runinall = false;
+int sigwinch_pipe[] = {-1, -1};
+int sigchld_pipe[] = {-1, -1};
 
-static void
+void
 eprint(const char *errstr, ...) {
 	va_list ap;
 	va_start(ap, errstr);
@@ -200,7 +200,7 @@ eprint(const char *errstr, ...) {
 	va_end(ap);
 }
 
-static void
+void
 error(int include_errstr, const char *errstr, ...) {
 	int save_errno = errno;
 	cleanup();
@@ -217,17 +217,17 @@ error(int include_errstr, const char *errstr, ...) {
 	exit(EXIT_FAILURE);
 }
 
-static bool
+bool
 isarrange(void (*func)()) {
 	return func == layout->arrange;
 }
 
-static bool
+bool
 isvisible(struct client *c) {
 	return c->tags & tagset[seltags];
 }
 
-static bool
+bool
 is_content_visible(struct client *c) {
 	if (!c)
 		return false;
@@ -242,7 +242,7 @@ nextvisible(struct client *c) {
 	return c;
 }
 
-static void
+void
 updatebarpos(void) {
 	bar.y = 0;
 	wax = 0;
@@ -258,7 +258,7 @@ updatebarpos(void) {
 	}
 }
 
-static void
+void
 hidebar(void) {
 	if (bar.pos != BAR_OFF) {
 		bar.lastpos = bar.pos;
@@ -266,13 +266,13 @@ hidebar(void) {
 	}
 }
 
-static void
+void
 showbar(void) {
 	if (bar.pos == BAR_OFF)
 		bar.pos = bar.lastpos;
 }
 
-static void
+void
 drawbar(void) {
 	int sx, sy, x, y, width;
 	unsigned int occupied = 0, urgent = 0;
@@ -337,12 +337,12 @@ drawbar(void) {
 	wnoutrefresh(stdscr);
 }
 
-static int
+int
 show_border(void) {
 	return (bar.pos != BAR_OFF) || (clients && clients->next);
 }
 
-static void
+void
 draw_border(struct client *c) {
 	char t = '\0';
 	int x, y, maxlen, attrs = NORMAL_ATTR;
@@ -393,12 +393,12 @@ draw_border(struct client *c) {
 	wmove(c->window, y, x);
 }
 
-static void
+void
 draw_content(struct client *c) {
 	vt_draw(c->term, c->window, c->has_title_line, 0);
 }
 
-static void
+void
 draw(struct client *c) {
 	if (is_content_visible(c)) {
 		redrawwin(c->window);
@@ -409,7 +409,7 @@ draw(struct client *c) {
 	wnoutrefresh(c->window);
 }
 
-static void
+void
 draw_all(void) {
 	if (!nextvisible(clients)) {
 		sel = NULL;
@@ -434,7 +434,7 @@ draw_all(void) {
 		draw(sel);
 }
 
-static void
+void
 arrange(void) {
 	unsigned int m = 0, n = 0;
 	for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
@@ -470,7 +470,7 @@ arrange(void) {
 	draw_all();
 }
 
-static void
+void
 attach(struct client *c) {
 	if (clients)
 		clients->prev = c;
@@ -481,7 +481,7 @@ attach(struct client *c) {
 		c->order = o;
 }
 
-static void
+void
 attachafter(struct client *c, struct client *a) { /* attach c after a */
 	if (c == a)
 		return;
@@ -499,13 +499,13 @@ attachafter(struct client *c, struct client *a) { /* attach c after a */
 	}
 }
 
-static void
+void
 attachstack(struct client *c) {
 	c->snext = stack;
 	stack = c;
 }
 
-static void
+void
 detach(struct client *c) {
 	struct client *d;
 	if (c->prev)
@@ -520,7 +520,7 @@ detach(struct client *c) {
 	c->next = c->prev = NULL;
 }
 
-static void
+void
 settitle(struct client *c) {
 	char *term, *t = title;
 	if (!t && sel == c && *c->title)
@@ -531,7 +531,7 @@ settitle(struct client *c) {
 	}
 }
 
-static void
+void
 detachstack(struct client *c) {
 	struct client **tc;
 	for (tc = &stack; *tc && *tc != c; tc = &(*tc)->snext);
@@ -569,7 +569,7 @@ focus(struct client *c) {
 	curs_set(c && !c->minimized && vt_cursor_visible(c->term));
 }
 
-static void
+void
 applycolorrules(struct client *c) {
 	const struct color_rule *r = colorrules;
 	const struct color_rule *e = r + LENGTH(colorrules);
@@ -588,7 +588,7 @@ applycolorrules(struct client *c) {
 	vt_default_colors_set(c->term, attrs, fg, bg);
 }
 
-static void
+void
 term_title_handler(Vt *term, const char *title) {
 	struct client *c = (struct client *)vt_data_get(term);
 	if (title)
@@ -600,7 +600,7 @@ term_title_handler(Vt *term, const char *title) {
 	applycolorrules(c);
 }
 
-static void
+void
 term_urgent_handler(Vt *term) {
 	struct client *c = (struct client *)vt_data_get(term);
 	c->urgent = true;
@@ -611,7 +611,7 @@ term_urgent_handler(Vt *term) {
 		draw_border(c);
 }
 
-static void
+void
 move_client(struct client *c, int x, int y) {
 	if (c->x == x && c->y == y)
 		return;
@@ -624,7 +624,7 @@ move_client(struct client *c, int x, int y) {
 	}
 }
 
-static void
+void
 resize_client(struct client *c, int w, int h) {
 	bool has_title_line = show_border();
 	bool resize_window = c->w != w || c->h != h;
@@ -651,7 +651,7 @@ resize(struct client *c, int x, int y, int w, int h) {
 	move_client(c, x, y);
 }
 
-static struct client*
+struct client*
 get_client_by_coord(unsigned int x, unsigned int y) {
 	if (y < way || y >= way+wah)
 		return NULL;
@@ -665,12 +665,12 @@ get_client_by_coord(unsigned int x, unsigned int y) {
 	return NULL;
 }
 
-static void
+void
 sigchld_handler(int sig) {
 	write(sigchld_pipe[1], "\0", 1);
 }
 
-static void
+void
 handle_sigchld() {
 	int errsv = errno;
 	int status;
@@ -703,17 +703,17 @@ handle_sigchld() {
 	errno = errsv;
 }
 
-static void
+void
 sigwinch_handler(int sig) {
 	write(sigwinch_pipe[1], "\0", 1);
 }
 
-static void
+void
 sigterm_handler(int sig) {
 	stop_requested = 1;
 }
 
-static void
+void
 resize_screen(void) {
 	struct winsize ws;
 
@@ -731,7 +731,7 @@ resize_screen(void) {
 	screen.winched = 0;
 }
 
-static struct key_binding *
+struct key_binding *
 keybinding(unsigned keys[MAX_KEYS], unsigned int keycount) {
 	/* TODO: stop doing a linear search on all bindings for
 	   every keystroke. */
@@ -749,7 +749,7 @@ keybinding(unsigned keys[MAX_KEYS], unsigned int keycount) {
 	return NULL;
 }
 
-static unsigned int
+unsigned int
 bitoftag(const char *tag) {
 	unsigned t = tag ? 0 : ~0;
 	if( tag && strchr("123456789", *tag) ) {
@@ -758,7 +758,7 @@ bitoftag(const char *tag) {
 	return t;
 }
 
-static void
+void
 tagschanged() {
 	bool allminimized = true;
 	for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
@@ -775,7 +775,7 @@ tagschanged() {
 }
 
 
-static void
+void
 untag(const char *args[]) {
 	if( sel ) {
 		sel->tags = 1;
@@ -783,7 +783,7 @@ untag(const char *args[]) {
 	}
 }
 
-static void
+void
 tag(const char *args[]) {
 	if (!sel)
 		return;
@@ -791,7 +791,7 @@ tag(const char *args[]) {
 	tagschanged();
 }
 
-static void
+void
 tagid(const char *args[]) {
 	if (!args[0] || !args[1])
 		return;
@@ -817,7 +817,7 @@ tagid(const char *args[]) {
 	}
 }
 
-static void
+void
 toggletag(const char *args[]) {
 	if (!sel)
 		return;
@@ -828,7 +828,7 @@ toggletag(const char *args[]) {
 	}
 }
 
-static void
+void
 toggleview(const char *args[]) {
 	unsigned int newtagset = tagset[seltags] ^ (bitoftag(args[0]));
 	if (newtagset) {
@@ -837,7 +837,7 @@ toggleview(const char *args[]) {
 	}
 }
 
-static void
+void
 view(const char *args[]) {
 	unsigned int newtagset = bitoftag(args[0]);
 	if (tagset[seltags] != newtagset && newtagset) {
@@ -847,13 +847,13 @@ view(const char *args[]) {
 	}
 }
 
-static void
+void
 viewprevtag(const char *args[]) {
 	seltags ^= 1;
 	tagschanged();
 }
 
-static void
+void
 keypress(int code) {
 	int key = -1;
 	unsigned int len = 1;
@@ -887,7 +887,7 @@ keypress(int code) {
 	}
 }
 
-static const char *
+const char *
 getshell(void) {
 	const char *shell = getenv("SHELL");
 
@@ -908,7 +908,7 @@ getshell(void) {
 	return shell;
 }
 
-static bool
+bool
 set_blocking(int fd, bool blocking) {
 	int flags = fcntl(fd, F_GETFL, 0);
 	if (flags < 0) return false;
@@ -918,7 +918,7 @@ set_blocking(int fd, bool blocking) {
 
 
 
-static void
+void
 setup(void) {
 	shell = getshell();
 	setlocale(LC_CTYPE, "");
@@ -968,7 +968,7 @@ setup(void) {
 	sigaction(SIGPIPE, &sa, NULL);
 }
 
-static void
+void
 destroy(struct client *c) {
 	if (sel == c)
 		focusnextnm(NULL);
@@ -1000,7 +1000,7 @@ destroy(struct client *c) {
 	arrange();
 }
 
-static void
+void
 cleanup(void) {
 	while (clients)
 		destroy(clients);
@@ -1017,7 +1017,7 @@ cleanup(void) {
 		unlink(cmdfifo.file);
 }
 
-static char *getcwd_by_pid(struct client *c) {
+char *getcwd_by_pid(struct client *c) {
 	if (!c)
 		return NULL;
 	char buf[32];
@@ -1025,7 +1025,7 @@ static char *getcwd_by_pid(struct client *c) {
 	return realpath(buf, NULL);
 }
 
-static void
+void
 create(const char *args[]) {
 	const char *pargs[4] = { shell, NULL };
 	char buf[8], *cwd = NULL;
@@ -1095,7 +1095,7 @@ create(const char *args[]) {
 	}
 }
 
-static void
+void
 copymode(const char *args[]) {
 	if (!args || !args[0] || !sel || sel->editor)
 		return;
@@ -1146,7 +1146,7 @@ copymode(const char *args[]) {
 		vt_write(sel->editor, args[1], strlen(args[1]));
 }
 
-static void
+void
 focusn(const char *args[]) {
 	for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
 		if (c->order == atoi(args[0])) {
@@ -1158,7 +1158,7 @@ focusn(const char *args[]) {
 	}
 }
 
-static void
+void
 focusid(const char *args[]) {
 	if (!args[0])
 		return;
@@ -1178,7 +1178,7 @@ focusid(const char *args[]) {
 	}
 }
 
-static void
+void
 focusnext(const char *args[]) {
 	struct client *c;
 	if (!sel)
@@ -1190,7 +1190,7 @@ focusnext(const char *args[]) {
 		focus(c);
 }
 
-static void
+void
 focusnextnm(const char *args[]) {
 	if (!sel)
 		return;
@@ -1203,7 +1203,7 @@ focusnextnm(const char *args[]) {
 	focus(c);
 }
 
-static void
+void
 focusprev(const char *args[]) {
 	struct client *c;
 	if (!sel)
@@ -1217,7 +1217,7 @@ focusprev(const char *args[]) {
 		focus(c);
 }
 
-static void
+void
 focusprevnm(const char *args[]) {
 	if (!sel)
 		return;
@@ -1232,13 +1232,13 @@ focusprevnm(const char *args[]) {
 	focus(c);
 }
 
-static void
+void
 focuslast(const char *args[]) {
 	if (lastsel)
 		focus(lastsel);
 }
 
-static void
+void
 focusup(const char *args[]) {
 	if (!sel)
 		return;
@@ -1250,7 +1250,7 @@ focusup(const char *args[]) {
 		focusprev(args);
 }
 
-static void
+void
 focusdown(const char *args[]) {
 	if (!sel)
 		return;
@@ -1261,7 +1261,7 @@ focusdown(const char *args[]) {
 		focusnext(args);
 }
 
-static void
+void
 focusleft(const char *args[]) {
 	if (!sel)
 		return;
@@ -1272,7 +1272,7 @@ focusleft(const char *args[]) {
 		focusprev(args);
 }
 
-static void
+void
 focusright(const char *args[]) {
 	if (!sel)
 		return;
@@ -1283,7 +1283,7 @@ focusright(const char *args[]) {
 		focusnext(args);
 }
 
-static void
+void
 killclient(const char *args[]) {
 	if (!sel)
 		return;
@@ -1291,18 +1291,18 @@ killclient(const char *args[]) {
 	kill(-sel->pid, SIGKILL);
 }
 
-static void
+void
 paste(const char *args[]) {
 	if (sel && copyreg.data)
 		vt_write(sel->term, copyreg.data, copyreg.len);
 }
 
-static void
+void
 quit(const char *args[]) {
 	stop_requested = 1;
 }
 
-static void
+void
 redraw(const char *args[]) {
 	for (struct client *c = clients; c; c = c->next) {
 		if (!c->minimized) {
@@ -1314,7 +1314,7 @@ redraw(const char *args[]) {
 	resize_screen();
 }
 
-static void
+void
 scrollback(const char *args[]) {
 	if (!is_content_visible(sel))
 		return;
@@ -1328,13 +1328,13 @@ scrollback(const char *args[]) {
 	curs_set(vt_cursor_visible(sel->term));
 }
 
-static void
+void
 send(const char *args[]) {
 	if (sel && args && args[0])
 		vt_write(sel->term, args[0], strlen(args[0]));
 }
 
-static void
+void
 setlayout(const char *args[]) {
 	unsigned int i;
 
@@ -1352,7 +1352,7 @@ setlayout(const char *args[]) {
 	arrange();
 }
 
-static void
+void
 incnmaster(const char *args[]) {
 	int delta;
 
@@ -1370,7 +1370,7 @@ incnmaster(const char *args[]) {
 	arrange();
 }
 
-static void
+void
 setmfact(const char *args[]) {
 	float delta;
 
@@ -1390,7 +1390,7 @@ setmfact(const char *args[]) {
 	arrange();
 }
 
-static void
+void
 startup(const char *args[]) {
 	Action *a = actions;
 	for( ; a && a->cmd; a++ ) {
@@ -1398,7 +1398,7 @@ startup(const char *args[]) {
 	}
 }
 
-static void
+void
 togglebar(const char *args[]) {
 	if (bar.pos == BAR_OFF)
 		showbar();
@@ -1409,7 +1409,7 @@ togglebar(const char *args[]) {
 	redraw(NULL);
 }
 
-static void
+void
 togglebarpos(const char *args[]) {
 	switch (bar.pos == BAR_OFF ? bar.lastpos : bar.pos) {
 	case BAR_TOP:
@@ -1423,7 +1423,7 @@ togglebarpos(const char *args[]) {
 	redraw(NULL);
 }
 
-static void
+void
 toggleminimize(const char *args[]) {
 	struct client *c, *m, *t;
 	unsigned int n;
@@ -1463,14 +1463,14 @@ toggleminimize(const char *args[]) {
 	arrange();
 }
 
-static void
+void
 togglerunall(const char *args[]) {
 	runinall = !runinall;
 	drawbar();
 	draw_all();
 }
 
-static void
+void
 zoom(const char *args[]) {
 	struct client *c;
 
@@ -1490,7 +1490,7 @@ zoom(const char *args[]) {
 }
 
 
-static struct command *
+struct command *
 get_cmd_by_name(const char *name) {
 	for (unsigned int i = 0; i < LENGTH(commands); i++) {
 		if (!strcmp(name, commands[i].name))
@@ -1499,7 +1499,7 @@ get_cmd_by_name(const char *name) {
 	return NULL;
 }
 
-static void
+void
 handle_cmdfifo(void) {
 	int r;
 	char *p, *s, cmdbuf[512], c;
@@ -1595,7 +1595,7 @@ handle_cmdfifo(void) {
 }
 
 
-static void
+void
 handle_statusbar(void) {
 	char *p;
 	int r;
@@ -1619,7 +1619,7 @@ handle_statusbar(void) {
 	}
 }
 
-static void
+void
 handle_editor(struct client *c) {
 	if (!copyreg.data && (copyreg.data = malloc(screen.history)))
 		copyreg.size = screen.history;
@@ -1652,7 +1652,7 @@ handle_editor(struct client *c) {
 	wnoutrefresh(c->window);
 }
 
-static int
+int
 open_or_create_fifo(const char *name, const char **name_created, const char *env_name)
 {
 	struct stat info;
@@ -1684,7 +1684,7 @@ open_or_create_fifo(const char *name, const char **name_created, const char *env
 }
 
 
-static void
+void
 parse_args(int argc, char *argv[]) {
 	char *arg;
 	const char *name = argv[0];
@@ -1749,7 +1749,7 @@ parse_args(int argc, char *argv[]) {
 	return;
 }
 
-static void
+void
 push_action(const Action *a)
 {
 	int count = 0;
@@ -1765,7 +1765,7 @@ push_action(const Action *a)
 	actions[count + 1].cmd = NULL;
 }
 
-static void
+void
 set_fd_mask(int fd, fd_set *r, int *nfds) {
 	if( fd != -1 ) {
 		FD_SET(fd, r);
@@ -1929,7 +1929,7 @@ main(int argc, char *argv[]) {
 	return 0;
 }
 
-static void fullscreen(void)
+void fullscreen(void)
 {
 	for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next))
 		resize(c, wax, way, waw, wah);
