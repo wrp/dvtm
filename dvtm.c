@@ -1749,7 +1749,7 @@ main(int argc, char *argv[]) {
 					mode = keypress_mode;
 					keypress(code);
 				}
-			} else if( code == ESC ) {
+			} else if( code == ESC || code == 0x0d) {
 				switch(mode) {
 				case keypress_mode: keypress(code); break;
 				case command: mode = keypress_mode;

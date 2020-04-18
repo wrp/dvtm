@@ -11,10 +11,10 @@ with a pty running your default SHELL.  To send commands to mvtm,
 enter the `MOD` keysequence, which by default is `CTRL+g`.  Hitting
 `MOD` puts you in `command` mode, in which key sequences are interpreted
 by mvtm to manipulate the windows.  To transition back to `keypress`
-mode, you may press `ESC` or `MOD`.  Pressing `ESC` transitions
-mode without sending a key to the underlying pty, while `MOD`
-transitions and sends a single `MOD` key.  To quit, use `qq` from
-command mode.
+mode, you may press `RETURN`, `MOD`, or `ESC`.  Pressing `ESC` or
+`RETURN` transitions mode without sending a key to the underlying pty,
+while pressing `MOD` transitions and sends the keystroke.  To quit, use
+`qq` from command mode.
 
 ### Windows
 
