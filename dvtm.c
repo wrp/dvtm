@@ -53,8 +53,8 @@ struct command commands[] = {
 void cleanup(void);
 void push_action(const struct action *a);
 
-unsigned available_width;
-unsigned available_height;
+unsigned available_width;  /* width of total available screen real estate */
+unsigned available_height; /* height of total available screen real estate */
 unsigned main_window_x;   /* x coord (right) of upper left corner of main window */
 unsigned main_window_y;   /* y coord (down) of upper left corner of main window */
 struct client *clients = NULL;
