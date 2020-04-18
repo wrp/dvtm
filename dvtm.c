@@ -1284,14 +1284,6 @@ setmfact(const char *args[]) {
 }
 
 void
-startup(const char *args[]) {
-	struct action *a = actions;
-	for( ; a && a->cmd; a++ ) {
-		a->cmd(a->args);
-	}
-}
-
-void
 togglebar(const char *args[]) {
 	if (bar.pos == BAR_OFF)
 		showbar();
@@ -1639,6 +1631,10 @@ parse_args(int argc, char *argv[]) {
 			error(0, "unknown option: %s (-? for usage)", arg);
 		}
 	}
+	if( actions == NULL ) {
+		struct action defaults = { create, { NULL } };
+		push_action(&defaults);
+	}
 	return;
 }
 
@@ -1705,12 +1701,11 @@ main(int argc, char *argv[]) {
 	unsigned int key_index = 0;
 
 	parse_args(argc, argv);
-	if( actions == NULL ) {
-		struct action defaults = { create, { NULL } };
-		push_action(&defaults);
-	}
 	setup();
-	startup(NULL);
+	for( struct action *a = actions; a && a->cmd; a++ ) {
+		a->cmd(a->args);
+	}
+
 
 	while( !stop_requested ) {
 		int r, nfds = 0;
