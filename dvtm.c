@@ -1640,19 +1640,24 @@ parse_args(int argc, char *argv[]) {
 }
 
 void
-push_action(const struct action *a)
+push_action(const struct action *act)
 {
-	int count = 0;
-	while( actions && actions[count].cmd ) {
-		count += 1;
-	}
+	struct action *new;
 
-	actions = realloc( actions, ( count + 2 ) * sizeof *actions );
-	if( actions == NULL ) {
-		error(1, "realloc");
+	new = malloc( sizeof *new );
+	if( new == NULL ) {
+		error(1, "malloc");
 	}
-	memcpy(actions + count, a, sizeof *a);
-	actions[count + 1].cmd = NULL;
+	if( actions == NULL ) {
+		actions = new;
+	} else {
+		struct action *a = actions;
+		while( a->next != NULL ) {
+			a = a->next;
+		}
+		a->next = new;
+	}
+	memcpy(new, act, sizeof *new );
 }
 
 void
@@ -1696,17 +1701,17 @@ check_client_fds(fd_set *rd, int *nfds, struct client *c)
 enum mode { keypress_mode, command };
 
 int
-main(int argc, char *argv[]) {
+main(int argc, char *argv[])
+{
 	enum mode mode = keypress_mode;
 	unsigned keys[MAX_KEYS];
 	unsigned int key_index = 0;
 
 	parse_args(argc, argv);
 	setup();
-	for( struct action *a = actions; a && a->cmd; a++ ) {
+	for( struct action *a = actions; a && a->cmd; a = a->next ) {
 		a->cmd(a->args);
 	}
-
 
 	while( !stop_requested ) {
 		int r, nfds = 0;

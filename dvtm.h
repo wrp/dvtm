@@ -98,6 +98,7 @@ struct color_rule {
 struct action {
 	void (*cmd)(const char *args[]);
 	const char *args[3];
+	struct action *next;
 };
 
 #define MAX_KEYS 3
