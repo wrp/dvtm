@@ -1588,7 +1588,7 @@ parse_args(int argc, char *argv[]) {
 			error(0, "%s requires an argument (-? for usage)", arg);
 		}
 		switch (arg[1]) {
-		case '?':
+		case 'h':
 			printf("usage: dvtm [-v] [-?] [-m mod] [-d delay] [-h lines] [-t title] "
 			       "[-s status-fifo] [-c cmd-fifo] [cmd...]\n");
 			exit(EXIT_SUCCESS);
@@ -1613,8 +1613,8 @@ parse_args(int argc, char *argv[]) {
 			else if (ESCDELAY > 1000)
 				set_escdelay(1000);
 			break;
-		case 'h':
-			screen.history = atoi(*++argv);
+		case 'r':
+			screen.history = strtol(*++argv, NULL, 10);
 			break;
 		case 't':
 			title = *++argv;

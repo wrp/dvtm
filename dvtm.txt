@@ -17,6 +17,9 @@ dvtm is a dynamic tiling window manager for the console.
 
 As a console window manager it tries to make it easy to work with multiple console based applications.
 
+-h::
+Print usage statement
+
 -v::
 Print version information to standard output and exit.
 
@@ -26,7 +29,7 @@ Set command modifier at runtime.
 -d delay::
   Set the delay ncurses waits before deciding if a character that might be part of an escape sequence is actually part of an escape sequence.
 
--h lines::
+-r lines::
   Set the scrollback history buffer size at runtime.
 
 -t title::
