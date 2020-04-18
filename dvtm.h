@@ -109,11 +109,6 @@ struct key_binding {
 extern struct key_binding bindings[];
 extern size_t key_binding_length;
 
-typedef struct {
-	mmask_t mask;
-	struct action action;
-} Button;
-
 struct command {
 	const char *name;
 	struct action action;
