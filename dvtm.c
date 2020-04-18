@@ -24,12 +24,6 @@
 #include "config.h"
 #include "dvtm.h"
 
-enum {
-	DEFAULT,
-	BLUE,
-	RED,
-};
-
 struct color colors[] = {
 	[DEFAULT] = { .fg = -1,         .bg = -1, .fg256 =  -1, .bg256 = -1, },
 	[BLUE]    = { .fg = COLOR_BLUE, .bg = -1, .fg256 =  68, .bg256 = -1, },

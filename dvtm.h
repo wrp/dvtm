@@ -237,3 +237,5 @@ void viewprevtag(const char *args[]);
 void view(const char *args[]);
 void zoom(const char *args[]);
 void fullscreen(void);
+
+enum { DEFAULT, BLUE, RED };
