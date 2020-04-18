@@ -57,7 +57,10 @@ error(int errnum, const char *msg, ...)
 const char *
 get_default_editor(void)
 {
-	const char *editor = getenv("DVTM_EDITOR");
+	const char *editor = getenv("MVTM_EDITOR");
+	if( editor == NULL ) {
+		editor = getenv("DVTM_EDITOR");
+	}
 	if( editor == NULL ) {
 		editor = getenv("VISUAL");
 	}

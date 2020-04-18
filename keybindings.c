@@ -43,7 +43,7 @@ struct key_binding bindings[] = {
 	{ { 'a',          }, { togglerunall,   { NULL }                    } },
 	{ { CTRL('L'),    }, { redraw,         { NULL }                    } },
 	{ { 'r',          }, { redraw,         { NULL }                    } },
-	{ { 'e',          }, { copymode,       { "dvtm-editor" }           } },
+	{ { 'e',          }, { copymode,       { "mvtm-editor" }           } },
 	{ { 'E',          }, { copymode,       { "dvtm-pager" }            } },
 	{ { '/',          }, { copymode,       { "dvtm-pager", "/" }       } },
 	{ { 'p',          }, { paste,          { NULL }                    } },
