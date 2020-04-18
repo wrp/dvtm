@@ -1758,6 +1758,12 @@ main(int argc, char *argv[]) {
 						while (key_length > 1 && !binding->keys[key_length-1])
 							key_length--;
 						if (key_index == key_length) {
+
+if(binding->action.cmd == copymode ||
+	binding->action.cmd == paste
+) {
+	mode = keypress_mode;
+}
 							binding->action.cmd(binding->action.args);
 							key_index = 0;
 						}
