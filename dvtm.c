@@ -64,7 +64,7 @@ Action *actions = NULL; /* actions are executed when dvtm is started */
 
 struct screen screen = { .mfact = MFACT, .nmaster = NMASTER, .history = SCROLL_HISTORY };
 
-const char *dvtm_name = "dvtm";
+const char *program_name = "dvtm";
 struct client *stack = NULL;
 struct client *sel = NULL;
 struct client *lastsel = NULL;
@@ -788,7 +788,7 @@ getshell(void) {
 	if(
 		shell == NULL
 		|| *shell != '/'
-		|| strcmp(strrchr(shell, '/') + 1, dvtm_name) == 0
+		|| strcmp(strrchr(shell, '/') + 1, program_name) == 0
 		|| access(shell, X_OK)
 	) {
 		fprintf(stderr, "SHELL (%s) is invalid\n", shell);
@@ -1579,7 +1579,7 @@ parse_args(int argc, char *argv[]) {
 	const char *name = argv[0];
 
 	if( name && (name = strrchr(name, '/')) != NULL ) {
-		dvtm_name = name + 1;
+		program_name = name + 1;
 	}
 	if( getenv("ESCDELAY") == NULL ) {
 		set_escdelay(100);
@@ -1600,7 +1600,7 @@ parse_args(int argc, char *argv[]) {
 			       "[-s status-fifo] [-c cmd-fifo] [cmd...]\n");
 			exit(EXIT_SUCCESS);
 		case 'v':
-			printf("%s-%s\n", dvtm_name, VERSION);
+			printf("%s-%s\n", program_name, VERSION);
 			exit(EXIT_SUCCESS);
 		case 'm': {
 			char *mod = *++argv;
