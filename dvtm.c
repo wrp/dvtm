@@ -1741,15 +1741,23 @@ main(int argc, char *argv[])
 			if( code == modifier_key ) {
 				if( mode == keypress_mode) {
 					mode = command;
+					strncat(bar.text, "command mode: ", sizeof bar.text);
 					key_index = 0;
 				} else {
 					mode = keypress_mode;
+					*bar.text = '\0';
 					keypress(code);
 				}
+				drawbar();
 			} else if( code == ESC || code == 0x0d) {
 				switch(mode) {
-				case keypress_mode: keypress(code); break;
-				case command: mode = keypress_mode;
+				case keypress_mode:
+					keypress(code);
+					break;
+				case command:
+					mode = keypress_mode;
+					*bar.text = '\0';
+					drawbar();
 				}
 			} else if (code >= 0) {
 				if( mode == keypress_mode) {
@@ -1768,10 +1776,15 @@ if(binding->action.cmd == copymode ||
 	binding->action.cmd == paste
 ) {
 	mode = keypress_mode;
+	*bar.text = '\0';
 }
 							binding->action.cmd(binding->action.args);
 							key_index = 0;
+						} else {
+							char b[2] = { code, '\0' };;
+							strcat(bar.text, b);
 						}
+						drawbar();
 					} else {
 						key_index = 0;
 					}
