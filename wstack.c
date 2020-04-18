@@ -23,7 +23,7 @@ wstack(void)
 
 	m  = MAX(1, MIN(n, screen.nmaster));
 	mh = n == m ? wah : screen.mfact * wah;
-	tw = n == m ? 0 : waw / (n - m);
+	tw = n == m ? 0 : available_width / (n - m);
 	nx = wax;
 	ny = way + wah - mh;
 
@@ -35,7 +35,7 @@ wstack(void)
 		}
 		if (i < m) {	/* master */
 			nh = mh / m;
-			nw = waw;
+			nw = available_width;
 			nx = wax;
 		} else {	/* tile window */
 			ny = way;
@@ -48,7 +48,7 @@ wstack(void)
 				mvaddch(ny, nx, ACS_TTEE);
 				nx++;
 			}
-			nw = (i < n - 1) ? tw : (wax + waw) - nx;
+			nw = (i < n - 1) ? tw : (wax + available_width) - nx;
 		}
 		resize(c, nx, ny, nw, nh);
 		nx += nw;

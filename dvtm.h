@@ -71,7 +71,7 @@ struct client* nextvisible(struct client *c);
 void focus(struct client *c);
 void resize(struct client *c, int x, int y, int w, int h);
 extern struct screen screen;
-extern unsigned waw, wah, wax, way;
+extern unsigned available_width, wah, wax, way;
 extern struct client *clients;
 extern char *title;
 

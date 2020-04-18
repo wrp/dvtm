@@ -55,8 +55,8 @@ struct command commands[] = {
 void cleanup(void);
 void push_action(const struct action *a);
 
-/* global variables */
-unsigned waw, wah, wax, way;
+unsigned available_width;
+unsigned wah, wax, way;
 struct client *clients = NULL;
 char *title;
 
@@ -137,7 +137,7 @@ updatebarpos(void) {
 	wax = 0;
 	way = 0;
 	wah = screen.h;
-	waw = screen.w;
+	available_width = screen.w;
 	if (bar.pos == BAR_TOP) {
 		wah -= bar.h;
 		way += bar.h;
@@ -344,10 +344,10 @@ arrange(void) {
 		wah--;
 	layout->arrange();
 	if (m && !isarrange(fullscreen)) {
-		unsigned int i = 0, nw = waw / m, nx = wax;
+		unsigned int i = 0, nw = available_width / m, nx = wax;
 		for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
 			if (c->minimized) {
-				resize(c, nx, way+wah, ++i == m ? waw - nx : nw, 1);
+				resize(c, nx, way+wah, ++i == m ? available_width - nx : nw, 1);
 				nx += nw;
 			}
 		}
@@ -935,7 +935,7 @@ create(const char *args[]) {
 	c->id = ++cmdfifo.id;
 	snprintf(buf, sizeof buf, "%d", c->id);
 
-	if (!(c->window = newwin(wah, waw, way, wax))) {
+	if (!(c->window = newwin(wah, available_width, way, wax))) {
 		free(c);
 		return;
 	}
@@ -1821,5 +1821,5 @@ main(int argc, char *argv[]) {
 void fullscreen(void)
 {
 	for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next))
-		resize(c, wax, way, waw, wah);
+		resize(c, wax, way, available_width, wah);
 }
