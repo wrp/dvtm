@@ -1716,10 +1716,6 @@ main(int argc, char *argv[]) {
 		int r, nfds = 0;
 		fd_set rd;
 
-		if( screen.winched ) {
-			resize_screen();
-		}
-
 		FD_ZERO(&rd);
 		set_fd_mask(STDIN_FILENO, &rd, &nfds);
 		set_fd_mask(sigwinch_pipe[0], &rd, &nfds);
@@ -1823,6 +1819,9 @@ main(int argc, char *argv[]) {
 			wnoutrefresh(sel->window);
 		}
 		cleanup_dead_clients(clients);
+		if( screen.winched ) {
+			resize_screen();
+		}
 	}
 
 	cleanup();
