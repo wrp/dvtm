@@ -15,8 +15,6 @@
  * TODO:
  *   in the status bar, show that we are in command mode
  *   show the current contents of command buffer
- *   get proper curses code for ESC.  (The current implementation
- *     only works on my laptop, and not in the docker debian)
  *   Change fullscreen behavior.  It should act exactly the same
  *     as when there is only one window.  eg, in keypress mode there
  *     is no status bar.  Ih command mode, put up a status bar.
