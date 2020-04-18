@@ -1569,6 +1569,7 @@ void
 parse_args(int argc, char *argv[]) {
 	char *arg;
 	const char *name = argv[0];
+	int force = 0;
 
 	if( name && (name = strrchr(name, '/')) != NULL ) {
 		program_name = name + 1;
@@ -1594,6 +1595,9 @@ parse_args(int argc, char *argv[]) {
 		case 'v':
 			printf("%s-%s\n", program_name, VERSION);
 			exit(EXIT_SUCCESS);
+		case 'f':
+			force = 1;
+			break;
 		case 'm': {
 			char *mod = *++argv;
 			modifier_key = *mod;
@@ -1630,6 +1634,9 @@ parse_args(int argc, char *argv[]) {
 	if( actions == NULL ) {
 		struct action defaults = { create, { NULL } };
 		push_action(&defaults);
+	}
+	if( getenv("DVTM") && ! force ) {
+		error(0, "Nested dvtm session prevented.  Use -f to allow");
 	}
 	return;
 }
