@@ -884,12 +884,8 @@ destroy(struct client *c) {
 	wnoutrefresh(c->window);
 	vt_destroy(c->term);
 	delwin(c->window);
-	if (!clients && actions) {
-		if (!strcmp(c->cmd, shell)) {
-			stop_requested = 1;
-		} else {
-			create(NULL);
-		}
+	if( !clients ) {
+		stop_requested = 1;
 	}
 	free(c);
 	arrange();
