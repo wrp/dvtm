@@ -480,11 +480,13 @@ applycolorrules(struct client *c) {
 }
 
 void
-term_title_handler(Vt *term, const char *title) {
+term_title_handler(Vt *term, const char *t) {
 	struct client *c = (struct client *)vt_data_get(term);
-	if (title)
-		strncpy(c->title, title, sizeof(c->title) - 1);
-	c->title[title ? sizeof(c->title) - 1 : 0] = '\0';
+	char *d = c->title, *e = c->title + sizeof c->title - 1;
+	while( t && *t && d < e ) {
+		*d++ = *t++;
+	}
+	*d = '\0';
 	settitle(c);
 	if (!isarrange(fullscreen) || sel == c)
 		draw_border(c);
