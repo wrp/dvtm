@@ -94,27 +94,27 @@ struct color_rule {
 
 #define MAX_ARGS 8
 
-typedef struct {
+struct action {
 	void (*cmd)(const char *args[]);
 	const char *args[3];
-} Action;
+};
 
 #define MAX_KEYS 3
 struct key_binding {
 	unsigned keys[MAX_KEYS];
-	Action action;
+	struct action action;
 };
 extern struct key_binding bindings[];
 extern size_t key_binding_length;
 
 typedef struct {
 	mmask_t mask;
-	Action action;
+	struct action action;
 } Button;
 
 struct command {
 	const char *name;
-	Action action;
+	struct action action;
 };
 
 enum { BAR_TOP, BAR_BOTTOM, BAR_OFF };

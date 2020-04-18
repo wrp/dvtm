@@ -53,14 +53,14 @@ struct command commands[] = {
 
 /* forward declarations of internal functions */
 void cleanup(void);
-void push_action(const Action *a);
+void push_action(const struct action *a);
 
+/* global variables */
 unsigned waw, wah, wax, way;
 struct client *clients = NULL;
 char *title;
 
-/* global variables */
-Action *actions = NULL; /* actions are executed when dvtm is started */
+struct action *actions = NULL; /* actions are executed when dvtm is started */
 
 struct screen screen = { .mfact = MFACT, .nmaster = NMASTER, .history = SCROLL_HISTORY };
 
@@ -1281,7 +1281,7 @@ setmfact(const char *args[]) {
 
 void
 startup(const char *args[]) {
-	Action *a = actions;
+	struct action *a = actions;
 	for( ; a && a->cmd; a++ ) {
 		a->cmd(a->args);
 	}
@@ -1587,7 +1587,7 @@ parse_args(int argc, char *argv[]) {
 	while( (arg = *++argv) != NULL ) {
 		if (arg[0] != '-') {
 			char *args[] = { arg, NULL, NULL };
-			Action a = { create, {arg, NULL, NULL}};
+			struct action a = { create, {arg, NULL, NULL}};
 			push_action(&a);
 			continue;
 		}
@@ -1639,7 +1639,7 @@ parse_args(int argc, char *argv[]) {
 }
 
 void
-push_action(const Action *a)
+push_action(const struct action *a)
 {
 	int count = 0;
 	while( actions && actions[count].cmd ) {
@@ -1696,7 +1696,7 @@ main(int argc, char *argv[]) {
 
 	parse_args(argc, argv);
 	if( actions == NULL ) {
-		Action defaults = { create, { NULL } };
+		struct action defaults = { create, { NULL } };
 		push_action(&defaults);
 	}
 	setup();
