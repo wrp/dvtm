@@ -1560,7 +1560,7 @@ open_or_create_fifo(const char *name, const char **name_created, const char *env
 void
 parse_args(int argc, char *argv[]) {
 	char *arg;
-	const char *name;
+	const char *name = argv[0];
 	int force = 0;
 
 	if( getenv("ESCDELAY") == NULL ) {
@@ -1573,14 +1573,19 @@ parse_args(int argc, char *argv[]) {
 			push_action(&a);
 			continue;
 		}
-		if( strchr("dhtscm", arg[1]) != NULL && argv[1] == NULL ) {
+		if( strchr("drtscm", arg[1]) != NULL && argv[1] == NULL ) {
 			error(0, "%s requires an argument (-? for usage)", arg);
 		}
 		switch (arg[1]) {
-		case 'h':
-			printf("usage: dvtm [-v] [-?] [-m mod] [-d delay] [-h lines] [-t title] "
-			       "[-s status-fifo] [-c cmd-fifo] [cmd...]\n");
+		case 'h': {
+			if( arg = strrchr(name, '/')) {
+				name = arg + 1;
+			}
+			printf("usage: %s [-v] [-h] [-f] [-m mod] [-d delay] "
+				"[-r lines] [-t title] [-s status-fifo] "
+				"[-c cmd-fifo] [cmd...]\n", name);
 			exit(EXIT_SUCCESS);
+		}
 		case 'v':
 			printf("%s-%s\n", PACKAGE, VERSION);
 			exit(EXIT_SUCCESS);
