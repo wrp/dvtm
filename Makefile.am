@@ -14,7 +14,7 @@ EXTRA_DIST = build-aux/package-version \
 	version
 
 version:
-	git describe --tags --always --dirty > version
+	{ cd $(top_srcdir) && git describe --tags --always --dirty; } > version
 
 mvtm.1: mvtm.txt
 	asciidoctor -a ver=${PACKAGE_VERSION} -b manpage $<
