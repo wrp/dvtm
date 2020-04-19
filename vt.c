@@ -1843,8 +1843,8 @@ void vt_init(void)
 {
 	init_colors();
 	is_utf8_locale();
-	char *t = getenv("DVTM_TERM");
-	snprintf(vt_term, sizeof vt_term, "%s%s", t ? t : "dvtm",
+	char *t = getenv("MVTM_TERM");
+	snprintf(vt_term, sizeof vt_term, "%s%s", t ? t : "mvtm",
 		COLORS >= 256 ? "-256color" : "");
 }
 
