@@ -37,17 +37,16 @@ Layout layouts[] = {
 unsigned modifier_key = CTRL('g');
 
 const struct color_rule colorrules[] = {
-	{ "", A_NORMAL, &colors[DEFAULT] }, /* default */
+	{ "", A_NORMAL, &colors[DEFAULT] },
 };
 
-
+/* Commands which can be invoked via the cmdfifo */
 struct command commands[] = {
 	{ "create", { create,	{ NULL } } },
 	{ "focus",  { focusid,	{ NULL } } },
 	{ "tag",    { tagid,	{ NULL } } },
 };
 
-/* forward declarations of internal functions */
 void cleanup(void);
 void push_action(const struct action *a);
 
@@ -58,7 +57,7 @@ unsigned main_window_y;   /* y coord (down) of upper left corner of main window 
 struct client *clients = NULL;
 char *title;
 
-struct action *actions = NULL; /* actions are executed when dvtm is started */
+struct action *actions = NULL; /* actions are executed when mvtm is started */
 
 struct screen screen = { .mfact = MFACT, .nmaster = NMASTER, .history = SCROLL_HISTORY };
 
