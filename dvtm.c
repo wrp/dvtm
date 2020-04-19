@@ -1737,7 +1737,7 @@ main(int argc, char *argv[])
 			if( code == modifier_key ) {
 				if( mode == keypress_mode) {
 					mode = command;
-					strncat(bar.text, "command mode: ", sizeof bar.text);
+					strncat(bar.text, "command mode: ", sizeof bar.text - 1);
 					key_index = 0;
 				} else {
 					mode = keypress_mode;
