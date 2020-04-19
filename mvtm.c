@@ -798,7 +798,7 @@ void
 setup(void) {
 	shell = getshell();
 	setlocale(LC_CTYPE, "");
-	setenv("DVTM", VERSION, 1);
+	setenv("MVTM", VERSION, 1);
 	initscr();
 	start_color(); /* initializes globals COLORS and COLOR_PAIRS */
 	noecho();
@@ -902,7 +902,7 @@ create(const char *args[]) {
 	const char *pargs[4] = { shell, NULL };
 	char buf[8], *cwd = NULL;
 	const char *env[] = {
-		"DVTM_WINDOW_ID", buf,
+		"MVTM_WINDOW_ID", buf,
 		NULL
 	};
 
@@ -1584,11 +1584,11 @@ parse_args(int argc, char *argv[]) {
 			title = *++argv;
 			break;
 		case 's':
-			bar.fd = open_or_create_fifo(*++argv, &bar.file, "DVTM_STATUS_FIFO");
+			bar.fd = open_or_create_fifo(*++argv, &bar.file, "MVTM_STATUS_FIFO");
 			updatebarpos();
 			break;
 		case 'c': {
-			cmdfifo.fd = open_or_create_fifo(*++argv, &cmdfifo.file, "DVTM_CMD_FIFO");
+			cmdfifo.fd = open_or_create_fifo(*++argv, &cmdfifo.file, "MVTM_CMD_FIFO");
 			break;
 		}
 		default:
@@ -1599,8 +1599,8 @@ parse_args(int argc, char *argv[]) {
 		struct action defaults = { create, { NULL } };
 		push_action(&defaults);
 	}
-	if( getenv("DVTM") && ! force ) {
-		error(0, "Nested dvtm session prevented.  Use -f to allow");
+	if( getenv("MVTM") && ! force ) {
+		error(0, "Nested session prevented.  Use -f to allow");
 	}
 	return;
 }
