@@ -176,7 +176,7 @@ drawbar(void) {
 	attrset(runinall ? TAG_SEL : TAG_NORMAL);
 
 	if( state.mode == command ) {
-		attrset(COLOR(RED) | A_BOLD);
+		attrset(COLOR(RED) | A_REVERSE);
 	} else {
 		attrset(COLOR(DEFAULT) | A_NORMAL);
 	}
