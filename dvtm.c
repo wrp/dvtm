@@ -179,7 +179,6 @@ drawbar(void) {
 
 	addch(BAR_BEGIN);
 
-
 	wchar_t wbuf[sizeof bar.text];
 	size_t numchars = mbstowcs(wbuf, bar.text, sizeof bar.text);
 
@@ -1742,7 +1741,8 @@ if(binding->action.cmd == copymode ||
 					}
 				}
 			}
-			drawbar();
+drawbar();
+draw_all();
 			if (r == 1) /* no data available on pty's */
 				continue;
 		}
