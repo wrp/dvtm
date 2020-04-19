@@ -42,6 +42,15 @@ typedef struct {
 	void (*arrange)(void);
 } Layout;
 
+/*
+ struct state is the global state.  Currently, not much is here.  I intend
+ to move global objects into here as I manipulate the code and learn then
+ architecture.
+ */
+struct state {
+	enum { keypress_mode, command } mode;
+};
+
 struct client {
 	WINDOW *window;
 	Vt *term;

@@ -22,6 +22,7 @@
 #include "config.h"
 #include "dvtm.h"
 
+struct state state;
 struct color colors[] = {
 	[DEFAULT] = { .fg = -1,         .bg = -1, .fg256 =  -1, .bg256 = -1, },
 	[BLUE]    = { .fg = COLOR_BLUE, .bg = -1, .fg256 =  68, .bg256 = -1, },
@@ -1660,12 +1661,10 @@ check_client_fds(fd_set *rd, int *nfds, struct client *c)
 }
 
 
-enum mode { keypress_mode, command };
-
 int
 main(int argc, char *argv[])
 {
-	enum mode mode = keypress_mode;
+	struct state *s = &state;
 	unsigned keys[MAX_KEYS];
 	unsigned int key_index = 0;
 
@@ -1701,28 +1700,28 @@ main(int argc, char *argv[])
 		if (FD_ISSET(STDIN_FILENO, &rd)) {
 			int code = getch();
 			if( code == modifier_key ) {
-				if( mode == keypress_mode) {
-					mode = command;
+				if( s->mode == keypress_mode) {
+					s->mode = command;
 					strncat(bar.text, "command mode: ", sizeof bar.text - 1);
 					key_index = 0;
 				} else {
-					mode = keypress_mode;
+					s->mode = keypress_mode;
 					*bar.text = '\0';
 					keypress(code);
 				}
 				drawbar();
 			} else if( code == ESC || code == 0x0d) {
-				switch(mode) {
+				switch(s->mode) {
 				case keypress_mode:
 					keypress(code);
 					break;
 				case command:
-					mode = keypress_mode;
+					s->mode = keypress_mode;
 					*bar.text = '\0';
 					drawbar();
 				}
 			} else if (code >= 0) {
-				if( mode == keypress_mode) {
+				if( s->mode == keypress_mode) {
 					keypress(code);
 				} else {
 					struct key_binding *binding;
@@ -1737,7 +1736,7 @@ main(int argc, char *argv[])
 if(binding->action.cmd == copymode ||
 	binding->action.cmd == paste
 ) {
-	mode = keypress_mode;
+	s->mode = keypress_mode;
 	*bar.text = '\0';
 }
 							binding->action.cmd(binding->action.args);
