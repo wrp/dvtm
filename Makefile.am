@@ -1,7 +1,7 @@
 
 bin_PROGRAMS = mvtm mvtm-editor
-bin_SCRIPTS = dvtm-status dvtm-pager
-man1_MANS = dvtm.1 dvtm-editor.1 dvtm-pager.1
+bin_SCRIPTS = dvtm-status
+man1_MANS = dvtm.1 dvtm-editor.1
 AM_CPPFLAGS = -D_DARWIN_C_SOURCE -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 \
 	-D_XOPEN_SOURCE_EXTENDED
 LIBS = -lncursesw -lutil
