@@ -1529,7 +1529,8 @@ open_or_create_fifo(const char *name, const char **name_created, const char *env
 void
 parse_args(int argc, char *argv[]) {
 	char *arg;
-	const char *name = argv[0];
+	const char *name = strrchr(argv[0], '/');
+	const char *basename = name == NULL ? argv[0] : name + 1;
 	int force = 0;
 
 	if( getenv("ESCDELAY") == NULL ) {
@@ -1546,15 +1547,11 @@ parse_args(int argc, char *argv[]) {
 			error(0, "%s requires an argument (-? for usage)", arg);
 		}
 		switch (arg[1]) {
-		case 'h': {
-			if( arg = strrchr(name, '/')) {
-				name = arg + 1;
-			}
+		case 'h':
 			printf("usage: %s [-v] [-h] [-f] [-m mod] [-d delay] "
 				"[-r lines] [-t title] [-s status-fifo] "
-				"[-c cmd-fifo] [cmd...]\n", name);
+				"[-c cmd-fifo] [cmd...]\n", basename);
 			exit(EXIT_SUCCESS);
-		}
 		case 'v':
 			printf("%s-%s\n", PACKAGE, VERSION);
 			exit(EXIT_SUCCESS);
