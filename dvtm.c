@@ -174,15 +174,20 @@ drawbar(void) {
 	}
 
 	attrset(runinall ? TAG_SEL : TAG_NORMAL);
+
+	if( state.mode == command ) {
+		attrset(COLOR(RED) | A_BOLD);
+	} else {
+		attrset(COLOR(DEFAULT) | A_NORMAL);
+	}
 	addstr(layout->symbol);
-	attrset(TAG_NORMAL);
 
 	getyx(stdscr, y, x);
 	(void)y;
 	int maxwidth = screen.w - x - 2;
 
 	addch(BAR_BEGIN);
-	attrset(BAR_ATTR);
+
 
 	wchar_t wbuf[sizeof bar.text];
 	size_t numchars = mbstowcs(wbuf, bar.text, sizeof bar.text);
@@ -199,7 +204,6 @@ drawbar(void) {
 		clrtoeol();
 	}
 
-	attrset(TAG_NORMAL);
 	mvaddch(bar.y, screen.w - 1, BAR_END);
 	attrset(NORMAL_ATTR);
 	move(sy, sx);
@@ -1702,14 +1706,12 @@ main(int argc, char *argv[])
 			if( code == modifier_key ) {
 				if( s->mode == keypress_mode) {
 					s->mode = command;
-					strncat(bar.text, "command mode: ", sizeof bar.text - 1);
 					key_index = 0;
 				} else {
 					s->mode = keypress_mode;
 					*bar.text = '\0';
 					keypress(code);
 				}
-				drawbar();
 			} else if( code == ESC || code == 0x0d) {
 				switch(s->mode) {
 				case keypress_mode:
@@ -1718,7 +1720,6 @@ main(int argc, char *argv[])
 				case command:
 					s->mode = keypress_mode;
 					*bar.text = '\0';
-					drawbar();
 				}
 			} else if (code >= 0) {
 				if( s->mode == keypress_mode) {
@@ -1745,12 +1746,12 @@ if(binding->action.cmd == copymode ||
 							char b[2] = { code, '\0' };;
 							strcat(bar.text, b);
 						}
-						drawbar();
 					} else {
 						key_index = 0;
 					}
 				}
 			}
+			drawbar();
 			if (r == 1) /* no data available on pty's */
 				continue;
 		}
