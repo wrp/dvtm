@@ -55,6 +55,10 @@ unsigned available_height; /* height of total available screen real estate */
 unsigned main_window_x;   /* x coord (right) of upper left corner of main window */
 unsigned main_window_y;   /* y coord (down) of upper left corner of main window */
 struct client *clients = NULL;
+	/* clients appears to be the list of all clients, and only
+	those marked with the current tagset are displayed.  HOwever, it is not clear
+	how that set differs from stack, nor the purpose of the checks that the
+	current layout is fullscreen */
 char *title;
 
 struct action *actions = NULL; /* actions are executed when mvtm is started */
