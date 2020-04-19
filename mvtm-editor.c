@@ -31,7 +31,7 @@ int tmp_fd = -1;
 char tempname[PATH_MAX];
 void (*stop)(int) = exit;
 
-void
+static void
 cleanup(void)
 {
 	if( tmp_fd != -1 && unlink(tempname) == -1) {
@@ -74,24 +74,24 @@ get_default_editor(void)
 }
 
 static void
-build_template(void)
+build_template(char *name, size_t s)
 {
 	char *template = "mvtm-editor.XXXXXX";
 	char *tmpdir = getenv("TMPDIR");
 	int length = 0;
 
 	if( tmpdir ) {
-		size_t cap = sizeof tempname - sizeof template - 2;
-		length = snprintf(tempname, cap, "%s", tmpdir);
-		if( tempname[length - 1] != '/' ) {
-			tempname[length++] = '/';
-		}
+		size_t cap = s - sizeof template - 2;
+		length = snprintf(name, cap, "%s", tmpdir);
 		if( length >= cap ) {
 			error(0, "TMPDIR too long!  Unable to build tmpfile name.");
 		}
+		if( name[length - 1] != '/' ) {
+			name[length++] = '/';
+		}
 	}
-	tempname[length] = '\0';
-	strncat(tempname, template, sizeof tempname - length - 1);
+	name[length] = '\0';
+	strncat(name + length, template, s - length);
 }
 
 
@@ -103,7 +103,7 @@ main(int argc, char *argv[])
 	struct stat stat_before;
 	const char *editor = get_default_editor();
 
-	build_template();
+	build_template(tempname, sizeof tempname);
 	if( (tmp_fd = mkstemp(tempname)) == -1 ) {
 		error(errno, "failed mkstemp %s", tempname);
 	}
