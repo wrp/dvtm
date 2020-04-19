@@ -64,7 +64,6 @@ struct screen screen = { .mfact = MFACT, .nmaster = NMASTER, .history = SCROLL_H
 struct client *stack = NULL;
 struct client *sel = NULL;
 struct client *lastsel = NULL;
-struct client *msel = NULL;
 unsigned int seltags;
 unsigned int tagset[2] = { 1, 1 };
 Layout *layout = layouts;
