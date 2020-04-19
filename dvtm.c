@@ -183,7 +183,7 @@ drawbar(void) {
 	addstr(layout->symbol);
 
 	getyx(stdscr, y, x);
-	(void)y;
+	(void)y; /* ??? Is this to suppress a compiler warning?? */
 	int maxwidth = screen.w - x - 2;
 
 	addch(BAR_BEGIN);
