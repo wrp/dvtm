@@ -67,7 +67,7 @@ struct client *lastsel = NULL;
 unsigned int seltags;
 unsigned int tagset[2] = { 1, 1 };
 Layout *layout = layouts;
-StatusBar bar = { .fd = -1, .hidden = 0, .autohide = BAR_AUTOHIDE, .h = 1 };
+StatusBar bar = { .fd = -1, .hidden = 0, .autohide = 1, .h = 1 };
 CmdFifo cmdfifo = { .fd = -1 };
 const char *shell;
 Register copyreg;
@@ -1255,7 +1255,7 @@ setmfact(const char *args[]) {
 void
 togglebar(const char *args[]) {
 	bar.hidden = !bar.hidden;
-	bar.autohide = false;
+	bar.autohide = 0;
 	updatebarpos();
 	redraw(NULL);
 }

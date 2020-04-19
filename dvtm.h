@@ -117,7 +117,7 @@ struct command {
 typedef struct {
 	int fd;
 	int hidden;
-	bool autohide;
+	int autohide;
 	unsigned short int h;
 	unsigned short int y;
 	char text[512];
@@ -174,8 +174,6 @@ int ESCDELAY;
 /* characters for beginning and end of status bar message */
 #define BAR_BEGIN       '['
 #define BAR_END         ']'
-/* whether status bar should be hidden if only one client exists */
-#define BAR_AUTOHIDE    true
 /* master width factor [0.1 .. 0.9] */
 #define MFACT 0.8
 /* number of clients in master area */
