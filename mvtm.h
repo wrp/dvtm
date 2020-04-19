@@ -37,10 +37,10 @@ struct screen {
 	int winched;
 };
 
-typedef struct {
+struct layout {
 	const char *symbol;
 	void (*arrange)(void);
-} Layout;
+};
 
 /*
  struct state is the global state.  Currently, not much is here.  I intend

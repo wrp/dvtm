@@ -30,7 +30,7 @@ struct color colors[] = {
 };
 
 extern void wstack(void);
-Layout layouts[] = {
+struct layout layouts[] = {
 	{ "---", wstack },
 	{ "[ ]", fullscreen },
 };
@@ -71,7 +71,7 @@ struct client *sel = NULL;
 struct client *lastsel = NULL;
 unsigned int seltags;
 unsigned int tagset[2] = { 1, 1 };
-Layout *layout = layouts;
+struct layout *layout = layouts;
 StatusBar bar = { .fd = -1, .hidden = 0, .autohide = 1, .h = 1 };
 CmdFifo cmdfifo = { .fd = -1 };
 const char *shell;
