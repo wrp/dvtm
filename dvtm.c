@@ -1315,6 +1315,7 @@ zoom(const char *args[]) {
 		return;
 	if (args && args[0])
 		focusn(args);
+	/* Do nothing if sel is the only visible client */
 	if ((c = sel) == nextvisible(clients))
 		if (!(c = nextvisible(c->next)))
 			return;
