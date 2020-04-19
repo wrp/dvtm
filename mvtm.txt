@@ -1,27 +1,28 @@
 
-= DVTM (1)
-Anselm R. Garbe; Marc André Tanner
+= MVTM (1)
+William R. Pursell; Anselm R. Garbe; Marc André Tanner
 :doctype: manpage
 :man manual: BSD General Commands Manual
-:man source: dvtm {version}
+:man source: mvtm {version}
 :man version: {version}
 
 == NAME
-dvtm - dynamic virtual terminal manager
+mvtm - modal virtual terminal manager
 
 == SYNOPSIS
-*dvtm* [-v] [-?] [-m modifier] [-d delay] [-h lines] [-t title] [-s status-fifo] [-c cmd-fifo] [command ...]
+*mvtm* [-v] [-?] [-m modifier] [-d delay] [-h lines] [-t title] [-s status-fifo] [-c cmd-fifo] [command ...]
 
 == DESCRIPTION
-dvtm is a dynamic tiling window manager for the console.
+mvtm is the modal virtual terminal manager, a minimalistic window manager suitable
+for use managing a single window in a session manager such as abduco(1) or tmux(1).
 
-As a console window manager it tries to make it easy to work with multiple console based applications.
+mvtm is a fork of dvtm, with support for modality.
 
 -h::
-Print usage statement
+Print usage statement and exit.
 
 -v::
-Print version information to standard output and exit.
+Print version information and exit.
 
 -m modifier::
 Set command modifier at runtime.
@@ -36,17 +37,20 @@ Set command modifier at runtime.
   Set a static terminal title and don't change it to the one of the currently focused window.
 
 -s status-fifo::
-  Open or create the named pipe status-fifo read its content and display it in the statusbar. See the dvtm-status(1) script for an usage example.
+  Open or create the named pipe status-fifo.  The fifo is monitored, and any data written to it will
+  be displayed in the status bar.
 
 -c cmd-fifo::
-  Open or create the named pipe cmd-fifo and look for commands to execute which were defined in config.h.
+  Open or create the named pipe cmd-fifo.  The fifo is monitored and can be used by external processes to invoke certain commands.
 
 command ...
-  Execute command (s), each in a separate window.
+  Execute command in a separate window.  If no command is given, one window will be executed at startup
+  running $SHELL, or /bin/sh if SHELL is not defined.  If given, each command is executed through $SHELL (or /bin/sh).
+
 
 == USAGE
 Keyboard commands::
-  Each keybinding begins with Mod which defaults to ^g but can be changed in config.h or with the -m command line option.
+  Each keybinding begins with Mod which defaults to ^g but can be changed with the -m command line option.
 
 Mod-c::
   Create a new shell window.
@@ -168,39 +172,33 @@ Mod-T-[1..n]::
   Add/remove nth tag to/from focused window.
 
 Mod-q-q::
-  Quit dvtm.
+  Quit mvtm.
 
 Copy mode::
   Copy mode gives easy access to past output by piping it to mvtm-editor(1), opening an editor.  What the editor writes will be stored in an internal reg-
   ister and can be pasted into other clients (via Mod-p ).
 
 == ENVIRONMENT VARIABLES
-=== DVTM
-Each process spawned by dvtm will have this variable set to the dvtm version it is running under.
+=== MVTM
+Each process spawned by mvtm will have this variable set to the version it is running under.
 
-=== DVTM_WINDOW_ID
+=== MVTM_WINDOW_ID
 Each process also has access to its constant and unique window id.
 
-=== DVTM_CMD_FIFO
-If the -c command line argument was specified upon dvtm startup, this variable will be set to the file name of the named pipe. Thus allowing the
-process to send commands back to dvtm.
+=== MVTM_CMD_FIFO
+If the -c command line argument was specified upon mvtm startup, this variable will be set to the file name of the named pipe. Thus allowing the
+process to send commands back to mvtm.
 
-=== DVTM_STATUS_FIFO
-If the -s command line argument was specified upon dvtm startup, this variable will be set to the file name of the named pipe.
+=== MVTM_STATUS_FIFO
+If the -s command line argument was specified upon mvtm startup, this variable will be set to the file name of the named pipe.
 
-=== DVTM_TERM
-By default dvtm uses its own terminfo file and therefore sets TERM=dvtm within the client windows. This can be overridden by setting the DVTM_TERM
-environment variable to a valid terminal name before launching dvtm.
+=== MVTM_TERM
+By default mvtm uses its own terminfo file and therefore sets TERM=mvtm within the client windows. This can be overridden by setting the MVTM_TERM
+environment variable to a valid terminal name before launching mvtm.
 
 === MVTM_EDITOR
-When entering copymode, dvtm pipes the whole scroll back buffer to mvtm-editor(1) which opens the content in MVTM_EDITOR, with fallbacks to VISUAL,
+When entering copymode, mvtm pipes the whole scroll back buffer to mvtm-editor(1) which opens the content in MVTM_EDITOR, with fallbacks to VISUAL,
 DVTM_EDITOR, EDITOR and vi(1).
 
-== EXAMPLE
-See the dvtm-status(1) script as an example of how to display text in the status bar.
-
-== FILES
-dvtm is customized by creating a custom config.h and (re)compiling the source code.  This keeps it fast, secure and simple.
-
 == SEE ALSO
-abduco(1), dvtm-status(1)
+abduco(1), dvtm(1), tmux(1)
