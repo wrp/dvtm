@@ -10,6 +10,15 @@
  *
  * See LICENSE for details.
  */
+
+/* TODO
+ *   Make it possible to list current key bindings.
+ *   Add ability to do simple commands without command mode.
+ *     eg, window navigation commands.  Maybe have a command
+ *     to enter command mode rather than always going in, or
+ *     have 2 prefix sequences.
+ *   Make layout more flexible, perhaps dlopenable.
+ */
 #include "config.h"
 #include "dvtm.h"
 
