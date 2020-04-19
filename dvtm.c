@@ -10,15 +10,6 @@
  *
  * See LICENSE for details.
  */
-
-/*
- * TODO:
- *   in the status bar, show that we are in command mode
- *   show the current contents of command buffer
- *   Change fullscreen behavior.  It should act exactly the same
- *     as when there is only one window.  eg, in keypress mode there
- *     is no status bar.  Ih command mode, put up a status bar.
- */
 #include "config.h"
 #include "dvtm.h"
 
