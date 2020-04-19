@@ -26,7 +26,6 @@ struct key_binding bindings[] = {
 	{ { 'l',          }, { setmfact,       { "+0.05" }                 } },
 	{ { '.',          }, { toggleminimize, { NULL }                    } },
 	{ { 's',          }, { togglebar,      { NULL }                    } },
-	{ { 'S',          }, { togglebarpos,   { NULL }                    } },
 	{ { '\n',         }, { zoom ,          { NULL }                    } },
 	{ { '\r',         }, { zoom ,          { NULL }                    } },
 	{ { '1',          }, { focusn,         { "1" }                     } },

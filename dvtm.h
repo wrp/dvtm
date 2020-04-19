@@ -114,11 +114,9 @@ struct command {
 	struct action action;
 };
 
-enum { BAR_TOP, BAR_BOTTOM, BAR_OFF };
-
 typedef struct {
 	int fd;
-	int pos, lastpos;
+	int hidden;
 	bool autohide;
 	unsigned short int h;
 	unsigned short int y;
@@ -176,8 +174,6 @@ int ESCDELAY;
 /* characters for beginning and end of status bar message */
 #define BAR_BEGIN       '['
 #define BAR_END         ']'
-/* status bar (command line option -s) position */
-#define BAR_POS         BAR_TOP /* BAR_BOTTOM, BAR_OFF */
 /* whether status bar should be hidden if only one client exists */
 #define BAR_AUTOHIDE    true
 /* master width factor [0.1 .. 0.9] */

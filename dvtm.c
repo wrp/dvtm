@@ -67,7 +67,7 @@ struct client *lastsel = NULL;
 unsigned int seltags;
 unsigned int tagset[2] = { 1, 1 };
 Layout *layout = layouts;
-StatusBar bar = { .fd = -1, .lastpos = BAR_POS, .pos = BAR_POS, .autohide = BAR_AUTOHIDE, .h = 1 };
+StatusBar bar = { .fd = -1, .hidden = 0, .autohide = BAR_AUTOHIDE, .h = 1 };
 CmdFifo cmdfifo = { .fd = -1 };
 const char *shell;
 Register copyreg;
@@ -133,34 +133,15 @@ updatebarpos(void) {
 	main_window_y = 0;
 	available_height = screen.h;
 	available_width = screen.w;
-	if (bar.pos == BAR_TOP) {
-		available_height -= bar.h;
-		main_window_y += bar.h;
-	} else if (bar.pos == BAR_BOTTOM) {
-		available_height -= bar.h;
-		bar.y = available_height;
-	}
-}
-
-void
-hidebar(void) {
-	if (bar.pos != BAR_OFF) {
-		bar.lastpos = bar.pos;
-		bar.pos = BAR_OFF;
-	}
-}
-
-void
-showbar(void) {
-	if (bar.pos == BAR_OFF)
-		bar.pos = bar.lastpos;
+	available_height -= bar.h;
+	bar.y = available_height;
 }
 
 void
 drawbar(void) {
 	int sx, sy, x, y, width;
 	unsigned int occupied = 0, urgent = 0;
-	if (bar.pos == BAR_OFF)
+	if( bar.hidden )
 		return;
 
 	for (struct client *c = clients; c; c = c->next) {
@@ -222,7 +203,7 @@ drawbar(void) {
 
 int
 show_border(void) {
-	return (bar.pos != BAR_OFF) || (clients && clients->next);
+	return !bar.hidden || (clients && clients->next);
 }
 
 void
@@ -316,9 +297,9 @@ arrange(void) {
 	attrset(NORMAL_ATTR);
 	if (bar.fd == -1 && bar.autohide) {
 		if ((!clients || !clients->next) && n == 1)
-			hidebar();
+			bar.hidden = 1;
 		else
-			showbar();
+			bar.hidden = 0;
 		updatebarpos();
 	}
 	if (m && !isarrange(fullscreen))
@@ -1273,25 +1254,8 @@ setmfact(const char *args[]) {
 
 void
 togglebar(const char *args[]) {
-	if (bar.pos == BAR_OFF)
-		showbar();
-	else
-		hidebar();
+	bar.hidden = !bar.hidden;
 	bar.autohide = false;
-	updatebarpos();
-	redraw(NULL);
-}
-
-void
-togglebarpos(const char *args[]) {
-	switch (bar.pos == BAR_OFF ? bar.lastpos : bar.pos) {
-	case BAR_TOP:
-		bar.pos = BAR_BOTTOM;
-		break;
-	case BAR_BOTTOM:
-		bar.pos = BAR_TOP;
-		break;
-	}
 	updatebarpos();
 	redraw(NULL);
 }
