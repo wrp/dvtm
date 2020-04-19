@@ -1,4 +1,4 @@
-#include "dvtm.h"
+#include "mvtm.h"
 
 /* layout the tile windows with vertical splits, master windows
  * with horizontal splits */

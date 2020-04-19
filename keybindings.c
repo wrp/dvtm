@@ -1,5 +1,5 @@
 #include "config.h"
-#include "dvtm.h"
+#include "mvtm.h"
 
 #define TAGKEYS(KEY,TAG) \
 	{ { 'v', KEY,     }, { view,           { #TAG }               } }, \

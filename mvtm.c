@@ -20,7 +20,7 @@
  *   Make layout more flexible, perhaps dlopenable.
  */
 #include "config.h"
-#include "dvtm.h"
+#include "mvtm.h"
 
 struct state state;
 struct color colors[] = {
