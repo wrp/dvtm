@@ -2,45 +2,45 @@
 
 MOD="" # CTRL+g
 ESC="" # \e
-DVTM="./dvtm"
-export DVTM_EDITOR="vis"
-LOG="dvtm.log"
+MVTM="./mvtm"
+export MVTM_EDITOR="vis"
+LOG="mvtm.log"
 TEST_LOG="$0.log"
 UTF8_TEST_URL="http://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-demo.txt"
 
-[ ! -z "$1" ] && DVTM="$1"
-[ ! -x "$DVTM" ] && echo "usage: $0 path-to-dvtm-binary" && exit 1
+test -n "$1" && MVTM=${1}
+test -x "$MVTM" || { echo "usage: $0 [path-to-mvtm]" && exit 1; } >&2
 
-dvtm_input() {
-	printf "$1"
+mvtm_input() {
+	printf '%s' "$1"
 }
 
-dvtm_cmd() {
-	printf "${MOD}$1"
+mvtm_cmd() {
+	printf '%s' "${MOD}$1"
 	sleep 1
 }
 
 sh_cmd() {
-	printf "$1\n"
+	printf '%s\n' "$1"
 	sleep 1
 }
 
-test_copymode() { # requires wget, diff, vis
+test_copymode() {
 	local FILENAME="UTF-8-demo.txt"
 	local COPY="$FILENAME.copy"
 	[ ! -e "$FILENAME" ] && (wget "$UTF8_TEST_URL" -O "$FILENAME" > /dev/null 2>&1 || return 1)
 	sleep 1
 	sh_cmd "cat $FILENAME"
-	dvtm_cmd 'e'
-	dvtm_input "?UTF-8 encoded\n"
-	dvtm_input '^kvG1k$'
-	dvtm_input ":wq!\n"
+	mvtm_cmd 'e'
+	mvtm_input "?UTF-8 encoded\n"
+	mvtm_input '^kvG1k$'
+	mvtm_input ":wq!\n"
 	sleep 1
 	sh_cmd "cat <<'EOF' > $COPY"
-	dvtm_cmd 'p'
+	mvtm_cmd 'p'
 	sh_cmd 'EOF'
 	while [ ! -r "$COPY" ]; do sleep 1; done;
-	dvtm_input "exit\n"
+	mvtm_input "exit\n"
 	diff -u "$FILENAME" "$COPY" 1>&2
 	local RESULT=$?
 	rm -f "$COPY"
@@ -53,9 +53,9 @@ if ! which vis > /dev/null 2>&1 ; then
 fi
 
 {
-	echo "Testing $DVTM" 1>&2
-	$DVTM -v 1>&2
+	echo "Testing $MVTM" 1>&2
+	$MVTM -v 1>&2
 	test_copymode && echo "copymode: OK" 1>&2 || echo "copymode: FAIL" 1>&2;
-} 2> "$TEST_LOG" | $DVTM -m ^g 2> $LOG
+} 2> "$TEST_LOG" | $MVTM -m ^g 2> $LOG
 
 cat "$TEST_LOG" && rm "$TEST_LOG" $LOG
