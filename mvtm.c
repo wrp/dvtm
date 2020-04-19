@@ -18,6 +18,9 @@
  *     to enter command mode rather than always going in, or
  *     have 2 prefix sequences.
  *   Make layout more flexible, perhaps dlopenable.
+ *
+ *   Make it possible to pass layouts on the cmd fifo.  eg, give
+ * dimensions like "1:100x20@10,20\n2:hxw@y,x\n..."
  */
 #include "config.h"
 #include "mvtm.h"
