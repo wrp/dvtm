@@ -61,7 +61,6 @@ struct action *actions = NULL; /* actions are executed when mvtm is started */
 
 struct screen screen = { .mfact = MFACT, .nmaster = NMASTER, .history = SCROLL_HISTORY };
 
-const char *program_name = "dvtm";
 struct client *stack = NULL;
 struct client *sel = NULL;
 struct client *lastsel = NULL;
@@ -788,7 +787,7 @@ getshell(void) {
 	if(
 		shell == NULL
 		|| *shell != '/'
-		|| strcmp(strrchr(shell, '/') + 1, program_name) == 0
+		|| strcmp(strrchr(shell, '/') + 1, PACKAGE) == 0
 		|| access(shell, X_OK)
 	) {
 		fprintf(stderr, "SHELL (%s) is invalid\n", shell);
@@ -1562,12 +1561,9 @@ open_or_create_fifo(const char *name, const char **name_created, const char *env
 void
 parse_args(int argc, char *argv[]) {
 	char *arg;
-	const char *name = argv[0];
+	const char *name;
 	int force = 0;
 
-	if( name && (name = strrchr(name, '/')) != NULL ) {
-		program_name = name + 1;
-	}
 	if( getenv("ESCDELAY") == NULL ) {
 		set_escdelay(100);
 	}
@@ -1587,7 +1583,7 @@ parse_args(int argc, char *argv[]) {
 			       "[-s status-fifo] [-c cmd-fifo] [cmd...]\n");
 			exit(EXIT_SUCCESS);
 		case 'v':
-			printf("%s-%s\n", program_name, VERSION);
+			printf("%s-%s\n", PACKAGE, VERSION);
 			exit(EXIT_SUCCESS);
 		case 'f':
 			force = 1;
