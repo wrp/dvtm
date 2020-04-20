@@ -60,14 +60,32 @@ struct command_name {
 };
 #define entry(x) { x, #x }
 static struct command_name names[] = {
+	entry(copymode),
 	entry(create),
 	entry(focusdown),
+	entry(focuslast),
 	entry(focusleft),
+	entry(focusn),
 	entry(focusnext),
 	entry(focusprev),
+	entry(focusright),
 	entry(focusup),
+	entry(incnmaster),
 	entry(killclient),
+	entry(paste),
 	entry(quit),
+	entry(redraw),
+	entry(scrollback),
+	entry(setlayout),
+	entry(setmfact),
+	entry(tag),
+	entry(togglebar),
+	entry(toggleminimize),
+	entry(togglerunall),
+	entry(untag),
+	entry(view),
+	entry(viewprevtag),
+	entry(zoom),
 	{NULL},
 };
 #undef entry
