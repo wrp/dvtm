@@ -128,7 +128,7 @@ struct command {
 	struct action action;
 };
 
-typedef struct {
+struct statusbar {
 	int fd;
 	int hidden;
 	int autohide;
@@ -136,7 +136,7 @@ typedef struct {
 	unsigned short int y;
 	char text[512];
 	const char *file;
-} StatusBar;
+};
 
 typedef struct {
 	int fd;

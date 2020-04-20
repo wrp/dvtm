@@ -81,7 +81,7 @@ struct client *lastsel = NULL;
 unsigned int seltags;
 unsigned int tagset[2] = { 1, 1 };
 struct layout *layout = layouts;
-StatusBar bar = { .fd = -1, .hidden = 0, .autohide = 1, .h = 1 };
+struct statusbar bar = { .fd = -1, .hidden = 0, .autohide = 1, .h = 1 };
 CmdFifo cmdfifo = { .fd = -1 };
 const char *shell;
 Register copyreg;
