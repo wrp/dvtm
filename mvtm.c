@@ -1407,6 +1407,7 @@ get_cmd_by_name(const char *name) {
 	return NULL;
 }
 
+void parse_command( char **pp, const char *args[] );
 void
 handle_cmdfifo(void) {
 	int r;
@@ -1446,8 +1447,32 @@ handle_cmdfifo(void) {
 			while (*p == ' ')
 				p++;
 			arg = p;
-			for (; (c = *p); p++) {
-				switch (*p) {
+
+			parse_command( &p, args );
+					if (!*p)
+						p++;
+					debug("execute %s", s);
+					for(int i = 0; i < argc; i++)
+						debug(" %s", args[i]);
+					debug("\n");
+					cmd->action.cmd(args);
+					break;
+		}
+	}
+}
+
+void
+parse_command( char **pp, const char *args[] )
+{
+	int quote = 0;
+	char *p = *pp;
+	char c;
+	const char *arg = p;
+	int argc = 0;
+
+			for (; *p != '\0'; p++) {
+
+				switch (c = *p) {
 				case '\\':
 					/* remove the escape character '\\' move every
 					 * following character to the left by one position
@@ -1486,20 +1511,10 @@ handle_cmdfifo(void) {
 					}
 					break;
 				}
-
-				if (c == '\n' || *p == '\n') {
-					if (!*p)
-						p++;
-					debug("execute %s", s);
-					for(int i = 0; i < argc; i++)
-						debug(" %s", args[i]);
-					debug("\n");
-					cmd->action.cmd(args);
-					break;
-				}
+				if( c == '\n' || *p == '\n' )
+					return;
 			}
-		}
-	}
+	return;
 }
 
 
