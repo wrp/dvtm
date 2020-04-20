@@ -18,9 +18,8 @@
  *     to enter command mode rather than always going in, or
  *     have 2 prefix sequences.
  *   Make layout more flexible, perhaps dlopenable.
- *
  *   Make it possible to pass layouts on the cmd fifo.  eg, give
- * dimensions like "1:100x20@10,20\n2:hxw@y,x\n..."
+ *     dimensions like "1:100x20@10,20\n2:hxw@y,x\n..."
  *
  * Cleanup count (eg, focusn works, but implementation is hacky)
  *
@@ -87,7 +86,6 @@ CmdFifo cmdfifo = { .fd = -1 };
 const char *shell;
 Register copyreg;
 volatile sig_atomic_t stop_requested = 0;
-bool runinall = false;
 int sigwinch_pipe[] = {-1, -1};
 int sigchld_pipe[] = {-1, -1};
 
@@ -181,7 +179,7 @@ drawbar(void) {
 		printw(TAG_SYMBOL, i + 1);
 	}
 
-	attrset(runinall ? TAG_SEL : TAG_NORMAL);
+	attrset(state.runinall ? TAG_SEL : TAG_NORMAL);
 
 	if( state.mode == command_mode ) {
 		attrset(COLOR(RED) | A_REVERSE);
@@ -231,7 +229,7 @@ draw_border(struct client *c) {
 		return;
 	if (sel != c && c->urgent)
 		attrs = URGENT_ATTR;
-	if (sel == c || (runinall && !c->minimized))
+	if (sel == c || (state.runinall && !c->minimized))
 		attrs = SELECTED_ATTR;
 
 	wattrset(c->window, attrs);
@@ -753,7 +751,7 @@ keypress(int code) {
 		nodelay(stdscr, FALSE);
 	}
 
-	for (struct client *c = runinall ? nextvisible(clients) : sel; c; c = nextvisible(c->next)) {
+	for (struct client *c = state.runinall ? nextvisible(clients) : sel; c; c = nextvisible(c->next)) {
 		if (is_content_visible(c)) {
 			c->urgent = false;
 			if (code == '\e')
@@ -763,7 +761,7 @@ keypress(int code) {
 			if (key != -1)
 				vt_keypress(c->term, key);
 		}
-		if (!runinall)
+		if (!state.runinall)
 			break;
 	}
 }
@@ -1372,7 +1370,7 @@ toggleminimize(const char *args[]) {
 
 void
 togglerunall(const char *args[]) {
-	runinall = !runinall;
+	state.runinall = !state.runinall;
 	drawbar();
 	draw_all();
 }
