@@ -7,36 +7,45 @@
 	{ { 'V', KEY,     }, { toggleview,     { #TAG }               } }, \
 	{ { 'T', KEY,     }, { toggletag,      { #TAG }               } }
 
-struct binding_description binding_desc[] = {
-	{ "c", "create", NULL, NULL, "master" },
-	{ "xx", "killclient" },
-	{ "j", "focusnext" },
-	{ "J", "focusdown" },
-	{ "k", "focusprev" },
-	{ "K", "focusup" },
-	{ "H", "focusleft" },
-	{ "qq", "quit" },
+char *binding_desc[] = {
+	"xx\0killclient\0\0\0",
+	"qq\0quit\0\0\0",
+	"c\0create\0\0\0master",
+	"j\0focusnext\0\0\0",
+	"J\0focusdown\0\0\0",
+	"k\0focusprev\0\0\0",
+	"K\0focusup\0\0\0",
+	"H\0focusleft\0\0\0",
 };
 size_t binding_descr_length = LENGTH(binding_desc);
 
 int
-parse_binding(struct action *a, const struct binding_description *d)
+parse_binding(struct action *a, const char *d)
 {
-	if( strcmp(d->func_name, "create") == 0 ) a->cmd = create;
-	else if( strcmp(d->func_name, "killclient") == 0 ) a->cmd = killclient;
-	else if( strcmp(d->func_name, "focusnext") == 0 ) a->cmd = focusnext;
-	else if( strcmp(d->func_name, "focusdown") == 0 ) a->cmd = focusdown;
-	else if( strcmp(d->func_name, "focusprev") == 0 ) a->cmd = focusprev;
-	else if( strcmp(d->func_name, "focusup") == 0 ) a->cmd = focusup;
-	else if( strcmp(d->func_name, "focusleft") == 0 ) a->cmd = focusleft;
-	else if( strcmp(d->func_name, "quit") == 0 ) a->cmd = quit;
+	const char *keys = d;
+	const char *func_name = strchr(keys, '\0') + 1;
+	if( strcmp(func_name, "create") == 0 ) a->cmd = create;
+	else if( strcmp(func_name, "killclient") == 0 ) a->cmd = killclient;
+	else if( strcmp(func_name, "focusnext") == 0 ) a->cmd = focusnext;
+	else if( strcmp(func_name, "focusdown") == 0 ) a->cmd = focusdown;
+	else if( strcmp(func_name, "focusprev") == 0 ) a->cmd = focusprev;
+	else if( strcmp(func_name, "focusup") == 0 ) a->cmd = focusup;
+	else if( strcmp(func_name, "focusleft") == 0 ) a->cmd = focusleft;
+	else if( strcmp(func_name, "quit") == 0 ) a->cmd = quit;
 	else return -1;
 
 	a->next = NULL;
-	a->args[0] = d->arg0;
-	a->args[1] = d->arg1;
-	a->args[2] = d->arg2;
+	a->args[0] = strchr(func_name, '\0') + 1;
+	a->args[1] = strchr(a->args[0], '\0') + 1;
+	a->args[2] = strchr(a->args[1], '\0') + 1;
 	a->args[3] = NULL;
+
+	/* Do not allow empty args.  Treat as null.  TODO: fix this */
+	for(int i = 0; i < 3; i++) {
+		if(a->args[i][0] == '\0') {
+			a->args[i] = NULL;
+		}
+	}
 	return 0;
 }
 

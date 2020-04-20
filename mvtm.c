@@ -23,6 +23,7 @@
  * dimensions like "1:100x20@10,20\n2:hxw@y,x\n..."
  *
  * Probably a layout stack, per tag.
+ * Implement bind command
  */
 #include "config.h"
 #include "mvtm.h"
@@ -824,15 +825,15 @@ push_binding(struct key_binding *b, unsigned char *keys, const struct action *a)
 static void
 build_bindings(void)
 {
-	struct binding_description *b = binding_desc;
-	struct binding_description *e = b + binding_descr_length;
+	char **b = binding_desc;
+	char **e = b + binding_descr_length;
 	bindings = xcalloc(1u << CHAR_BIT, sizeof *bindings);
 	for( ; b < e; b++) {
 		struct action a;
-		if( parse_binding(&a, b) ) {
+		if( parse_binding(&a, *b) ) {
 			error(0, "invalid keybinding");
 		}
-		if( push_binding(bindings, b->binding, &a) ) {
+		if( push_binding(bindings, *b, &a) ) {
 			error(0, "Bindings conflict");
 		}
 	}
