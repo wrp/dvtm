@@ -1079,8 +1079,10 @@ copymode(const char *args[]) {
 
 void
 focusn(const char *args[]) {
+	char *end;
+	int target = strtol( state.entry_buf, &end, 10);
 	for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
-		if (c->order == atoi(args[0])) {
+		if (c->order == target) {
 			focus(c);
 			if (c->minimized)
 				toggleminimize(NULL);
