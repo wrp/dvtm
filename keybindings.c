@@ -109,7 +109,6 @@ parse_binding(struct action *a, const char *d)
 	a->args[0] = strchr(func_name, '\0') + 1;
 	a->args[1] = strchr(a->args[0], '\0') + 1;
 	a->args[2] = strchr(a->args[1], '\0') + 1;
-	a->args[3] = NULL;
 
 	/* Do not allow empty args.  Treat as null.  TODO: fix this */
 	for(int i = 0; i < 3; i++) {
