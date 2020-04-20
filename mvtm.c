@@ -75,7 +75,7 @@ struct action *actions = NULL; /* actions are executed when mvtm is started */
 
 struct screen screen = { .mfact = MFACT, .nmaster = NMASTER, .history = SCROLL_HISTORY };
 
-struct client *stack = NULL;
+struct client *stack = NULL;  /* clients are pushed onto the stack as they get the focus */
 struct client *sel = NULL;
 struct client *lastsel = NULL;
 unsigned int seltags;
