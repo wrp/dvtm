@@ -105,6 +105,9 @@ struct color_rule {
 #define ESC 0x1b
 
 #define MAX_ARGS 8
+#ifndef CTRL
+# define CTRL(k)   ((k) & 0x1F)
+#endif
 
 typedef void (command)(const char *args[]);
 extern command * get_function(const char *name);
