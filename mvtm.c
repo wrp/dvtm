@@ -239,10 +239,10 @@ draw_border(struct client *c) {
 	getyx(c->window, y, x);
 	mvwhline(c->window, 0, 0, ACS_HLINE, c->w);
 
-	snprintf(border_title, sizeof border_title, "%s%s#%d (%d:%ld)",
+	snprintf(border_title, sizeof border_title, "%s%s#%d (%ld)",
 		*c->title ? c->title : "",
 		*c->title ? " | " : "",
-		c->order, c->id, (long)c->pid);
+		c->id, (long)c->pid);
 
 	if(c->tags) {
 		unsigned mask = 0x1;
@@ -1082,7 +1082,7 @@ focusn(const char *args[]) {
 	char *end;
 	int target = strtol( state.entry_buf, &end, 10);
 	for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
-		if (c->order == target) {
+		if (c->id == target) {
 			focus(c);
 			if (c->minimized)
 				toggleminimize(NULL);
