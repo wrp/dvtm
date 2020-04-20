@@ -617,12 +617,16 @@ resize_screen(void) {
 }
 
 struct key_binding *
-keybinding(unsigned keys[MAX_KEYS], unsigned int keycount) {
-	struct key_binding *b = bindings + keys[0];
+keybinding(const struct state *s)
+{
+	char *end;
+	int count = strtol(s->entry_buf, &end, 10);
+	struct key_binding *b = bindings + *end;
 	int i;
+
 	assert(bindings != NULL);
-	for( int i = 1; b->next && keys[i]; i++ ) {
-		b = b->next + keys[i];
+	for( end += 1; *end && b->next; end++ ) {
+		b = b->next + *end;
 	}
 	return b;
 }
@@ -1648,7 +1652,6 @@ int
 main(int argc, char *argv[])
 {
 	struct state *s = &state;
-	unsigned keys[MAX_KEYS + 1];
 	unsigned int key_index = 0;
 
 	parse_args(argc, argv);
@@ -1705,10 +1708,10 @@ main(int argc, char *argv[])
 					keypress(code);
 				} else {
 					struct key_binding *binding;
-					keys[key_index++] = code;
-					keys[key_index] = 0;
+					s->entry_buf[key_index++] = code;
+					s->entry_buf[key_index] = 0;
 
-					if( NULL != (binding = keybinding(keys, key_index)) ) {
+					if( NULL != (binding = keybinding(s)) ) {
 						if(binding->action.cmd != NULL) {
 
 if(binding->action.cmd == copymode ||
@@ -1720,8 +1723,7 @@ if(binding->action.cmd == copymode ||
 							binding->action.cmd(binding->action.args);
 							key_index = 0;
 						} else {
-							char b[2] = { code, '\0' };;
-							strcat(bar.text, b);
+							snprintf(bar.text, sizeof bar.text, "%s", s->entry_buf);
 						}
 					} else {
 						key_index = 0;
