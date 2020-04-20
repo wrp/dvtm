@@ -7,7 +7,7 @@
 	{ { 'V', KEY,     }, { toggleview,     { #TAG }               } }, \
 	{ { 'T', KEY,     }, { toggletag,      { #TAG }               } }
 
-struct key_binding bindings[] = {
+struct old_key_binding old_bindings[] = {
 	{ { 'c',          }, { create,         { NULL, NULL, "master" }    } },
 	{ { 'C',          }, { create,         { NULL, NULL, "$CWD" }      } },
 	{ { 'x', 'x',     }, { killclient,     { NULL }                    } },
@@ -44,8 +44,6 @@ struct key_binding bindings[] = {
 	{ { 'r',          }, { redraw,         { NULL }                    } },
 	{ { 'e',          }, { copymode,       { "mvtm-editor" }           } },
 	{ { 'p',          }, { paste,          { NULL }                    } },
-	{ { KEY_PPAGE,    }, { scrollback,     { "-1" }                    } },
-	{ { KEY_NPAGE,    }, { scrollback,     { "1"  }                    } },
 	{ { '?',          }, { create,         { "man dvtm", "dvtm help" } } },
 	{ { 'u',          }, { scrollback,     { "-1" }                    } },
 	{ { 'n',          }, { scrollback,     { "1"  }                    } },
@@ -63,6 +61,6 @@ struct key_binding bindings[] = {
 	TAGKEYS( '7', 7),
 	TAGKEYS( '8', 8),
 };
-size_t key_binding_length = LENGTH(bindings);
+size_t old_key_binding_length = LENGTH(old_bindings);
 
 #undef TAGKEYS

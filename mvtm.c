@@ -25,6 +25,7 @@
 #include "config.h"
 #include "mvtm.h"
 
+struct key_binding *bindings;
 struct state state;
 struct color colors[] = {
 	[DEFAULT] = { .fg = -1,         .bg = -1, .fg256 =  -1, .bg256 = -1, },
@@ -612,20 +613,13 @@ resize_screen(void) {
 
 struct key_binding *
 keybinding(unsigned keys[MAX_KEYS], unsigned int keycount) {
-	/* TODO: stop doing a linear search on all bindings for
-	   every keystroke. */
-	struct key_binding *b = bindings;
-	struct key_binding *e = bindings + key_binding_length;
-	for( ; b < e; b++) {
-		unsigned k = 0;
-		for (; k < keycount; k++) {
-			if (keys[k] != b->keys[k])
-				break;
-		}
-		if (k == keycount)
-			return b;
+	struct key_binding *b = bindings + keys[0];
+	int i;
+	assert(bindings != NULL);
+	for( int i = 1; b->next && keys[i]; i++ ) {
+		b = b->next + keys[i];
 	}
-	return NULL;
+	return b;
 }
 
 unsigned int
@@ -795,10 +789,74 @@ set_blocking(int fd, bool blocking) {
 	return !fcntl(fd, F_SETFL, flags);
 }
 
+void *
+xcalloc(size_t count, size_t size)
+{
+	void *rv = calloc(count, size);
+	if( rv == NULL ) {
+		error(1, "calloc");
+	}
+	return rv;
+}
 
+
+static int
+push_binding(struct key_binding *b, unsigned char *keys, const struct action *a)
+{
+	struct key_binding *t = b + keys[0];
+	if( t->action.cmd != NULL ) {
+		return 1; /* conflicting binding */
+	}
+	if( keys[1] ) {
+		if( t->next == NULL ) {
+			t->next = xcalloc(1u << CHAR_BIT, sizeof *t->next);
+		}
+		push_binding(t->next, keys + 1, a);
+	} else {
+		memcpy(&t->action, a, sizeof t->action);
+		t->next = NULL;
+	}
+	return 0;
+}
+
+static void
+build_bindings(void)
+{
+	struct old_key_binding *b = old_bindings;
+	struct old_key_binding *e = old_bindings + old_key_binding_length;
+	bindings = xcalloc(1u << CHAR_BIT, sizeof *bindings);
+	for( ; b < e; b++) {
+		assert(b->keys[0] < (1u << CHAR_BIT));
+		assert(b->keys[2] == 0);
+		unsigned char arr[MAX_KEYS + 1];
+		for(int i=0; i < MAX_KEYS; i++) {
+			arr[i] = b->keys[i];
+		}
+		arr[MAX_KEYS] = '\0';
+		if( push_binding(bindings, arr, &b->action) ) {
+			error(0, "Bindings conflict");
+		}
+	}
+
+#if 0
+struct old_key_binding old_bindings[] = {
+	{ { 'c',          }, { create,         { NULL, NULL, "master" }    } },
+
+struct old_key_binding {
+	unsigned keys[MAX_KEYS];
+	struct action action;
+};
+struct key_binding {
+	unsigned key;
+	struct action action;
+	struct key_binding *next;
+};
+#endif
+}
 
 void
 setup(void) {
+	build_bindings();
 	shell = getshell();
 	setlocale(LC_CTYPE, "");
 	setenv("MVTM", VERSION, 1);
@@ -1671,7 +1729,7 @@ int
 main(int argc, char *argv[])
 {
 	struct state *s = &state;
-	unsigned keys[MAX_KEYS];
+	unsigned keys[MAX_KEYS + 1];
 	unsigned int key_index = 0;
 
 	parse_args(argc, argv);
@@ -1729,12 +1787,10 @@ main(int argc, char *argv[])
 				} else {
 					struct key_binding *binding;
 					keys[key_index++] = code;
+					keys[key_index] = 0;
 
 					if( NULL != (binding = keybinding(keys, key_index)) ) {
-						unsigned int key_length = MAX_KEYS;
-						while (key_length > 1 && !binding->keys[key_length-1])
-							key_length--;
-						if (key_index == key_length) {
+						if(binding->action.cmd != NULL) {
 
 if(binding->action.cmd == copymode ||
 	binding->action.cmd == paste

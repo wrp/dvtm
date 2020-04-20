@@ -111,12 +111,17 @@ struct action {
 };
 
 #define MAX_KEYS 3
-struct key_binding {
+struct old_key_binding {
 	unsigned keys[MAX_KEYS];
 	struct action action;
 };
-extern struct key_binding bindings[];
-extern size_t key_binding_length;
+struct key_binding {
+	unsigned key;
+	struct action action;
+	struct key_binding *next;
+};
+extern struct old_key_binding old_bindings[];
+extern size_t old_key_binding_length;
 
 struct command {
 	const char *name;
