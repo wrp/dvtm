@@ -41,13 +41,6 @@ parse_binding(struct action *a, const struct binding_description *d)
 }
 
 struct old_key_binding old_bindings[] = {
-	{ { 'c',          }, { create,         { NULL, NULL, "master" }    } },
-	{ { 'C',          }, { create,         { NULL, NULL, "$CWD" }      } },
-	{ { 'x', 'x',     }, { killclient,     { NULL }                    } },
-	{ { 'j',          }, { focusnext,      { NULL }                    } },
-	{ { 'J',          }, { focusdown,      { NULL }                    } },
-	{ { 'K',          }, { focusup,        { NULL }                    } },
-	{ { 'H',          }, { focusleft,      { NULL }                    } },
 	{ { 'L',          }, { focusright,     { NULL }                    } },
 	{ { 'k',          }, { focusprev,      { NULL }                    } },
 	{ { 'f',          }, { setlayout,      { "---" }                   } },
