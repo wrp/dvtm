@@ -19,20 +19,30 @@ char *binding_desc[] = {
 };
 size_t binding_descr_length = LENGTH(binding_desc);
 
+command
+get_function(const char *name)
+{
+	command rv = NULL;
+	if( strcmp(name, "create") == 0 ) rv = create;
+	else if( strcmp(name, "killclient") == 0 ) rv = killclient;
+	else if( strcmp(name, "focusnext") == 0 ) rv = focusnext;
+	else if( strcmp(name, "focusdown") == 0 ) rv = focusdown;
+	else if( strcmp(name, "focusprev") == 0 ) rv = focusprev;
+	else if( strcmp(name, "focusup") == 0 ) rv = focusup;
+	else if( strcmp(name, "focusleft") == 0 ) rv = focusleft;
+	else if( strcmp(name, "quit") == 0 ) rv = quit;
+	return rv;
+}
+
+
 int
 parse_binding(struct action *a, const char *d)
 {
 	const char *keys = d;
 	const char *func_name = strchr(keys, '\0') + 1;
-	if( strcmp(func_name, "create") == 0 ) a->cmd = create;
-	else if( strcmp(func_name, "killclient") == 0 ) a->cmd = killclient;
-	else if( strcmp(func_name, "focusnext") == 0 ) a->cmd = focusnext;
-	else if( strcmp(func_name, "focusdown") == 0 ) a->cmd = focusdown;
-	else if( strcmp(func_name, "focusprev") == 0 ) a->cmd = focusprev;
-	else if( strcmp(func_name, "focusup") == 0 ) a->cmd = focusup;
-	else if( strcmp(func_name, "focusleft") == 0 ) a->cmd = focusleft;
-	else if( strcmp(func_name, "quit") == 0 ) a->cmd = quit;
-	else return -1;
+	if( (a->cmd = get_function(func_name)) == NULL ) {
+		return -1;
+	}
 
 	a->next = NULL;
 	a->args[0] = strchr(func_name, '\0') + 1;

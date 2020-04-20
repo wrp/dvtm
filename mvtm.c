@@ -182,7 +182,7 @@ drawbar(void) {
 
 	attrset(runinall ? TAG_SEL : TAG_NORMAL);
 
-	if( state.mode == command ) {
+	if( state.mode == command_mode ) {
 		attrset(COLOR(RED) | A_REVERSE);
 	} else {
 		attrset(COLOR(DEFAULT) | A_NORMAL);
@@ -942,6 +942,25 @@ char *getcwd_by_pid(struct client *c) {
 	snprintf(buf, sizeof buf, "/proc/%d/cwd", c->pid);
 	return realpath(buf, NULL);
 }
+
+#if 0
+void
+bind(const char *args[])
+{
+	const char *binding = args[0];
+	struct action a;
+	a->cmd = get_function(args[1]);
+	a->args[0] = strchr(func_name, '\0') + 1;
+	a->args[1] = strchr(a->args[0], '\0') + 1;
+	a->args[2] = strchr(a->args[1], '\0') + 1;
+
+		if( push_binding(bindings, *b, &a) ) {
+}
+
+	void (*cmd)(const char *args[]);
+	const char *args[3];
+	struct action *next;
+#endif
 
 void
 create(const char *args[]) {
@@ -1750,7 +1769,7 @@ main(int argc, char *argv[])
 			int code = getch();
 			if( code == modifier_key ) {
 				if( s->mode == keypress_mode) {
-					s->mode = command;
+					s->mode = command_mode;
 					key_index = 0;
 				} else {
 					s->mode = keypress_mode;
@@ -1762,7 +1781,7 @@ main(int argc, char *argv[])
 				case keypress_mode:
 					keypress(code);
 					break;
-				case command:
+				case command_mode:
 					s->mode = keypress_mode;
 					*bar.text = '\0';
 				}

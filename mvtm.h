@@ -48,7 +48,7 @@ struct layout {
  architecture.
  */
 struct state {
-	enum { keypress_mode, command } mode;
+	enum { keypress_mode, command_mode } mode;
 };
 
 struct client {
@@ -104,8 +104,9 @@ struct color_rule {
 
 #define MAX_ARGS 8
 
+typedef void (*command)(const char *args[]);
 struct action {
-	void (*cmd)(const char *args[]);
+	command cmd;
 	const char *args[3];
 	struct action *next;
 };
