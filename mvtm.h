@@ -119,8 +119,7 @@ struct key_binding {
 	struct key_binding *next;
 };
 extern int parse_binding(struct action *a, const char *d);
-extern char *binding_desc[][2];
-extern size_t binding_descr_length;
+extern char *binding_desc[][5];
 
 struct command {
 	const char *name;

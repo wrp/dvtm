@@ -826,10 +826,9 @@ static void
 build_bindings(void)
 {
 	typeof(*binding_desc) *b = binding_desc;
-	typeof(*binding_desc) *e = b + binding_descr_length;
 	bindings = xcalloc(1u << CHAR_BIT, sizeof *bindings);
-	for( ; b < e; b++) {
-		const char *arr[] = {(*b)[0], (*b)[1], NULL};
+	for( ; (*b)[0]; b++) {
+		const char *arr[] = {(*b)[0], (*b)[1], (*b)[2], (*b)[3], (*b)[4]};
 		bind(arr);
 	}
 }
@@ -944,18 +943,12 @@ bind(const char *args[])
 	const char *binding = args[0];
 	struct action a = {0};
 	const char *t;
-	char *non_const[3] = {0};
 
 	a.cmd = get_function(args[1]);
-	t = strchr(args[1], ' ');
-	for(int i = 0; t != NULL && i < 3; i++ ) {
-		a.args[i] = non_const[i] = strdup(t + 1);
-		t = strchr(a.args[i], ' ');
+	for(int i = 0; i < 3; i++ ) {
+		a.args[i] = args[i+2];
 	}
 	push_binding(bindings, binding, &a);
-	for( int i; i < 3; i++ ) {
-		free(non_const[i]);
-	}
 }
 
 
