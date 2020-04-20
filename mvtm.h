@@ -106,17 +106,13 @@ struct color_rule {
 
 typedef void (command)(const char *args[]);
 extern command * get_function(const char *name);
+#define MAX_KEYS 3
 struct action {
 	command *cmd;
-	const char *args[3];
+	const char *args[MAX_KEYS];
 	struct action *next;
 };
 
-#define MAX_KEYS 3
-struct old_key_binding {
-	unsigned keys[MAX_KEYS];
-	struct action action;
-};
 struct key_binding {
 	unsigned key;
 	struct action action;
