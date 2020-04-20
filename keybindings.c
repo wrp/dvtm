@@ -19,18 +19,36 @@ char *binding_desc[][2] = {
 };
 size_t binding_descr_length = LENGTH(binding_desc);
 
-command
+struct command_name {
+	command *cmd;
+	char *name;
+};
+#define entry(x) { x, #x }
+static struct command_name names[] = {
+	entry(create),
+	entry(focusdown),
+	entry(focusleft),
+	entry(focusnext),
+	entry(focusprev),
+	entry(focusup),
+	entry(killclient),
+	entry(killclient),
+	entry(quit),
+	{NULL},
+};
+#undef entry
+
+
+command *
 get_function(const char *name)
 {
 	command *rv = NULL;
-	if( strcmp(name, "create") == 0 ) rv = create;
-	else if( strcmp(name, "killclient") == 0 ) rv = killclient;
-	else if( strcmp(name, "focusnext") == 0 ) rv = focusnext;
-	else if( strcmp(name, "focusdown") == 0 ) rv = focusdown;
-	else if( strcmp(name, "focusprev") == 0 ) rv = focusprev;
-	else if( strcmp(name, "focusup") == 0 ) rv = focusup;
-	else if( strcmp(name, "focusleft") == 0 ) rv = focusleft;
-	else if( strcmp(name, "quit") == 0 ) rv = quit;
+	for( struct command_name *n = names; n->cmd; n++ ) {
+		if( strcmp(n->name, name) == 0 ) {
+			rv = n->cmd;
+			break;
+		}
+	}
 	return rv;
 }
 
