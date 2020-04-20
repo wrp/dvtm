@@ -25,7 +25,10 @@
  * Cleanup count (eg, focusn works, but implementation is hacky)
  *
  * Probably a layout stack, per tag.
- * Implement bind command
+ *
+ * Write errors somewhere.  Either in a dedidcated window
+ * or in the status bar.  Write any final error to stderr
+ * on exit.  Probably should read initialization from stdin.
  */
 #include "config.h"
 #include "mvtm.h"
