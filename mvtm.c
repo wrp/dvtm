@@ -1400,7 +1400,6 @@ get_cmd_by_name(const char *name) {
 	return NULL;
 }
 
-void parse_command( char **pp, const char *args[] );
 void
 handle_cmdfifo(void) {
 	int r;
@@ -1414,102 +1413,11 @@ handle_cmdfifo(void) {
 	}
 
 	cmdbuf[r] = '\0';
-	p = cmdbuf;
-	while (*p) {
-		/* find the command name */
-		for (; *p == ' ' || *p == '\n'; p++);
-		for (s = p; *p && *p != ' ' && *p != '\n'; p++);
-		if ((c = *p))
-			*p++ = '\0';
-		if (*s && (cmd = get_cmd_by_name(s)) != NULL) {
-			bool quote = false;
-			int argc = 0;
-			const char *args[MAX_ARGS], *arg;
-			memset(args, 0, sizeof(args));
-			/* if arguments were specified in config.h ignore the one given via
-			 * the named pipe and thus skip everything until we find a new line
-			 */
-			if (cmd->action.args[0] || c == '\n') {
-				debug("execute %s", s);
-				cmd->action.cmd(cmd->action.args);
-				while (*p && *p != '\n')
-					p++;
-				continue;
-			}
-			/* no arguments were given in config.h so we parse the command line */
-			while (*p == ' ')
-				p++;
-			arg = p;
-
-			parse_command( &p, args );
-					if (!*p)
-						p++;
-					debug("execute %s", s);
-					for(int i = 0; i < argc; i++)
-						debug(" %s", args[i]);
-					debug("\n");
-					cmd->action.cmd(args);
-					break;
-		}
+	cmd = get_cmd_by_name(cmdbuf);
+	if( cmd != NULL ) {
+		cmd->action.cmd(cmd->action.args);
 	}
 }
-
-void
-parse_command( char **pp, const char *args[] )
-{
-	int quote = 0;
-	char *p = *pp;
-	char c;
-	const char *arg = p;
-	int argc = 0;
-
-			for (; *p != '\0'; p++) {
-
-				switch (c = *p) {
-				case '\\':
-					/* remove the escape character '\\' move every
-					 * following character to the left by one position
-					 */
-					switch (p[1]) {
-						case '\\':
-						case '\'':
-						case '\"': {
-							char *t = p+1;
-							do {
-								t[-1] = *t;
-							} while (*t++);
-						}
-					}
-					break;
-				case '\'':
-				case '\"':
-					quote = !quote;
-					break;
-				case ' ':
-					if (!quote) {
-				case '\n':
-						/* remove trailing quote if there is one */
-						if (*(p - 1) == '\'' || *(p - 1) == '\"')
-							*(p - 1) = '\0';
-						*p++ = '\0';
-						/* remove leading quote if there is one */
-						if (*arg == '\'' || *arg == '\"')
-							arg++;
-						if (argc < MAX_ARGS)
-							args[argc++] = arg;
-
-						while (*p == ' ')
-							++p;
-						arg = p--;
-					}
-					break;
-				}
-				if( c == '\n' || *p == '\n' )
-					return;
-			}
-	return;
-}
-
 
 void
 handle_statusbar(void) {
