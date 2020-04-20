@@ -834,21 +834,6 @@ build_bindings(void)
 			error(0, "Bindings conflict");
 		}
 	}
-
-#if 0
-struct old_key_binding old_bindings[] = {
-	{ { 'c',          }, { create,         { NULL, NULL, "master" }    } },
-
-struct old_key_binding {
-	unsigned keys[MAX_KEYS];
-	struct action action;
-};
-struct key_binding {
-	unsigned key;
-	struct action action;
-	struct key_binding *next;
-};
-#endif
 }
 
 void
