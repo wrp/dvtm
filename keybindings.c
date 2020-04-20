@@ -7,6 +7,39 @@
 	{ { 'V', KEY,     }, { toggleview,     { #TAG }               } }, \
 	{ { 'T', KEY,     }, { toggletag,      { #TAG }               } }
 
+struct binding_description binding_desc[] = {
+	{ "c", "create", NULL, NULL, "master" },
+	{ "xx", "killclient" },
+	{ "j", "focusnext" },
+	{ "J", "focusdown" },
+	{ "k", "focusprev" },
+	{ "K", "focusup" },
+	{ "H", "focusleft" },
+	{ "qq", "quit" },
+};
+size_t binding_descr_length = LENGTH(binding_desc);
+
+int
+parse_binding(struct action *a, const struct binding_description *d)
+{
+	if( strcmp(d->func_name, "create") == 0 ) a->cmd = create;
+	else if( strcmp(d->func_name, "killclient") == 0 ) a->cmd = killclient;
+	else if( strcmp(d->func_name, "focusnext") == 0 ) a->cmd = focusnext;
+	else if( strcmp(d->func_name, "focusdown") == 0 ) a->cmd = focusdown;
+	else if( strcmp(d->func_name, "focusprev") == 0 ) a->cmd = focusprev;
+	else if( strcmp(d->func_name, "focusup") == 0 ) a->cmd = focusup;
+	else if( strcmp(d->func_name, "focusleft") == 0 ) a->cmd = focusleft;
+	else if( strcmp(d->func_name, "quit") == 0 ) a->cmd = quit;
+	else return -1;
+
+	a->next = NULL;
+	a->args[0] = d->arg0;
+	a->args[1] = d->arg1;
+	a->args[2] = d->arg2;
+	a->args[3] = NULL;
+	return 0;
+}
+
 struct old_key_binding old_bindings[] = {
 	{ { 'c',          }, { create,         { NULL, NULL, "master" }    } },
 	{ { 'C',          }, { create,         { NULL, NULL, "$CWD" }      } },

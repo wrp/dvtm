@@ -115,13 +115,21 @@ struct old_key_binding {
 	unsigned keys[MAX_KEYS];
 	struct action action;
 };
+struct binding_description {
+	char *binding;
+	char *func_name;
+	char *arg0;
+	char *arg1;
+	char *arg2;
+};
 struct key_binding {
 	unsigned key;
 	struct action action;
 	struct key_binding *next;
 };
-extern struct old_key_binding old_bindings[];
-extern size_t old_key_binding_length;
+extern int parse_binding(struct action *a, const struct binding_description *d);
+extern struct binding_description binding_desc[];
+extern size_t binding_descr_length;
 
 struct command {
 	const char *name;

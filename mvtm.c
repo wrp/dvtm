@@ -822,18 +822,15 @@ push_binding(struct key_binding *b, unsigned char *keys, const struct action *a)
 static void
 build_bindings(void)
 {
-	struct old_key_binding *b = old_bindings;
-	struct old_key_binding *e = old_bindings + old_key_binding_length;
+	struct binding_description *b = binding_desc;
+	struct binding_description *e = b + binding_descr_length;
 	bindings = xcalloc(1u << CHAR_BIT, sizeof *bindings);
 	for( ; b < e; b++) {
-		assert(b->keys[0] < (1u << CHAR_BIT));
-		assert(b->keys[2] == 0);
-		unsigned char arr[MAX_KEYS + 1];
-		for(int i=0; i < MAX_KEYS; i++) {
-			arr[i] = b->keys[i];
+		struct action a;
+		if( parse_binding(&a, b) ) {
+			error(0, "invalid keybinding");
 		}
-		arr[MAX_KEYS] = '\0';
-		if( push_binding(bindings, arr, &b->action) ) {
+		if( push_binding(bindings, b->binding, &a) ) {
 			error(0, "Bindings conflict");
 		}
 	}
