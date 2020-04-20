@@ -618,7 +618,7 @@ keybinding(const struct state *s)
 {
 	char *end;
 	int count = strtol(s->entry_buf, &end, 10);
-	struct key_binding *b = bindings + *end;
+	struct key_binding *b = bindings + (unsigned)*end;
 	int i;
 
 	assert(bindings != NULL);
