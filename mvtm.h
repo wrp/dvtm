@@ -49,7 +49,7 @@ struct layout {
  */
 struct state {
 	enum { keypress_mode, command_mode } mode;
-	char entry_buf[128]; /* user entered keys */
+	unsigned char entry_buf[128]; /* user entered keys */
 };
 
 struct client {
