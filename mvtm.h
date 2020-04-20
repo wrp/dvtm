@@ -123,7 +123,7 @@ struct key_binding {
 	struct key_binding *next;
 };
 extern int parse_binding(struct action *a, const char *d);
-extern char *binding_desc[];
+extern char *binding_desc[][2];
 extern size_t binding_descr_length;
 
 struct command {
@@ -205,6 +205,7 @@ int ESCDELAY;
 #define TAG_URGENT (COLOR(RED) | A_NORMAL | A_BLINK) /* attributes for unselected tags with urgent windows */
 
 /* commands for use by keybindings */
+void bind(const char *args[]);
 void create(const char *args[]);
 void copymode(const char *args[]);
 void focusn(const char *args[]);

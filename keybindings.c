@@ -7,15 +7,15 @@
 	{ { 'V', KEY,     }, { toggleview,     { #TAG }               } }, \
 	{ { 'T', KEY,     }, { toggletag,      { #TAG }               } }
 
-char *binding_desc[] = {
-	"xx\0killclient\0\0\0",
-	"qq\0quit\0\0\0",
-	"c\0create\0\0\0master",
-	"j\0focusnext\0\0\0",
-	"J\0focusdown\0\0\0",
-	"k\0focusprev\0\0\0",
-	"K\0focusup\0\0\0",
-	"H\0focusleft\0\0\0",
+char *binding_desc[][2] = {
+	{ "xx", "killclient" },
+	{ "qq", "quit" },
+	{ "c", "create" },
+	{ "j", "focusnext" },
+	{ "J", "focusdown" },
+	{ "k", "focusprev" },
+	{ "K", "focusup" },
+	{ "H", "focusleft" },
 };
 size_t binding_descr_length = LENGTH(binding_desc);
 

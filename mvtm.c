@@ -825,17 +825,12 @@ push_binding(struct key_binding *b, const unsigned char *keys, const struct acti
 static void
 build_bindings(void)
 {
-	char **b = binding_desc;
-	char **e = b + binding_descr_length;
+	typeof(*binding_desc) *b = binding_desc;
+	typeof(*binding_desc) *e = b + binding_descr_length;
 	bindings = xcalloc(1u << CHAR_BIT, sizeof *bindings);
 	for( ; b < e; b++) {
-		struct action a;
-		if( parse_binding(&a, *b) ) {
-			error(0, "invalid keybinding");
-		}
-		if( push_binding(bindings, *b, &a) ) {
-			error(0, "Bindings conflict");
-		}
+		const char *arr[] = {(*b)[0], (*b)[1], NULL};
+		bind(arr);
 	}
 }
 
@@ -950,7 +945,6 @@ bind(const char *args[])
 	struct action a = {0};
 	const char *t;
 	char *non_const[3] = {0};
-
 
 	a.cmd = get_function(args[1]);
 	t = strchr(args[1], ' ');
