@@ -804,7 +804,7 @@ xcalloc(size_t count, size_t size)
 
 
 static int
-push_binding(struct key_binding *b, unsigned char *keys, const struct action *a)
+push_binding(struct key_binding *b, const unsigned char *keys, const struct action *a)
 {
 	struct key_binding *t = b + keys[0];
 	if( t->action.cmd != NULL ) {
@@ -943,24 +943,27 @@ char *getcwd_by_pid(struct client *c) {
 	return realpath(buf, NULL);
 }
 
-#if 0
 void
 bind(const char *args[])
 {
 	const char *binding = args[0];
-	struct action a;
-	a->cmd = get_function(args[1]);
-	a->args[0] = strchr(func_name, '\0') + 1;
-	a->args[1] = strchr(a->args[0], '\0') + 1;
-	a->args[2] = strchr(a->args[1], '\0') + 1;
+	struct action a = {0};
+	const char *t;
+	char *non_const[3] = {0};
 
-		if( push_binding(bindings, *b, &a) ) {
+
+	a.cmd = get_function(args[1]);
+	t = strchr(args[1], ' ');
+	for(int i = 0; t != NULL && i < 3; i++ ) {
+		a.args[i] = non_const[i] = strdup(t + 1);
+		t = strchr(a.args[i], ' ');
+	}
+	push_binding(bindings, binding, &a);
+	for( int i; i < 3; i++ ) {
+		free(non_const[i]);
+	}
 }
 
-	void (*cmd)(const char *args[]);
-	const char *args[3];
-	struct action *next;
-#endif
 
 void
 create(const char *args[]) {
