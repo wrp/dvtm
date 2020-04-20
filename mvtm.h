@@ -104,10 +104,10 @@ struct color_rule {
 
 #define MAX_ARGS 8
 
-typedef void (*command)(const char *args[]);
-extern command get_function(const char *name);
+typedef void (command)(const char *args[]);
+extern command * get_function(const char *name);
 struct action {
-	command cmd;
+	command *cmd;
 	const char *args[3];
 	struct action *next;
 };

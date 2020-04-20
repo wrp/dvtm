@@ -22,7 +22,7 @@ size_t binding_descr_length = LENGTH(binding_desc);
 command
 get_function(const char *name)
 {
-	command rv = NULL;
+	command *rv = NULL;
 	if( strcmp(name, "create") == 0 ) rv = create;
 	else if( strcmp(name, "killclient") == 0 ) rv = killclient;
 	else if( strcmp(name, "focusnext") == 0 ) rv = focusnext;
