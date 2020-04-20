@@ -21,6 +21,8 @@
  *
  *   Make it possible to pass layouts on the cmd fifo.  eg, give
  * dimensions like "1:100x20@10,20\n2:hxw@y,x\n..."
+ *
+ * Probably a layout stack, per tag.
  */
 #include "config.h"
 #include "mvtm.h"
