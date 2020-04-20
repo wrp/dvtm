@@ -65,8 +65,6 @@ void push_action(const struct action *a);
 
 unsigned available_width;  /* width of total available screen real estate */
 unsigned available_height; /* height of total available screen real estate */
-unsigned main_window_x;   /* x coord (right) of upper left corner of main window */
-unsigned main_window_y;   /* y coord (down) of upper left corner of main window */
 struct client *clients = NULL;
 	/* clients appears to be the list of all clients, and only
 	those marked with the current tagset are displayed.  HOwever, it is not clear
@@ -146,8 +144,6 @@ nextvisible(struct client *c) {
 void
 updatebarpos(void) {
 	bar.y = 0;
-	main_window_x = 0;
-	main_window_y = 0;
 	available_height = screen.h;
 	available_width = screen.w;
 	available_height -= bar.h;
@@ -326,10 +322,10 @@ arrange(void) {
 		available_height--;
 	layout->arrange();
 	if (m && !isarrange(fullscreen)) {
-		unsigned int i = 0, nw = available_width / m, nx = main_window_x;
+		unsigned int i = 0, nw = available_width / m, nx = 0;
 		for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
 			if (c->minimized) {
-				resize(c, nx, main_window_y+available_height, ++i == m ? available_width - nx : nw, 1);
+				resize(c, nx, available_height, ++i == m ? available_width - nx : nw, 1);
 				nx += nw;
 			}
 		}
@@ -541,7 +537,7 @@ resize(struct client *c, int x, int y, int w, int h) {
 
 struct client*
 get_client_by_coord(unsigned int x, unsigned int y) {
-	if (y < main_window_y || y >= main_window_y+available_height)
+	if (y < 0 || y >= available_height)
 		return NULL;
 	if (isarrange(fullscreen))
 		return sel;
@@ -982,7 +978,7 @@ create(const char *args[]) {
 	c->id = ++cmdfifo.id;
 	snprintf(buf, sizeof buf, "%d", c->id);
 
-	if (!(c->window = newwin(available_height, available_width, main_window_y, main_window_x))) {
+	if (!(c->window = newwin(available_height, available_width, 0, 0))) {
 		free(c);
 		return;
 	}
@@ -1016,8 +1012,8 @@ create(const char *args[]) {
 	vt_title_handler_set(c->term, term_title_handler);
 	vt_urgent_handler_set(c->term, term_urgent_handler);
 	applycolorrules(c);
-	c->x = main_window_x;
-	c->y = main_window_y;
+	c->x = 0;
+	c->y = 0;
 	debug("client with pid %d forked\n", c->pid);
 	attach(c);
 	focus(c);
@@ -1798,5 +1794,5 @@ draw_all();
 void fullscreen(void)
 {
 	for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next))
-		resize(c, main_window_x, main_window_y, available_width, available_height);
+		resize(c, 0, 0, available_width, available_height);
 }

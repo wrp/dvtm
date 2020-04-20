@@ -24,8 +24,8 @@ wstack(void)
 	m  = MAX(1, MIN(n, screen.nmaster));
 	mh = n == m ? available_height : screen.mfact * available_height;
 	tw = n == m ? 0 : available_width / (n - m);
-	nx = main_window_x;
-	ny = main_window_y + available_height - mh;
+	nx = 0;
+	ny = available_height - mh;
 
 	for( i = 0, c = nextvisible(clients); c; c = nextvisible(c->next) ) {
 		unsigned nh; /* height of the current window */
@@ -36,19 +36,19 @@ wstack(void)
 		if (i < m) {	/* master */
 			nh = mh / m;
 			nw = available_width;
-			nx = main_window_x;
+			nx = 0;
 		} else {	/* tile window */
-			ny = main_window_y;
+			ny = 0;
 			if (i == m) {
-				nx = main_window_x;
-				nh = (main_window_y + available_height) - ny - mh;
+				nx = 0;
+				nh = available_height - ny - mh;
 			}
 			if (i > m) {
 				mvvline(ny, nx, ACS_VLINE, nh);
 				mvaddch(ny, nx, ACS_TTEE);
 				nx++;
 			}
-			nw = (i < n - 1) ? tw : (main_window_x + available_width) - nx;
+			nw = (i < n - 1) ? tw : available_width - nx;
 		}
 		resize(c, nx, ny, nw, nh);
 		nx += nw;
