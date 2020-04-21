@@ -42,6 +42,11 @@ struct layout {
 	void (*arrange)(void);
 };
 
+struct entry_buf {
+	unsigned char data[128];;
+	const struct key_binding *binding;
+	unsigned char *next; /* first unused char in data */
+};
 /*
  struct state is the global state.  Currently, not much is here.  I intend
  to move global objects into here as I manipulate the code and learn then
@@ -49,10 +54,8 @@ struct layout {
  */
 struct state {
 	enum { keypress_mode, command_mode } mode;
-	unsigned char entry_buf[128]; /* user entered keys */
-	int next_key;  /* index for next entry in entry_buf */
+	struct entry_buf buf; /* user entered keys in command_mode */
 	int runinall;
-	const struct key_binding *binding;
 };
 
 struct client {

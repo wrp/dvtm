@@ -1071,7 +1071,7 @@ copymode(const char * const args[]) {
 void
 focusn(const char * const args[]) {
 	char *end;
-	int target = strtol((char*)state.entry_buf, &end, 10);
+	int target = strtol((char*)state.buf.data, &end, 10);
 	for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
 		if (c->id == target) {
 			focus(c);
@@ -1613,15 +1613,21 @@ check_client_fds(fd_set *rd, int *nfds, struct client *c)
 	}
 }
 
+
+void
+reset_entry(struct entry_buf *e)
+{
+	e->binding = bindings;
+	e->next = e->data;
+}
+
 void
 change_mode(struct state *s)
 {
 	switch(s->mode) {
 	case keypress_mode:
-		s->binding = bindings;
 		s->mode = command_mode;
-		s->next_key = 0;
-		*bar.text = '\0';
+		reset_entry(&s->buf);
 		break;
 	case command_mode:
 		s->mode = keypress_mode;
@@ -1642,30 +1648,27 @@ handle_keystroke(int code, struct state *s)
 		}
 		change_mode(s);
 	} else if( code >= 0 && code < 1 << CHAR_BIT ) {
-		s->entry_buf[s->next_key++] = code;
-		s->entry_buf[s->next_key] = 0;
+		*s->buf.next++ = code;
+		*s->buf.next = '\0';
 
 		if( isdigit(code) ) {
 			;
-		} else if( NULL != (b = keybinding(code, s->binding)) ) {
+		} else if( NULL != (b = keybinding(code, s->buf.binding)) ) {
 			if(b->action.cmd != NULL) {
 				b->action.cmd(b->action.args);
 
 				if(b->action.cmd == copymode || b->action.cmd == paste) {
 					change_mode(s);
 				}
-				s->next_key = 0;
-				s->binding = bindings;
-				*bar.text = '\0';
+				reset_entry(&s->buf);
 			} else {
-				s->binding = b;
+				s->buf.binding = b;
 			}
 		} else {
-			s->binding = bindings;
-			*bar.text = '\0';
-			s->next_key  = 0;
+			reset_entry(&s->buf);
 		}
-		snprintf(bar.text, sizeof bar.text, "%s", s->entry_buf);
+		/* TODO: consider just using bar.text for the buffer */
+		snprintf(bar.text, sizeof bar.text, "%s", s->buf.data);
 	}
 	drawbar();
 	draw_all();
