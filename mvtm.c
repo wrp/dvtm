@@ -65,9 +65,6 @@ struct color colors[] = {
 };
 
 extern void wstack(void);
-struct layout layouts[] = {
-	{ "---", wstack },
-};
 
 unsigned modifier_key = CTRL('g');
 
@@ -88,10 +85,6 @@ void push_action(const struct action *a);
 unsigned available_width;  /* width of total available screen real estate */
 unsigned available_height; /* height of total available screen real estate */
 struct client *clients = NULL;
-	/* clients appears to be the list of all clients, and only
-	those marked with the current tagset are displayed.  HOwever, it is not clear
-	how that set differs from stack, nor the purpose of the checks that the
-	current layout is fullscreen */
 char *title;
 
 struct action *actions = NULL; /* actions are executed when mvtm is started */
@@ -103,7 +96,6 @@ struct client *sel = NULL;
 struct client *lastsel = NULL;
 unsigned int seltags;
 unsigned int tagset[2] = { 1, 1 };
-struct layout *layout = layouts;
 struct statusbar bar = { .fd = -1, .hidden = 0, .autohide = 1, .h = 1 };
 CmdFifo cmdfifo = { .fd = -1 };
 const char *shell;
@@ -202,7 +194,7 @@ drawbar(void) {
 	} else {
 		attrset(COLOR(DEFAULT) | A_NORMAL);
 	}
-	addstr(layout->symbol);
+	addstr("---");
 
 	getyx(stdscr, y, x);
 	(void)y; /* ??? Is this to suppress a compiler warning?? */
@@ -331,7 +323,7 @@ arrange(void) {
 	}
 	if( m )
 		available_height--;
-	layout->arrange();
+	wstack();
 	if( m ) {
 		unsigned int i = 0, nw = available_width / m, nx = 0;
 		for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
