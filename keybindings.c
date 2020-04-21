@@ -24,7 +24,7 @@ char *binding_desc[][5] = {
 	{ "h",   "setmfact", "-0.05" },
 	{ "l",   "setmfact", "+0.05" },
 	{ ".",   "toggleminimize" },
-	{ "\n",  "zoom" },
+	{ "m",   "zoom" },
 	{ "\t",  "focuslast" },
 	{ "a",   "togglerunall" },
 	{ "r",   "redraw" },

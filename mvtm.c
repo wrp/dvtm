@@ -101,6 +101,8 @@ volatile sig_atomic_t stop_requested = 0;
 int sigwinch_pipe[] = {-1, -1};
 int sigchld_pipe[] = {-1, -1};
 
+static struct client * select_client(void);
+
 void
 eprint(const char *errstr, ...) {
 	va_list ap;
@@ -1177,7 +1179,7 @@ focusright(const char * const args[]) {
 		focusnext(args);
 }
 
-struct client *
+static struct client *
 select_client(void)
 {
 	struct client *c = sel;
@@ -1337,22 +1339,17 @@ togglerunall(const char * const args[]) {
 
 void
 zoom(const char * const args[]) {
-	struct client *c;
+	struct client *c = select_client();;
 
-	if (!sel)
-		return;
-	if (args && args[0])
-		focusn(args);
-	/* Do nothing if sel is the only visible client */
-	if ((c = sel) == nextvisible(clients))
-		if (!(c = nextvisible(c->next)))
-			return;
-	detach(c);
-	attach(c);
-	focus(c);
-	if (c->minimized)
-		toggleminimize(NULL);
-	arrange();
+	if( c != NULL ) {
+		detach(c);
+		attach(c);
+		focus(c);
+		if( c->minimized ) {
+			toggleminimize(NULL);
+		}
+		arrange();
+	}
 }
 
 
