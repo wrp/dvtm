@@ -1058,13 +1058,13 @@ select_client(int only_visible)
 }
 
 void
-focusn(const char * const args[]) {
-	for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
-		if( c->id == state.buf.count ) {
-			focus(c);
-			if (c->minimized)
-				toggleminimize(NULL);
-			return;
+focusn(const char * const args[])
+{
+	struct client *c = select_client(1);
+	if( c != NULL ) {
+		focus(c);
+		if( c->minimized ) {
+			toggleminimize(NULL);
 		}
 	}
 }
