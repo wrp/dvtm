@@ -1203,12 +1203,34 @@ focusright(const char * const args[]) {
 		focusnext(args);
 }
 
+struct client *
+select_client(void)
+{
+	struct client *c = sel;
+	if( state.buf.count != 0 ) {
+		for( c = clients; c && c->id != state.buf.count; c = c->next) {
+			;
+		}
+	}
+	return c;
+}
+
 void
-killclient(const char * const args[]) {
-	if (!sel)
-		return;
-	debug("killing client with pid: %d\n", sel->pid);
-	kill(-sel->pid, SIGKILL);
+signalclient(const char * const args[])
+{
+	int signal = state.buf.count ? state.buf.count : SIGTERM;
+	if( sel ) {
+		kill( -sel->pid, signal);
+	}
+}
+
+void
+killclient(const char * const args[])
+{
+	struct client *c = select_client();
+	if( c != NULL ) {
+		kill( -c->pid, SIGTERM);
+	}
 }
 
 void
