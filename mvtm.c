@@ -649,7 +649,7 @@ tagschanged() {
 
 
 void
-untag(const char *args[]) {
+untag(const char * const args[]) {
 	if( sel ) {
 		sel->tags = 1;
 		tagschanged();
@@ -657,7 +657,7 @@ untag(const char *args[]) {
 }
 
 void
-tag(const char *args[]) {
+tag(const char * const args[]) {
 	if (!sel)
 		return;
 	sel->tags |= bitoftag(args[0]);
@@ -665,7 +665,7 @@ tag(const char *args[]) {
 }
 
 void
-tagid(const char *args[]) {
+tagid(const char * const args[]) {
 	if (!args[0] || !args[1])
 		return;
 
@@ -691,7 +691,7 @@ tagid(const char *args[]) {
 }
 
 void
-toggletag(const char *args[]) {
+toggletag(const char * const args[]) {
 	if (!sel)
 		return;
 	unsigned int newtags = sel->tags ^ (bitoftag(args[0]));
@@ -702,7 +702,7 @@ toggletag(const char *args[]) {
 }
 
 void
-toggleview(const char *args[]) {
+toggleview(const char * const args[]) {
 	unsigned int newtagset = tagset[seltags] ^ (bitoftag(args[0]));
 	if (newtagset) {
 		tagset[seltags] = newtagset;
@@ -711,7 +711,7 @@ toggleview(const char *args[]) {
 }
 
 void
-view(const char *args[]) {
+view(const char * const args[]) {
 	unsigned int newtagset = bitoftag(args[0]);
 	if (tagset[seltags] != newtagset && newtagset) {
 		seltags ^= 1; /* toggle sel tagset */
@@ -721,7 +721,7 @@ view(const char *args[]) {
 }
 
 void
-viewprevtag(const char *args[]) {
+viewprevtag(const char * const args[]) {
 	seltags ^= 1;
 	tagschanged();
 }
@@ -935,7 +935,7 @@ char *getcwd_by_pid(struct client *c) {
 }
 
 void
-bind(const char *args[])
+bind(const char * const args[])
 {
 	const unsigned char *binding = (void*)args[0];
 	struct action a = {0};
@@ -950,7 +950,7 @@ bind(const char *args[])
 
 
 void
-create(const char *args[]) {
+create(const char * const args[]) {
 	const char *pargs[4] = { shell, NULL };
 	char buf[8], *cwd = NULL;
 	const char *env[] = {
@@ -1012,13 +1012,13 @@ create(const char *args[]) {
 	arrange();
 
 	if( args && args[2] && ! strcmp(args[2], "master") ) {
-		const char *args[2] = { "+1", NULL };
+		const char * const args[2] = { "+1", NULL };
 		incnmaster(args);
 	}
 }
 
 void
-copymode(const char *args[]) {
+copymode(const char * const args[]) {
 	if (!args || !args[0] || !sel || sel->editor)
 		return;
 
@@ -1069,7 +1069,7 @@ copymode(const char *args[]) {
 }
 
 void
-focusn(const char *args[]) {
+focusn(const char * const args[]) {
 	char *end;
 	int target = strtol((char*)state.entry_buf, &end, 10);
 	for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
@@ -1083,7 +1083,7 @@ focusn(const char *args[]) {
 }
 
 void
-focusid(const char *args[]) {
+focusid(const char * const args[]) {
 	if (!args[0])
 		return;
 
@@ -1103,7 +1103,7 @@ focusid(const char *args[]) {
 }
 
 void
-focusnext(const char *args[]) {
+focusnext(const char * const args[]) {
 	struct client *c;
 	if (!sel)
 		return;
@@ -1115,7 +1115,7 @@ focusnext(const char *args[]) {
 }
 
 void
-focusnextnm(const char *args[]) {
+focusnextnm(const char * const args[]) {
 	if (!sel)
 		return;
 	struct client *c = sel;
@@ -1128,7 +1128,7 @@ focusnextnm(const char *args[]) {
 }
 
 void
-focusprev(const char *args[]) {
+focusprev(const char * const args[]) {
 	struct client *c;
 	if (!sel)
 		return;
@@ -1142,7 +1142,7 @@ focusprev(const char *args[]) {
 }
 
 void
-focusprevnm(const char *args[]) {
+focusprevnm(const char * const args[]) {
 	if (!sel)
 		return;
 	struct client *c = sel;
@@ -1157,13 +1157,13 @@ focusprevnm(const char *args[]) {
 }
 
 void
-focuslast(const char *args[]) {
+focuslast(const char * const args[]) {
 	if (lastsel)
 		focus(lastsel);
 }
 
 void
-focusup(const char *args[]) {
+focusup(const char * const args[]) {
 	if (!sel)
 		return;
 	/* avoid vertical separator, hence +1 in x direction */
@@ -1175,7 +1175,7 @@ focusup(const char *args[]) {
 }
 
 void
-focusdown(const char *args[]) {
+focusdown(const char * const args[]) {
 	if (!sel)
 		return;
 	struct client *c = get_client_by_coord(sel->x, sel->y + sel->h);
@@ -1186,7 +1186,7 @@ focusdown(const char *args[]) {
 }
 
 void
-focusleft(const char *args[]) {
+focusleft(const char * const args[]) {
 	if (!sel)
 		return;
 	struct client *c = get_client_by_coord(sel->x - 2, sel->y);
@@ -1197,7 +1197,7 @@ focusleft(const char *args[]) {
 }
 
 void
-focusright(const char *args[]) {
+focusright(const char * const args[]) {
 	if (!sel)
 		return;
 	struct client *c = get_client_by_coord(sel->x + sel->w + 1, sel->y);
@@ -1208,7 +1208,7 @@ focusright(const char *args[]) {
 }
 
 void
-killclient(const char *args[]) {
+killclient(const char * const args[]) {
 	if (!sel)
 		return;
 	debug("killing client with pid: %d\n", sel->pid);
@@ -1216,18 +1216,18 @@ killclient(const char *args[]) {
 }
 
 void
-paste(const char *args[]) {
+paste(const char * const args[]) {
 	if (sel && copyreg.data)
 		vt_write(sel->term, copyreg.data, copyreg.len);
 }
 
 void
-quit(const char *args[]) {
+quit(const char * const args[]) {
 	stop_requested = 1;
 }
 
 void
-redraw(const char *args[]) {
+redraw(const char * const args[]) {
 	for (struct client *c = clients; c; c = c->next) {
 		if (!c->minimized) {
 			vt_dirty(c->term);
@@ -1239,7 +1239,7 @@ redraw(const char *args[]) {
 }
 
 void
-scrollback(const char *args[]) {
+scrollback(const char * const args[]) {
 	if (!is_content_visible(sel))
 		return;
 
@@ -1253,13 +1253,13 @@ scrollback(const char *args[]) {
 }
 
 void
-send(const char *args[]) {
+send(const char * const args[]) {
 	if (sel && args && args[0])
 		vt_write(sel->term, args[0], strlen(args[0]));
 }
 
 void
-incnmaster(const char *args[]) {
+incnmaster(const char * const args[]) {
 	int delta;
 
 	/* arg handling, manipulate nmaster */
@@ -1277,7 +1277,7 @@ incnmaster(const char *args[]) {
 }
 
 void
-setmfact(const char *args[]) {
+setmfact(const char * const args[]) {
 	float delta;
 
 	/* arg handling, manipulate mfact */
@@ -1297,7 +1297,7 @@ setmfact(const char *args[]) {
 }
 
 void
-toggleminimize(const char *args[]) {
+toggleminimize(const char * const args[]) {
 	struct client *c, *m, *t;
 	unsigned int n;
 	if (!sel)
@@ -1337,14 +1337,14 @@ toggleminimize(const char *args[]) {
 }
 
 void
-togglerunall(const char *args[]) {
+togglerunall(const char * const args[]) {
 	state.runinall = !state.runinall;
 	drawbar();
 	draw_all();
 }
 
 void
-zoom(const char *args[]) {
+zoom(const char * const args[]) {
 	struct client *c;
 
 	if (!sel)
@@ -1493,7 +1493,7 @@ parse_args(int argc, char *argv[]) {
 	}
 	while( (arg = *++argv) != NULL ) {
 		if (arg[0] != '-') {
-			char *args[] = { arg, NULL, NULL };
+			char * const args[] = { arg, NULL, NULL };
 			struct action a = { create, {arg, NULL, NULL}};
 			push_action(&a);
 			continue;

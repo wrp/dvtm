@@ -109,7 +109,7 @@ struct color_rule {
 # define CTRL(k)   ((k) & 0x1F)
 #endif
 
-typedef void (command)(const char *args[]);
+typedef void (command)(const char * const args[]);
 extern command * get_function(const char *name);
 #define MAX_KEYS 3
 struct action {
@@ -204,42 +204,42 @@ int ESCDELAY;
 #define TAG_URGENT (COLOR(RED) | A_NORMAL | A_BLINK) /* attributes for unselected tags with urgent windows */
 
 /* commands for use by keybindings */
-void bind(const char *args[]);
-void create(const char *args[]);
-void copymode(const char *args[]);
-void focusn(const char *args[]);
-void focusid(const char *args[]);
-void focusnext(const char *args[]);
-void focusnextnm(const char *args[]);
-void focusprev(const char *args[]);
-void focusprevnm(const char *args[]);
-void focuslast(const char *args[]);
-void focusup(const char *args[]);
-void focusdown(const char *args[]);
-void focusleft(const char *args[]);
-void focusright(const char *args[]);
-void killclient(const char *args[]);
-void paste(const char *args[]);
-void quit(const char *args[]);
-void redraw(const char *args[]);
-void scrollback(const char *args[]);
-void send(const char *args[]);
-void setlayout(const char *args[]);
-void incnmaster(const char *args[]);
-void setmfact(const char *args[]);
-void startup(const char *args[]);
-void tag(const char *args[]);
-void tagid(const char *args[]);
-void togglebar(const char *args[]);
-void togglebarpos(const char *args[]);
-void toggleminimize(const char *args[]);
-void togglerunall(const char *args[]);
-void toggletag(const char *args[]);
-void toggleview(const char *args[]);
-void untag(const char *args[]);
-void viewprevtag(const char *args[]);
-void view(const char *args[]);
-void zoom(const char *args[]);
+void bind(const char * const args[]);
+void create(const char * const args[]);
+void copymode(const char * const args[]);
+void focusn(const char * const args[]);
+void focusid(const char * const args[]);
+void focusnext(const char * const args[]);
+void focusnextnm(const char * const args[]);
+void focusprev(const char * const args[]);
+void focusprevnm(const char * const args[]);
+void focuslast(const char * const args[]);
+void focusup(const char * const args[]);
+void focusdown(const char * const args[]);
+void focusleft(const char * const args[]);
+void focusright(const char * const args[]);
+void killclient(const char * const args[]);
+void paste(const char * const args[]);
+void quit(const char * const args[]);
+void redraw(const char * const args[]);
+void scrollback(const char * const args[]);
+void send(const char * const args[]);
+void setlayout(const char * const args[]);
+void incnmaster(const char * const args[]);
+void setmfact(const char * const args[]);
+void startup(const char * const args[]);
+void tag(const char * const args[]);
+void tagid(const char * const args[]);
+void togglebar(const char * const args[]);
+void togglebarpos(const char * const args[]);
+void toggleminimize(const char * const args[]);
+void togglerunall(const char * const args[]);
+void toggletag(const char * const args[]);
+void toggleview(const char * const args[]);
+void untag(const char * const args[]);
+void viewprevtag(const char * const args[]);
+void view(const char * const args[]);
+void zoom(const char *const args[]);
 void fullscreen(void);
 
 enum { DEFAULT, BLUE, RED };
