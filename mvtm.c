@@ -43,7 +43,6 @@ struct color colors[] = {
 extern void wstack(void);
 struct layout layouts[] = {
 	{ "---", wstack },
-	{ "[ ]", fullscreen },
 };
 
 unsigned modifier_key = CTRL('g');
@@ -115,11 +114,6 @@ error(int include_errstr, const char *errstr, ...) {
 }
 
 bool
-isarrange(void (*func)()) {
-	return func == layout->arrange;
-}
-
-bool
 isvisible(struct client *c) {
 	return c->tags & tagset[seltags];
 }
@@ -128,8 +122,6 @@ bool
 is_content_visible(struct client *c) {
 	if (!c)
 		return false;
-	if (isarrange(fullscreen))
-		return sel == c;
 	return isvisible(c) && !c->minimized;
 }
 
@@ -269,8 +261,7 @@ draw(struct client *c) {
 		redrawwin(c->window);
 		draw_content(c);
 	}
-	if (!isarrange(fullscreen) || sel == c)
-		draw_border(c);
+	draw_border(c);
 	wnoutrefresh(c->window);
 }
 
@@ -285,11 +276,9 @@ draw_all(void) {
 		return;
 	}
 
-	if (!isarrange(fullscreen)) {
-		for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
-			if (c != sel)
-				draw(c);
-		}
+	for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
+		if (c != sel)
+			draw(c);
 	}
 	/* as a last step the selected window is redrawn,
 	 * this has the effect that the cursor position is
@@ -316,10 +305,10 @@ arrange(void) {
 			bar.hidden = 0;
 		updatebarpos();
 	}
-	if (m && !isarrange(fullscreen))
+	if( m )
 		available_height--;
 	layout->arrange();
-	if (m && !isarrange(fullscreen)) {
+	if( m ) {
 		unsigned int i = 0, nw = available_width / m, nx = 0;
 		for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
 			if (c->minimized) {
@@ -417,10 +406,8 @@ focus(struct client *c) {
 	sel = c;
 	if (lastsel) {
 		lastsel->urgent = false;
-		if (!isarrange(fullscreen)) {
-			draw_border(lastsel);
-			wnoutrefresh(lastsel->window);
-		}
+		draw_border(lastsel);
+		wnoutrefresh(lastsel->window);
 	}
 
 	if (c) {
@@ -428,12 +415,8 @@ focus(struct client *c) {
 		attachstack(c);
 		set_term_title(c->title);
 		c->urgent = false;
-		if (isarrange(fullscreen)) {
-			draw(c);
-		} else {
-			draw_border(c);
-			wnoutrefresh(c->window);
-		}
+		draw_border(c);
+		wnoutrefresh(c->window);
 	}
 	curs_set(c && !c->minimized && vt_cursor_visible(c->term));
 }
@@ -477,8 +460,7 @@ term_title_handler(Vt *term, const char *title) {
 	if( sel == c ) {
 		set_term_title(c->title);
 	}
-	if (!isarrange(fullscreen) || sel == c)
-		draw_border(c);
+	draw_border(c);
 	applycolorrules(c);
 }
 
@@ -489,7 +471,7 @@ term_urgent_handler(Vt *term) {
 	printf("\a");
 	fflush(stdout);
 	drawbar();
-	if (!isarrange(fullscreen) && sel != c && isvisible(c))
+	if( sel != c && isvisible(c) )
 		draw_border(c);
 }
 
@@ -537,8 +519,6 @@ struct client*
 get_client_by_coord(unsigned int x, unsigned int y) {
 	if (y < 0 || y >= available_height)
 		return NULL;
-	if (isarrange(fullscreen))
-		return sel;
 	for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
 		if (x >= c->x && x < c->x + c->w && y >= c->y && y < c->y + c->h) {
 			return c;
@@ -1265,24 +1245,6 @@ send(const char *args[]) {
 }
 
 void
-setlayout(const char *args[]) {
-	unsigned int i;
-
-	if (!args || !args[0]) {
-		if (++layout == &layouts[LENGTH(layouts)])
-			layout = &layouts[0];
-	} else {
-		for (i = 0; i < LENGTH(layouts); i++)
-			if (!strcmp(args[0], layouts[i].symbol))
-				break;
-		if (i == LENGTH(layouts))
-			return;
-		layout = &layouts[i];
-	}
-	arrange();
-}
-
-void
 incnmaster(const char *args[]) {
 	int delta;
 
@@ -1787,10 +1749,4 @@ draw_all();
 
 	cleanup();
 	return 0;
-}
-
-void fullscreen(void)
-{
-	for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next))
-		resize(c, 0, 0, available_width, available_height);
 }
