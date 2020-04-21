@@ -617,7 +617,7 @@ struct key_binding *
 keybinding(const struct state *s)
 {
 	char *end;
-	int count = strtol(s->entry_buf, &end, 10);
+	int count = strtol((char*)s->entry_buf, &end, 10);
 	struct key_binding *b = bindings + (unsigned)*end;
 	int i;
 
@@ -943,7 +943,7 @@ char *getcwd_by_pid(struct client *c) {
 void
 bind(const char *args[])
 {
-	const char *binding = args[0];
+	const unsigned char *binding = (void*)args[0];
 	struct action a = {0};
 	const char *t;
 
@@ -1077,7 +1077,7 @@ copymode(const char *args[]) {
 void
 focusn(const char *args[]) {
 	char *end;
-	int target = strtol( state.entry_buf, &end, 10);
+	int target = strtol((char*)state.entry_buf, &end, 10);
 	for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
 		if (c->id == target) {
 			focus(c);
