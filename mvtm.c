@@ -1621,11 +1621,10 @@ change_mode(struct state *s)
 		s->binding = bindings;
 		s->mode = command_mode;
 		s->next_key = 0;
+		*bar.text = '\0';
 		break;
 	case command_mode:
 		s->mode = keypress_mode;
-		s->binding = bindings;
-		*bar.text = '\0';
 	}
 }
 
