@@ -1696,14 +1696,13 @@ if(binding->action.cmd == copymode ||
 	*bar.text = '\0';
 }
 							binding = bindings;
-						} else {
-							snprintf(bar.text, sizeof bar.text, "%s", s->entry_buf);
 						}
 					} else {
 						binding = bindings;
 						*bar.text = '\0';
 						key_index = 0;
 					}
+					snprintf(bar.text, sizeof bar.text, "%s", s->entry_buf);
 				}
 			}
 drawbar();
