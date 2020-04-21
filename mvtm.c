@@ -1658,14 +1658,12 @@ handle_keystroke(int code, struct state *s)
 				if(b->action.cmd != NULL) {
 					b->action.cmd(b->action.args);
 
-/* For copy/paste, go back to keypress mode.  This indentation is off because this
-is a heinous kludge that needs a cleaner resolution */
-if(b->action.cmd == copymode || b->action.cmd == paste
-) {
-	change_mode(s);
-}
+					if(b->action.cmd == copymode || b->action.cmd == paste) {
+						change_mode(s);
+					}
 					s->next_key = 0;
 					s->binding = bindings;
+					*bar.text = '\0';
 				} else {
 					s->binding = b;
 				}
@@ -1677,8 +1675,8 @@ if(b->action.cmd == copymode || b->action.cmd == paste
 			snprintf(bar.text, sizeof bar.text, "%s", s->entry_buf);
 		}
 	}
-drawbar();
-draw_all();
+	drawbar();
+	draw_all();
 }
 
 int
