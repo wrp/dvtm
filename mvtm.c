@@ -101,8 +101,6 @@ volatile sig_atomic_t stop_requested = 0;
 int sigwinch_pipe[] = {-1, -1};
 int sigchld_pipe[] = {-1, -1};
 
-static struct client * select_client(void);
-
 void
 eprint(const char *errstr, ...) {
 	va_list ap;
@@ -1042,6 +1040,23 @@ copymode(const char * const args[]) {
 		vt_write(sel->editor, args[1], strlen(args[1]));
 }
 
+static struct client *
+select_client(int only_visible)
+{
+	struct client *c = sel;
+	if( state.buf.count != 0 ) {
+		for( c = clients; c; c = c->next) {
+			if( only_visible && ! isvisible(c) ) {
+				continue;
+			}
+			if( c->id == state.buf.count) {
+				break;
+			}
+		}
+	}
+	return c;
+}
+
 void
 focusn(const char * const args[]) {
 	for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
@@ -1179,18 +1194,6 @@ focusright(const char * const args[]) {
 		focusnext(args);
 }
 
-static struct client *
-select_client(void)
-{
-	struct client *c = sel;
-	if( state.buf.count != 0 ) {
-		for( c = clients; c && c->id != state.buf.count; c = c->next) {
-			;
-		}
-	}
-	return c;
-}
-
 void
 signalclient(const char * const args[])
 {
@@ -1203,7 +1206,7 @@ signalclient(const char * const args[])
 void
 killclient(const char * const args[])
 {
-	struct client *c = select_client();
+	struct client *c = select_client(0);
 	if( c != NULL ) {
 		kill( -c->pid, SIGTERM);
 	}
@@ -1339,7 +1342,7 @@ togglerunall(const char * const args[]) {
 
 void
 zoom(const char * const args[]) {
-	struct client *c = select_client();;
+	struct client *c = select_client(0);
 
 	if( c != NULL ) {
 		detach(c);
