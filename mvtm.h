@@ -125,7 +125,6 @@ struct action {
 };
 
 struct key_binding {
-	unsigned key;
 	struct action action;
 	struct key_binding *next;
 };
