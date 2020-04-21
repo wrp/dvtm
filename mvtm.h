@@ -50,7 +50,9 @@ struct layout {
 struct state {
 	enum { keypress_mode, command_mode } mode;
 	unsigned char entry_buf[128]; /* user entered keys */
+	int next_key;  /* index for next entry in entry_buf */
 	int runinall;
+	const struct key_binding *binding;
 };
 
 struct client {

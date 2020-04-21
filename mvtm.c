@@ -1613,64 +1613,67 @@ check_client_fds(fd_set *rd, int *nfds, struct client *c)
 	}
 }
 
+void
+change_mode(struct state *s)
+{
+	switch(s->mode) {
+	case keypress_mode:
+		s->binding = bindings;
+		s->mode = command_mode;
+		s->next_key = 0;
+		break;
+	case command_mode:
+		s->mode = keypress_mode;
+		s->binding = bindings;
+		*bar.text = '\0';
+	}
+}
+
 
 void
 handle_keystroke(int code, struct state *s)
 {
-	static unsigned int key_index = 0;
-	static const struct key_binding *binding = NULL;
-	if( binding == NULL ) {
-		binding = bindings;
-	}
+	const struct key_binding *b;
 
 	if( code == modifier_key ) {
-		if( s->mode == keypress_mode) {
-			s->mode = command_mode;
-			key_index = 0;
-		} else {
-			s->mode = keypress_mode;
-			binding = bindings;
-			*bar.text = '\0';
+		if( s->mode == command_mode ) {
 			keypress(code);
 		}
-	} else if( code == ESC || code == 0x0d) {
-		switch(s->mode) {
-		case keypress_mode:
+		change_mode(s);
+	} else if( code == ESC || code == 0x0d ) {
+		if( s->mode == keypress_mode ) {
 			keypress(code);
-			break;
-		case command_mode:
-			s->mode = keypress_mode;
-			binding = bindings;
-			*bar.text = '\0';
+		} else {
+			change_mode(s);
 		}
 	} else if (code >= 0) {
 		if( s->mode == keypress_mode) {
 			keypress(code);
 		} else {
-			s->entry_buf[key_index++] = code;
-			s->entry_buf[key_index] = 0;
+			s->entry_buf[s->next_key++] = code;
+			s->entry_buf[s->next_key] = 0;
 
 			if( isdigit(code) ) {
 				;
-			} else if( NULL != (binding = keybinding(code, binding)) ) {
-				if(binding->action.cmd != NULL) {
-					binding->action.cmd(binding->action.args);
-					key_index = 0;
+			} else if( NULL != (b = keybinding(code, s->binding)) ) {
+				if(b->action.cmd != NULL) {
+					b->action.cmd(b->action.args);
 
 /* For copy/paste, go back to keypress mode.  This indentation is off because this
 is a heinous kludge that needs a cleaner resolution */
-if(binding->action.cmd == copymode ||
-	binding->action.cmd == paste
+if(b->action.cmd == copymode || b->action.cmd == paste
 ) {
-	s->mode = keypress_mode;
-	*bar.text = '\0';
+	change_mode(s);
 }
-					binding = bindings;
+					s->next_key = 0;
+					s->binding = bindings;
+				} else {
+					s->binding = b;
 				}
 			} else {
-				binding = bindings;
+				s->binding = bindings;
 				*bar.text = '\0';
-				key_index = 0;
+				s->next_key  = 0;
 			}
 			snprintf(bar.text, sizeof bar.text, "%s", s->entry_buf);
 		}
