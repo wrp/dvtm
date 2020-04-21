@@ -1499,7 +1499,7 @@ parse_args(int argc, char *argv[]) {
 			continue;
 		}
 		if( strchr("drtscm", arg[1]) != NULL && argv[1] == NULL ) {
-			error(0, "%s requires an argument (-? for usage)", arg);
+			error(0, "%s requires an argument (-h for usage)", arg);
 		}
 		switch (arg[1]) {
 		case 'h':
@@ -1542,7 +1542,7 @@ parse_args(int argc, char *argv[]) {
 			break;
 		}
 		default:
-			error(0, "unknown option: %s (-? for usage)", arg);
+			error(0, "unknown option: %s (-h for usage)", arg);
 		}
 	}
 	if( actions == NULL ) {
