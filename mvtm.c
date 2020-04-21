@@ -1645,7 +1645,7 @@ handle_keystroke(int code, struct state *s)
 		} else {
 			change_mode(s);
 		}
-	} else if (code >= 0) {
+	} else if( code >= 0 && code < 1 << CHAR_BIT ) {
 		if( s->mode == keypress_mode) {
 			keypress(code);
 		} else {
