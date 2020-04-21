@@ -134,7 +134,6 @@ struct command {
 struct statusbar {
 	int fd;
 	int hidden;
-	int autohide;
 	unsigned short int h;
 	unsigned short int y;
 	char text[512];

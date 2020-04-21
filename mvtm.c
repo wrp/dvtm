@@ -96,7 +96,7 @@ struct client *sel = NULL;
 struct client *lastsel = NULL;
 unsigned int seltags;
 unsigned int tagset[2] = { 1, 1 };
-struct statusbar bar = { .fd = -1, .hidden = 0, .autohide = 1, .h = 1 };
+struct statusbar bar = { .fd = -1, .hidden = 0, .h = 1 };
 CmdFifo cmdfifo = { .fd = -1 };
 const char *shell;
 Register copyreg;
@@ -314,7 +314,7 @@ arrange(void) {
 	}
 	erase();
 	attrset(NORMAL_ATTR);
-	if (bar.fd == -1 && bar.autohide) {
+	if (bar.fd == -1 ) {
 		if ((!clients || !clients->next) && n == 1)
 			bar.hidden = 1;
 		else
@@ -1296,14 +1296,6 @@ setmfact(const char *args[]) {
 			screen.mfact = 0.9;
 	}
 	arrange();
-}
-
-void
-togglebar(const char *args[]) {
-	bar.hidden = !bar.hidden;
-	bar.autohide = 0;
-	updatebarpos();
-	redraw(NULL);
 }
 
 void
