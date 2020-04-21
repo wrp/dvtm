@@ -319,7 +319,6 @@ arrange(void) {
 			bar.hidden = 1;
 		else
 			bar.hidden = 0;
-		updatebarpos();
 	}
 	if( m )
 		available_height--;
@@ -1538,7 +1537,6 @@ parse_args(int argc, char *argv[]) {
 			break;
 		case 's':
 			bar.fd = open_or_create_fifo(*++argv, &bar.file, "MVTM_STATUS_FIFO");
-			updatebarpos();
 			break;
 		case 'c': {
 			cmdfifo.fd = open_or_create_fifo(*++argv, &cmdfifo.file, "MVTM_CMD_FIFO");
