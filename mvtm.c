@@ -656,10 +656,11 @@ untag(const char * const args[]) {
 
 void
 tag(const char * const args[]) {
-	if (!sel)
-		return;
-	sel->tags |= bitoftag(args[0]);
-	tagschanged();
+	if( sel != NULL ) {
+		int t = state.buf.count % 8;
+		sel->tags |= bitoftag( t ? "012345678" + t : NULL);
+		tagschanged();
+	}
 }
 
 void

@@ -37,7 +37,7 @@ char *binding_desc[][5] = {
 	{ "qq",  "quit" },
 	{ "v0",  "view" },
 	{ "v\t", "viewprevtag" },
-	{ "t0",  "tag" },
+	{ "t",  "tag" },
 	{ "T0",  "untag" },
 	{ NULL }
 };
