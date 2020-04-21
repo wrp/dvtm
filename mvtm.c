@@ -12,18 +12,42 @@
  */
 
 /* TODO
- *   Make it possible to list current key bindings.
- *   Add ability to do simple commands without command mode.
- *     eg, window navigation commands.  Maybe have a command
- *     to enter command mode rather than always going in, or
- *     have 2 prefix sequences.
- *   Make layout more flexible, perhaps dlopenable.
- *   Make it possible to pass layouts on the cmd fifo.  eg, give
- *     dimensions like "1:100x20@10,20\n2:hxw@y,x\n..."
- *
- * Cleanup count (eg, focusn works, but implementation is hacky)
- *
- * Probably a layout stack, per tag.
+    Make it possible to list current key bindings.
+    Add ability to do simple commands without command mode.
+      eg, window navigation commands.  Maybe have a command
+      to enter command mode rather than always going in, or
+      have 2 prefix sequences.
+    Make layout more flexible, perhaps dlopenable.
+    Make it possible to pass layouts on the cmd fifo.  eg, give
+      dimensions like "1:100x20@10,20\n2:hxw@y,x\n..."
+
+  Cleanup count (eg, focusn works, but implementation is hacky)
+
+ get rid of status.fifo and command.fifo, instead us
+ MVTM_STATUS_URL and MVTM_CMD_URL.  We can sent layout
+ info, and status bar updates, etc to CMD_URL and query STATUS_URL
+ for current state.
+
+ A window data structure should not contain any layout info.
+ layouts can look like:  wxh@x,y (eg 100x80@0,0 as above,
+ or .2x.4@.3,.5 to describe a window with 20% of the lines spanning
+ 40% of the width, positioned .3 down the screen .5 to the right)
+ Each tag stack (9 total, 1 for the "default" and 1 for each of the
+ 8 tags) will contain current layout including window id:
+ eg "2:nxm@x,y;1:nxm@x,y" where n,m,x, and y are absolute values.
+ If we get winched, recalculate (so we store the current total sizes
+ so we have access to them to recalculate).  Relative sizes
+ can be sent on the command url and converted to absolute values
+ on the fly.  Windows can overlap!  Seems like a novelty and a
+ terrible idea, but I'm pretty sure ncurses allows overlap so
+ that layouts like: "1:100x140@0,0;2:40x70@10,20" actaully
+ make sense, in which window 1 is partially occluded.  We'll
+ need a key binding for a function that resloves (eg, falling
+ back to old style layout enforcement).  Currently, I like
+ the idea that if a layout only defines placement for
+ N windows and the current tag has M > N windows, we only
+ display N.  Makes the implementation simpler.
+
  *
  * Write errors somewhere.  Either in a dedidcated window
  * or in the status bar.  Write any final error to stderr
