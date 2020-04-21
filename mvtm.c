@@ -608,19 +608,18 @@ resize_screen(void) {
 	screen.winched = 0;
 }
 
-struct key_binding *
-keybinding(const struct state *s)
+/*
+ * Find a keybinding the matches the entry_buf.  If there
+ * are multiple possible keybindings, this will return
+ * a struct key_binding with an emtpy action and a non-empty
+ * next.
+ */
+const struct key_binding *
+keybinding(unsigned char k, const struct key_binding *r)
 {
-	unsigned char *end;
-	int count = strtol((char*)s->entry_buf, (char **)&end, 10);
-	struct key_binding *b = bindings + *end;
-	int i;
-
-	assert(bindings != NULL);
-	for( end += 1; *end && b->next; end++ ) {
-		b = b->next + *end;
-	}
-	return b;
+	assert(r != NULL);
+	const struct key_binding *b = r + k;
+	return b->action.cmd ? b : b->next;
 }
 
 unsigned int
@@ -1619,6 +1618,7 @@ int
 main(int argc, char *argv[])
 {
 	struct state *s = &state;
+	const struct key_binding *binding;
 	unsigned int key_index = 0;
 
 	parse_args(argc, argv);
@@ -1626,6 +1626,7 @@ main(int argc, char *argv[])
 	for( struct action *a = actions; a && a->cmd; a = a->next ) {
 		a->cmd(a->args);
 	}
+	binding = bindings;
 
 	while( !stop_requested ) {
 		int r, nfds = 0;
@@ -1658,6 +1659,7 @@ main(int argc, char *argv[])
 					key_index = 0;
 				} else {
 					s->mode = keypress_mode;
+					binding = bindings;
 					*bar.text = '\0';
 					keypress(code);
 				}
@@ -1668,31 +1670,38 @@ main(int argc, char *argv[])
 					break;
 				case command_mode:
 					s->mode = keypress_mode;
+					binding = bindings;
 					*bar.text = '\0';
 				}
 			} else if (code >= 0) {
 				if( s->mode == keypress_mode) {
 					keypress(code);
 				} else {
-					struct key_binding *binding;
 					s->entry_buf[key_index++] = code;
 					s->entry_buf[key_index] = 0;
 
-					if( NULL != (binding = keybinding(s)) ) {
+					if( isdigit(code) ) {
+						;
+					} else if( NULL != (binding = keybinding(code, binding)) ) {
 						if(binding->action.cmd != NULL) {
+							binding->action.cmd(binding->action.args);
+							key_index = 0;
 
+/* For copy/paste, go back to keypress mode.  This indentation is off because this
+is a heinous kludge that needs a cleaner resolution */
 if(binding->action.cmd == copymode ||
 	binding->action.cmd == paste
 ) {
 	s->mode = keypress_mode;
 	*bar.text = '\0';
 }
-							binding->action.cmd(binding->action.args);
-							key_index = 0;
+							binding = bindings;
 						} else {
 							snprintf(bar.text, sizeof bar.text, "%s", s->entry_buf);
 						}
 					} else {
+						binding = bindings;
+						*bar.text = '\0';
 						key_index = 0;
 					}
 				}
