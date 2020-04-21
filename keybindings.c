@@ -42,46 +42,56 @@ char *binding_desc[][5] = {
 	{ NULL }
 };
 
-struct command_name {
+struct command_meta {
 	command *cmd;
 	char *name;
+	int switch_mode; /* true if this function should force mode transition */
 };
-#define entry(x) { x, #x }
-static struct command_name names[] = {
-	entry(copymode),
-	entry(create),
-	entry(focusdown),
-	entry(focuslast),
-	entry(focusleft),
-	entry(focusn),
-	entry(focusnext),
-	entry(focusprev),
-	entry(focusright),
-	entry(focusup),
-	entry(incnmaster),
-	entry(killclient),
-	entry(paste),
-	entry(quit),
-	entry(redraw),
-	entry(scrollback),
-	entry(setmfact),
-	entry(tag),
-	entry(toggleminimize),
-	entry(togglerunall),
-	entry(untag),
-	entry(view),
-	entry(viewprevtag),
-	entry(zoom),
+#define entry(x, mode) { x, #x, mode }
+static struct command_meta names[] = {
+	entry(copymode, 1),
+	entry(create, 0),
+	entry(focusdown, 0),
+	entry(focuslast, 0),
+	entry(focusleft, 0),
+	entry(focusn, 0),
+	entry(focusnext, 0),
+	entry(focusprev, 0),
+	entry(focusright, 0),
+	entry(focusup, 0),
+	entry(incnmaster, 0),
+	entry(killclient, 0),
+	entry(paste, 1),
+	entry(quit, 0),
+	entry(redraw, 0),
+	entry(scrollback, 0),
+	entry(setmfact, 0),
+	entry(tag, 0),
+	entry(toggleminimize, 0),
+	entry(togglerunall, 0),
+	entry(untag, 0),
+	entry(view, 0),
+	entry(viewprevtag, 0),
+	entry(zoom, 0),
 	{NULL},
 };
 #undef entry
 
+int
+should_switch(command *k) {
+	for( struct command_meta *n = names; n->cmd; n++ ) {
+		if( k == n->cmd ) {
+			return n->switch_mode;
+		}
+	}
+	return -1;
+}
 
 command *
 get_function(const char *name)
 {
 	command *rv = NULL;
-	for( struct command_name *n = names; n->cmd; n++ ) {
+	for( struct command_meta *n = names; n->cmd; n++ ) {
 		if( strcmp(n->name, name) == 0 ) {
 			rv = n->cmd;
 			break;

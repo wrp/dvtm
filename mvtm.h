@@ -247,3 +247,5 @@ void zoom(const char *const args[]);
 void fullscreen(void);
 
 enum { DEFAULT, BLUE, RED };
+
+int should_switch(command *);

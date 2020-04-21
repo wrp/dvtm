@@ -1650,7 +1650,7 @@ handle_keystroke(int code, struct state *s)
 			if(b->action.cmd != NULL) {
 				b->action.cmd(b->action.args);
 
-				if(b->action.cmd == copymode || b->action.cmd == paste) {
+				if( should_switch(b->action.cmd) ) {
 					change_mode(s);
 				}
 				reset_entry(&s->buf);
