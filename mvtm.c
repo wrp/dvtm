@@ -657,7 +657,8 @@ void
 tag(const char * const args[]) {
 	if( sel != NULL ) {
 		int t = state.buf.count % 8;
-		sel->tags |= bitoftag( t ? "012345678" + t : NULL);
+		const char *digits = "012345678";
+		sel->tags |= bitoftag( t ? digits + t : NULL);
 		tagschanged();
 	}
 }
