@@ -616,9 +616,9 @@ resize_screen(void) {
 struct key_binding *
 keybinding(const struct state *s)
 {
-	char *end;
-	int count = strtol((char*)s->entry_buf, &end, 10);
-	struct key_binding *b = bindings + (unsigned)*end;
+	unsigned char *end;
+	int count = strtol((char*)s->entry_buf, (char **)&end, 10);
+	struct key_binding *b = bindings + *end;
 	int i;
 
 	assert(bindings != NULL);
