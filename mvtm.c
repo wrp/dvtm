@@ -1258,14 +1258,14 @@ redraw(const char * const args[]) {
 
 void
 scrollback(const char * const args[]) {
-	if (!is_content_visible(sel))
+	double pages = args[0] ? strtod(args[0], NULL) : -0.5;
+	if( !sel || !is_content_visible(sel) ) {
 		return;
-
-	if (!args[0] || atoi(args[0]) < 0)
-		vt_scroll(sel->term, -sel->h/2);
-	else
-		vt_scroll(sel->term,  sel->h/2);
-
+	}
+	if( state.buf.count ) {
+		pages *= state.buf.count;
+	}
+	vt_scroll(sel->term,  pages * sel->h);
 	draw(sel);
 	curs_set(vt_cursor_visible(sel->term));
 }
