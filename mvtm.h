@@ -235,7 +235,6 @@ void incnmaster(const char * const args[]);
 void setmfact(const char * const args[]);
 void startup(const char * const args[]);
 void tag(const char * const args[]);
-void tagid(const char * const args[]);
 void togglebar(const char * const args[]);
 void togglebarpos(const char * const args[]);
 void toggleminimize(const char * const args[]);

@@ -74,7 +74,6 @@ const struct color_rule colorrules[] = {
 struct command commands[] = {
 	{ "create", { create,	{ NULL } } },
 	{ "focus",  { focusid,	{ NULL } } },
-	{ "tag",    { tagid,	{ NULL } } },
 };
 
 void cleanup(void);
@@ -660,32 +659,6 @@ tag(const char * const args[]) {
 		int t = state.buf.count % 8;
 		sel->tags |= bitoftag( t ? "012345678" + t : NULL);
 		tagschanged();
-	}
-}
-
-void
-tagid(const char * const args[]) {
-	if (!args[0] || !args[1])
-		return;
-
-	const int win_id = atoi(args[0]);
-	for (struct client *c = clients; c; c = c->next) {
-		if (c->id == win_id) {
-			unsigned int ntags = c->tags;
-			for (unsigned int i = 1; i < MAX_ARGS && args[i]; i++) {
-				if (args[i][0] == '+')
-					ntags |= bitoftag(args[i]+1);
-				else if (args[i][0] == '-')
-					ntags &= ~bitoftag(args[i]+1);
-				else
-					ntags = bitoftag(args[i]);
-			}
-			if (ntags) {
-				c->tags = ntags;
-				tagschanged();
-			}
-			return;
-		}
 	}
 }
 
