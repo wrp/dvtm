@@ -1614,19 +1614,81 @@ check_client_fds(fd_set *rd, int *nfds, struct client *c)
 }
 
 
+void
+handle_keystroke(int code, struct state *s)
+{
+	static unsigned int key_index = 0;
+	static const struct key_binding *binding = NULL;
+	if( binding == NULL ) {
+		binding = bindings;
+	}
+
+	if( code == modifier_key ) {
+		if( s->mode == keypress_mode) {
+			s->mode = command_mode;
+			key_index = 0;
+		} else {
+			s->mode = keypress_mode;
+			binding = bindings;
+			*bar.text = '\0';
+			keypress(code);
+		}
+	} else if( code == ESC || code == 0x0d) {
+		switch(s->mode) {
+		case keypress_mode:
+			keypress(code);
+			break;
+		case command_mode:
+			s->mode = keypress_mode;
+			binding = bindings;
+			*bar.text = '\0';
+		}
+	} else if (code >= 0) {
+		if( s->mode == keypress_mode) {
+			keypress(code);
+		} else {
+			s->entry_buf[key_index++] = code;
+			s->entry_buf[key_index] = 0;
+
+			if( isdigit(code) ) {
+				;
+			} else if( NULL != (binding = keybinding(code, binding)) ) {
+				if(binding->action.cmd != NULL) {
+					binding->action.cmd(binding->action.args);
+					key_index = 0;
+
+/* For copy/paste, go back to keypress mode.  This indentation is off because this
+is a heinous kludge that needs a cleaner resolution */
+if(binding->action.cmd == copymode ||
+	binding->action.cmd == paste
+) {
+	s->mode = keypress_mode;
+	*bar.text = '\0';
+}
+					binding = bindings;
+				}
+			} else {
+				binding = bindings;
+				*bar.text = '\0';
+				key_index = 0;
+			}
+			snprintf(bar.text, sizeof bar.text, "%s", s->entry_buf);
+		}
+	}
+drawbar();
+draw_all();
+}
+
 int
 main(int argc, char *argv[])
 {
 	struct state *s = &state;
-	const struct key_binding *binding;
-	unsigned int key_index = 0;
 
 	parse_args(argc, argv);
 	setup();
 	for( struct action *a = actions; a && a->cmd; a = a->next ) {
 		a->cmd(a->args);
 	}
-	binding = bindings;
 
 	while( !stop_requested ) {
 		int r, nfds = 0;
@@ -1652,61 +1714,8 @@ main(int argc, char *argv[])
 		}
 
 		if (FD_ISSET(STDIN_FILENO, &rd)) {
-			int code = getch();
-			if( code == modifier_key ) {
-				if( s->mode == keypress_mode) {
-					s->mode = command_mode;
-					key_index = 0;
-				} else {
-					s->mode = keypress_mode;
-					binding = bindings;
-					*bar.text = '\0';
-					keypress(code);
-				}
-			} else if( code == ESC || code == 0x0d) {
-				switch(s->mode) {
-				case keypress_mode:
-					keypress(code);
-					break;
-				case command_mode:
-					s->mode = keypress_mode;
-					binding = bindings;
-					*bar.text = '\0';
-				}
-			} else if (code >= 0) {
-				if( s->mode == keypress_mode) {
-					keypress(code);
-				} else {
-					s->entry_buf[key_index++] = code;
-					s->entry_buf[key_index] = 0;
+			handle_keystroke(getch(), s);
 
-					if( isdigit(code) ) {
-						;
-					} else if( NULL != (binding = keybinding(code, binding)) ) {
-						if(binding->action.cmd != NULL) {
-							binding->action.cmd(binding->action.args);
-							key_index = 0;
-
-/* For copy/paste, go back to keypress mode.  This indentation is off because this
-is a heinous kludge that needs a cleaner resolution */
-if(binding->action.cmd == copymode ||
-	binding->action.cmd == paste
-) {
-	s->mode = keypress_mode;
-	*bar.text = '\0';
-}
-							binding = bindings;
-						}
-					} else {
-						binding = bindings;
-						*bar.text = '\0';
-						key_index = 0;
-					}
-					snprintf(bar.text, sizeof bar.text, "%s", s->entry_buf);
-				}
-			}
-drawbar();
-draw_all();
 			if (r == 1) /* no data available on pty's */
 				continue;
 		}
