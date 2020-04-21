@@ -21,8 +21,6 @@
     Make it possible to pass layouts on the cmd fifo.  eg, give
       dimensions like "1:100x20@10,20\n2:hxw@y,x\n..."
 
-  Cleanup count (eg, focusn works, but implementation is hacky)
-
  get rid of status.fifo and command.fifo, instead us
  MVTM_STATUS_URL and MVTM_CMD_URL.  We can sent layout
  info, and status bar updates, etc to CMD_URL and query STATUS_URL
@@ -1070,10 +1068,8 @@ copymode(const char * const args[]) {
 
 void
 focusn(const char * const args[]) {
-	char *end;
-	int target = strtol((char*)state.buf.data, &end, 10);
 	for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
-		if (c->id == target) {
+		if( c->id == state.buf.count ) {
 			focus(c);
 			if (c->minimized)
 				toggleminimize(NULL);
@@ -1619,6 +1615,7 @@ reset_entry(struct entry_buf *e)
 {
 	e->binding = bindings;
 	e->next = e->data;
+	e->count = 0;
 }
 
 void
@@ -1652,7 +1649,7 @@ handle_keystroke(int code, struct state *s)
 		*s->buf.next = '\0';
 
 		if( isdigit(code) ) {
-			;
+			s->buf.count = 10 * s->buf.count + code - '0';
 		} else if( NULL != (b = keybinding(code, s->buf.binding)) ) {
 			if(b->action.cmd != NULL) {
 				b->action.cmd(b->action.args);

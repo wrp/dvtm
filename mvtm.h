@@ -45,6 +45,7 @@ struct layout {
 struct entry_buf {
 	unsigned char data[128];;
 	const struct key_binding *binding;
+	int count;
 	unsigned char *next; /* first unused char in data */
 };
 /*
