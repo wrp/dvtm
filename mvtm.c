@@ -1634,46 +1634,38 @@ handle_keystroke(int code, struct state *s)
 {
 	const struct key_binding *b;
 
-	if( code == modifier_key ) {
+	if( s->mode == keypress_mode && code != modifier_key ) {
+		keypress(code);
+	} else if( code == modifier_key || code == ESC || code == 0xd ) {
 		if( s->mode == command_mode ) {
 			keypress(code);
 		}
 		change_mode(s);
-	} else if( code == ESC || code == 0x0d ) {
-		if( s->mode == keypress_mode ) {
-			keypress(code);
-		} else {
-			change_mode(s);
-		}
 	} else if( code >= 0 && code < 1 << CHAR_BIT ) {
-		if( s->mode == keypress_mode) {
-			keypress(code);
-		} else {
-			s->entry_buf[s->next_key++] = code;
-			s->entry_buf[s->next_key] = 0;
+		s->entry_buf[s->next_key++] = code;
+		s->entry_buf[s->next_key] = 0;
 
-			if( isdigit(code) ) {
-				;
-			} else if( NULL != (b = keybinding(code, s->binding)) ) {
-				if(b->action.cmd != NULL) {
-					b->action.cmd(b->action.args);
+		if( isdigit(code) ) {
+			;
+		} else if( NULL != (b = keybinding(code, s->binding)) ) {
+			if(b->action.cmd != NULL) {
+				b->action.cmd(b->action.args);
 
-					if(b->action.cmd == copymode || b->action.cmd == paste) {
-						change_mode(s);
-					}
-					s->next_key = 0;
-					s->binding = bindings;
-					*bar.text = '\0';
-				} else {
-					s->binding = b;
+				if(b->action.cmd == copymode || b->action.cmd == paste) {
+					change_mode(s);
 				}
-			} else {
+				s->next_key = 0;
 				s->binding = bindings;
 				*bar.text = '\0';
-				s->next_key  = 0;
+			} else {
+				s->binding = b;
 			}
-			snprintf(bar.text, sizeof bar.text, "%s", s->entry_buf);
+		} else {
+			s->binding = bindings;
+			*bar.text = '\0';
+			s->next_key  = 0;
 		}
+		snprintf(bar.text, sizeof bar.text, "%s", s->entry_buf);
 	}
 	drawbar();
 	draw_all();
