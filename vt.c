@@ -1606,11 +1606,18 @@ pid_t vt_forkpty(Vt *t, const char *p, const char *argv[], const char *cwd, cons
 		return -1;
 
 	if (pid == 0) {
+		struct sigaction act;
 		setsid();
 
 		sigset_t emptyset;
 		sigemptyset(&emptyset);
 		sigprocmask(SIG_SETMASK, &emptyset, NULL);
+
+		memset(&act, 0, sizeof act);
+		act.sa_handler = SIG_DFL;
+		for( int i = 0; i < 256; i++ ) {
+			sigaction(i , &act, NULL );
+		}
 
 		if (to) {
 			close(vt2ed[1]);
