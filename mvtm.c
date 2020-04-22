@@ -817,10 +817,11 @@ push_binding(struct key_binding *b, const unsigned char *keys, const struct acti
 static void
 build_bindings(void)
 {
-	typeof(*binding_desc) *b = binding_desc;
+	typeof(*mod_bindings) *b = mod_bindings;
 	bindings = xcalloc(1u << CHAR_BIT, sizeof *bindings);
-	for( ; (*b)[0]; b++) {
-		const char *arr[] = {(*b)[0], (*b)[1], (*b)[2], (*b)[3], (*b)[4]};
+	for( ; b[0][0]; b++) {
+		char **e = *b;
+		const char *arr[] = {e[0], e[1], e[2], e[3], e[4]};
 		bind(arr);
 	}
 }
@@ -1039,7 +1040,7 @@ change_mode(const char * const args[])
 size_t
 get_bindings(char **b)
 {
-	typeof(*binding_desc) *t = binding_desc;
+	typeof(*mod_bindings) *t = mod_bindings;
 	size_t cap, len;
 	char *dst;
 	dst = *b = realloc(NULL, cap = BUFSIZ);

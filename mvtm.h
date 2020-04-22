@@ -123,7 +123,7 @@ struct key_binding {
 	struct key_binding *next;
 };
 extern int parse_binding(struct action *a, const char *d);
-extern char *binding_desc[][5];
+extern char *mod_bindings[][5];
 
 struct command {
 	const char *name;

@@ -7,7 +7,8 @@
 	{ { 'V', KEY,     }, { toggleview,     { #TAG }               } }, \
 	{ { 'T', KEY,     }, { toggletag,      { #TAG }               } }
 
-char *binding_desc[][5] = {
+/* Bindings following MOD */
+char *mod_bindings[][5] = {
 	{ "xx",  "killclient" },
 	{ "qq",  "quit" },
 	{ "B",   "copymode", "mvtm-pager", "bindings" },
