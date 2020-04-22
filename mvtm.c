@@ -1022,9 +1022,10 @@ reset_entry(struct entry_buf *e)
 	e->count = 0;
 }
 
-static void
-change_mode(struct state *s)
+int
+change_mode(const char * const args[])
 {
+	struct state *s = &state;
 	switch(s->mode) {
 	case keypress_mode:
 		s->mode = command_mode;
@@ -1122,7 +1123,7 @@ copymode(const char * const args[])
 
 end:
 	assert(state.mode == command_mode);
-	change_mode(&state);
+	change_mode(NULL);
 	return 0;
 }
 
@@ -1334,7 +1335,7 @@ paste(const char * const args[]) {
 		vt_write(sel->term, copyreg.data, copyreg.len);
 	}
 	assert(state.mode == command_mode);
-	change_mode(&state);
+	change_mode(NULL);
 	return 0;
 }
 
@@ -1742,10 +1743,10 @@ handle_keystroke(int code, struct state *s)
 	if( s->mode == keypress_mode && code != modifier_key ) {
 		keypress(code);
 	} else if( code == modifier_key || code == ESC || code == 0xd ) {
-		if( s->mode == command_mode ) {
+		if( code == modifier_key ) {
 			keypress(code);
 		}
-		change_mode(s);
+		change_mode(NULL);
 	} else if( code >= 0 && code < 1 << CHAR_BIT ) {
 		*s->buf.next++ = code;
 		*s->buf.next = '\0';
