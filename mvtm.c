@@ -191,7 +191,6 @@ drawbar(void) {
 	} else {
 		attrset(COLOR(DEFAULT) | A_NORMAL);
 	}
-	addstr("---");
 
 	getyx(stdscr, y, x);
 	(void)y; /* ??? Is this to suppress a compiler warning?? */
