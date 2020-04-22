@@ -151,11 +151,11 @@ typedef struct {
 	unsigned short int id;
 } CmdFifo;
 
-typedef struct {
+struct data_buffer {
 	char *data;
 	size_t len;
 	size_t size;
-} Register;
+};
 
 typedef struct {
 	char *name;

@@ -96,7 +96,7 @@ unsigned int tagset[2] = { 1, 1 };
 struct statusbar bar = { .fd = -1, .hidden = 0, .h = 1 };
 CmdFifo cmdfifo = { .fd = -1 };
 const char *shell;
-Register copyreg;
+struct data_buffer copyreg;
 volatile sig_atomic_t stop_requested = 0;
 int sigwinch_pipe[] = {-1, -1};
 int sigchld_pipe[] = {-1, -1};
@@ -1237,10 +1237,21 @@ killclient(const char * const args[])
 	}
 }
 
+static void
+trim_whitespace(struct data_buffer *r)
+{
+	char *end = r->data + r->len;
+	while( isspace(*--end) ) {
+		r->len -= 1;
+	}
+}
+
 void
 paste(const char * const args[]) {
-	if (sel && copyreg.data)
+	if (sel && copyreg.data) {
+		trim_whitespace(&copyreg);
 		vt_write(sel->term, copyreg.data, copyreg.len);
+	}
 	assert(state.mode == command_mode);
 	change_mode(&state);
 }
