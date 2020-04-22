@@ -133,9 +133,7 @@ isvisible(struct client *c) {
 
 bool
 is_content_visible(struct client *c) {
-	if (!c)
-		return false;
-	return isvisible(c) && !c->minimized;
+	return c && isvisible(c) && !c->minimized;
 }
 
 struct client*
