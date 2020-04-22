@@ -1035,8 +1035,41 @@ change_mode(struct state *s)
 	}
 }
 
+size_t
+get_bindings(char **b)
+{
+	typeof(*binding_desc) *t = binding_desc;
+	size_t cap, len;
+	char *dst;
+	dst = *b = realloc(NULL, cap = BUFSIZ);
+	if( dst == NULL ) {
+		/* TODO: emit error */
+		return 0;
+	}
+	*dst = '\0';
+	for( len = 0; t[0][0]; t++ ) {
+		for( char **e = *t; *e; e += 1 ) {
+			size_t extra_len;
+			extra_len = strlen(*e) + 1;
+			if( len + extra_len >= cap ) {
+				dst = *b = realloc( dst, cap += BUFSIZ );
+				if( dst == NULL ) {
+					return 0;
+				}
+			}
+			strncat(dst + len, *e, extra_len - 1);
+			len += extra_len;
+			assert(dst[len - 1] == '\0');
+			dst[len - 1] = e[1] ? ' ' : '\n';
+			dst[len] = '\0';
+		}
+	}
+	return len;
+}
+
 int
-copymode(const char * const args[]) {
+copymode(const char * const args[])
+{
 	if (!args || !args[0] || !sel || sel->editor)
 		goto end;
 
@@ -1065,7 +1098,12 @@ copymode(const char * const args[]) {
 
 	if (sel->editor_fds[0] != -1) {
 		char *buf = NULL;
-		size_t len = vt_content_get(sel->app, &buf, colored);
+		size_t len;
+		if( args[1] && !strcmp(args[1], "bindings") ) {
+			len = get_bindings(&buf);
+		} else {
+			len = vt_content_get(sel->app, &buf, colored);
+		}
 		char *cur = buf;
 		while (len > 0) {
 			ssize_t res = write(sel->editor_fds[0], cur, len);

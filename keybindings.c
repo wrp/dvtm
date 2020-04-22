@@ -10,6 +10,7 @@
 char *binding_desc[][5] = {
 	{ "xx",  "killclient" },
 	{ "qq",  "quit" },
+	{ "B",   "copymode", "mvtm-pager", "bindings" },
 	{ "c",   "create" },
 	{ "j",   "focusnext" },
 	{ "J",   "focusdown" },
