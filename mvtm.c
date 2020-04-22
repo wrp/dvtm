@@ -248,14 +248,14 @@ draw_border(struct client *c) {
 		attrs = COLOR(CYAN) | A_NORMAL;
 	}
 	if( state.mode == command_mode ) {
-		msg = " *** COMMAND MODE *** ";
+		msg = " COMMAND MODE ";
 	} else if( c->term == c->editor ) {
-		msg = " *** COPY MODE *** ";
+		msg = " COPY MODE ";
 	}
 
 	wattrset(c->window, attrs);
 	getyx(c->window, y, x);
-	mvwhline(c->window, 0, 0, ACS_HLINE, c->w);
+	mvwhline(c->window, 0, 0, msg ? '*' : ACS_HLINE, c->w);
 
 	snprintf(border_title, sizeof border_title, "%s%s#%d (%ld)",
 		*c->title ? c->title : "",
@@ -278,7 +278,9 @@ draw_border(struct client *c) {
 	mvwprintw(c->window, 0, 2, "[%s]", border_title);
 	if( msg != NULL ) {
 		int start = strlen(border_title) + 4 + 2;
-		mvwprintw(c->window, 0, start, "%s", msg);
+		if( c->w > start + strlen(msg) + 2 ) {
+			mvwprintw(c->window, 0, start, "%s", msg);
+		}
 	}
 	wmove(c->window, y, x);
 }
