@@ -1303,7 +1303,7 @@ change_kill_signal(const char *const args[])
 int
 signalclient(const char * const args[])
 {
-	int signal = state.buf.count ? state.buf.count : SIGTERM;
+	int signal = state.buf.count ? state.buf.count : SIGHUP;
 	if( sel ) {
 		kill( -sel->pid, signal);
 	}
@@ -1315,7 +1315,7 @@ killclient(const char * const args[])
 {
 	struct client *c = select_client(0);
 	if( c != NULL ) {
-		kill( -c->pid, state.signal ? state.signal : SIGTERM);
+		kill( -c->pid, state.signal ? state.signal : SIGHUP);
 	}
 	return 0;
 }
