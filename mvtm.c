@@ -232,7 +232,11 @@ draw_border(struct client *c) {
 	if (sel != c && c->urgent)
 		attrs = URGENT_ATTR;
 	if (sel == c || (state.runinall && !c->minimized))
-		attrs = SELECTED_ATTR;
+		attrs = COLOR(BLUE) | A_NORMAL;
+
+	if( sel == c && state.mode == command_mode ) {
+		attrs = COLOR(RED) | A_NORMAL;
+	}
 
 	wattrset(c->window, attrs);
 	getyx(c->window, y, x);
@@ -257,6 +261,11 @@ draw_border(struct client *c) {
 	}
 
 	mvwprintw(c->window, 0, 2, "[%s]", border_title);
+	if( sel == c && state.mode == command_mode ) {
+		char msg[] = " *** COMMAND MODE *** ";
+		int start = strlen(border_title) + 4 + 2;
+		mvwprintw(c->window, 0, start, "%s", msg);
+	}
 	wmove(c->window, y, x);
 }
 
