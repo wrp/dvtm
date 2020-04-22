@@ -1035,6 +1035,7 @@ change_mode(const char * const args[])
 	case command_mode:
 		s->mode = keypress_mode;
 	}
+	return 0;
 }
 
 size_t
