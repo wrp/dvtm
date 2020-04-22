@@ -620,7 +620,7 @@ unsigned int
 bitoftag(int tag) {
 	unsigned t = tag ? 0 : ~0;
 	if( tag > 0 && tag < 9 ) {
-		t = 1 << tag - 1;
+		t = 1 << (tag - 1);
 	}
 	return t;
 }
