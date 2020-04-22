@@ -12,8 +12,13 @@ EXTRA_DIST = build-aux/package-version \
 	mvtm-editor.txt mvtm-editor.1 \
 	version
 
+.PHONY: version
 version:
-	{ cd $(top_srcdir) && git describe --tags --always --dirty; } > version
+	{ cd $(top_srcdir) && build-aux/package-version; } | { read v; \
+	echo "$$v" > version; \
+	awk '/VERSION/{$$3 = sprintf("\"%s\"", v)}1' v=$$v config.h > config.h.new \
+	&& mv config.h.new config.h; }
+
 
 mvtm.1: mvtm.txt
 	asciidoctor -a ver=${PACKAGE_VERSION} -b manpage $<
