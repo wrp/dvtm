@@ -66,10 +66,8 @@ struct client {
 	int order;
 	pid_t pid;
 	unsigned short int id;
-	unsigned short int x;
-	unsigned short int y;
-	unsigned short int w;
-	unsigned short int h;
+	unsigned short y, x;  /* position of upper left corner */
+	unsigned short h, w;  /* height and width */
 	bool has_title_line;
 	bool minimized;
 	bool urgent;
@@ -79,6 +77,24 @@ struct client {
 	struct client *snext;
 	unsigned int tags;
 };
+
+
+struct window {
+	unsigned short y, x;  /* position of upper left corner */
+	unsigned short h, w;  /* height and width */
+};
+
+struct layout_entry {
+	struct client *c;
+	struct window window;
+	struct layout_entry *next;
+};
+
+struct layout {
+	struct layout_entry *entry;
+	struct layout *next;
+};
+
 
 struct client* nextvisible(struct client *c);
 void focus(struct client *c);
