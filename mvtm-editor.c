@@ -98,7 +98,7 @@ build_template(char *name, size_t s)
 int
 main(int argc, char *argv[])
 {
-	char buffer[BUFSIZ] = "EDITING SCROLLBACK BUFFER\n";;
+	char buffer[BUFSIZ];
 	ssize_t bytes;
 	struct stat stat_before;
 	const char *editor = get_default_editor();
@@ -110,7 +110,6 @@ main(int argc, char *argv[])
 	if( fchmod(tmp_fd, 0600) == -1 ) {
 		error(errno, "failed chmod %s", tempname);
 	}
-	write(tmp_fd, buffer, strlen(buffer));
 	while( (bytes = read(STDIN_FILENO, buffer, sizeof buffer )) > 0 ) {
 		if( bytes < 0 ) {
 			error(errno, "failed to read from stdin");
