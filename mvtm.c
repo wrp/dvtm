@@ -991,14 +991,35 @@ create(const char * const args[]) {
 }
 
 void
+reset_entry(struct entry_buf *e)
+{
+	e->binding = bindings;
+	e->next = e->data;
+	e->count = 0;
+}
+
+static void
+change_mode(struct state *s)
+{
+	switch(s->mode) {
+	case keypress_mode:
+		s->mode = command_mode;
+		reset_entry(&s->buf);
+		break;
+	case command_mode:
+		s->mode = keypress_mode;
+	}
+}
+
+void
 copymode(const char * const args[]) {
 	if (!args || !args[0] || !sel || sel->editor)
-		return;
+		goto end;
 
 	bool colored = strstr(args[0], "pager") != NULL;
 
 	if (!(sel->editor = vt_create(sel->h - sel->has_title_line, sel->w, 0)))
-		return;
+		goto end;
 
 	int *to = &sel->editor_fds[0];
 	int *from = strstr(args[0], "editor") ? &sel->editor_fds[1] : NULL;
@@ -1013,7 +1034,7 @@ copymode(const char * const args[]) {
 	if (vt_forkpty(sel->editor, args[0], argv, NULL, NULL, to, from) < 0) {
 		vt_destroy(sel->editor);
 		sel->editor = NULL;
-		return;
+		goto end;;
 	}
 
 	sel->term = sel->editor;
@@ -1039,6 +1060,9 @@ copymode(const char * const args[]) {
 
 	if (args[1])
 		vt_write(sel->editor, args[1], strlen(args[1]));
+end:
+	assert(state.mode == command_mode);
+	change_mode(&state);
 }
 
 static struct client *
@@ -1217,6 +1241,8 @@ void
 paste(const char * const args[]) {
 	if (sel && copyreg.data)
 		vt_write(sel->term, copyreg.data, copyreg.len);
+	assert(state.mode == command_mode);
+	change_mode(&state);
 }
 
 void
@@ -1606,29 +1632,6 @@ check_client_fds(fd_set *rd, int *nfds, struct client *c)
 	}
 }
 
-
-void
-reset_entry(struct entry_buf *e)
-{
-	e->binding = bindings;
-	e->next = e->data;
-	e->count = 0;
-}
-
-void
-change_mode(struct state *s)
-{
-	switch(s->mode) {
-	case keypress_mode:
-		s->mode = command_mode;
-		reset_entry(&s->buf);
-		break;
-	case command_mode:
-		s->mode = keypress_mode;
-	}
-}
-
-
 void
 handle_keystroke(int code, struct state *s)
 {
@@ -1650,10 +1653,6 @@ handle_keystroke(int code, struct state *s)
 		} else if( NULL != (b = keybinding(code, s->buf.binding)) ) {
 			if(b->action.cmd != NULL) {
 				b->action.cmd(b->action.args);
-
-				if( should_switch(b->action.cmd) ) {
-					change_mode(s);
-				}
 				reset_entry(&s->buf);
 			} else {
 				s->buf.binding = b;
