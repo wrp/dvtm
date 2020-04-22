@@ -660,36 +660,39 @@ tagschanged() {
 }
 
 
-void
+int
 untag(const char * const args[]) {
 	if( sel ) {
 		sel->tags = 1;
 		tagschanged();
 	}
+	return 0;
 }
 
-void
+int
 tag(const char * const args[]) {
 	if( sel != NULL ) {
 		int t = state.buf.count % 8;
 		sel->tags |= bitoftag(t);
 		tagschanged();
 	}
+	return 0;
 }
 
-void
+int
 toggletag(const char * const args[]) {
 	if (!sel)
-		return;
+		return 0;
 	int tag = args[0] ? args[0][0] - '0' : 0;
 	unsigned int newtags = sel->tags ^ (bitoftag(tag));
 	if (newtags) {
 		sel->tags = newtags;
 		tagschanged();
 	}
+	return 0;
 }
 
-void
+int
 toggleview(const char * const args[]) {
 	int tag = args[0] ? args[0][0] - '0' : 0;
 	unsigned int newtagset = tagset[seltags] ^ (bitoftag(tag));
@@ -697,9 +700,10 @@ toggleview(const char * const args[]) {
 		tagset[seltags] = newtagset;
 		tagschanged();
 	}
+	return 0;
 }
 
-void
+int
 view(const char * const args[]) {
 	int tag = state.buf.count;
 	unsigned int newtagset = bitoftag(tag);
@@ -708,12 +712,14 @@ view(const char * const args[]) {
 		tagset[seltags] = newtagset;
 		tagschanged();
 	}
+	return 0;
 }
 
-void
+int
 viewprevtag(const char * const args[]) {
 	seltags ^= 1;
 	tagschanged();
+	return 0;
 }
 
 void
@@ -924,7 +930,7 @@ char *getcwd_by_pid(struct client *c) {
 	return realpath(buf, NULL);
 }
 
-void
+int
 bind(const char * const args[])
 {
 	const unsigned char *binding = (void*)args[0];
@@ -936,10 +942,11 @@ bind(const char * const args[])
 		a.args[i] = args[i+2];
 	}
 	push_binding(bindings, binding, &a);
+	return 0;
 }
 
 
-void
+int
 create(const char * const args[]) {
 	const char *pargs[4] = { shell, NULL };
 	char buf[8], *cwd = NULL;
@@ -955,21 +962,21 @@ create(const char * const args[]) {
 	}
 	struct client *c = calloc(1, sizeof *c);
 	if (!c)
-		return;
+		return 0;
 	c->tags = tagset[seltags];
 	c->id = ++cmdfifo.id;
 	snprintf(buf, sizeof buf, "%d", c->id);
 
 	if (!(c->window = newwin(available_height, available_width, 0, 0))) {
 		free(c);
-		return;
+		return 0;
 	}
 
 	c->term = c->app = vt_create(screen.h, screen.w, screen.history);
 	if (!c->term) {
 		delwin(c->window);
 		free(c);
-		return;
+		return 0;
 	}
 
 	if (args && args[0]) {
@@ -1005,6 +1012,7 @@ create(const char * const args[]) {
 		const char * const args[2] = { "+1", NULL };
 		incnmaster(args);
 	}
+	return 0;
 }
 
 void
@@ -1028,7 +1036,7 @@ change_mode(struct state *s)
 	}
 }
 
-void
+int
 copymode(const char * const args[]) {
 	if (!args || !args[0] || !sel || sel->editor)
 		goto end;
@@ -1080,6 +1088,7 @@ copymode(const char * const args[]) {
 end:
 	assert(state.mode == command_mode);
 	change_mode(&state);
+	return 0;
 }
 
 static struct client *
@@ -1099,7 +1108,7 @@ select_client(int only_visible)
 	return c;
 }
 
-void
+int
 focusn(const char * const args[])
 {
 	struct client *c = select_client(1);
@@ -1109,12 +1118,13 @@ focusn(const char * const args[])
 			toggleminimize(NULL);
 		}
 	}
+	return 0;
 }
 
-void
+int
 focusid(const char * const args[]) {
 	if (!args[0])
-		return;
+		return 0;
 
 	const int win_id = atoi(args[0]);
 	for (struct client *c = clients; c; c = c->next) {
@@ -1126,27 +1136,29 @@ focusid(const char * const args[]) {
 				c->tags |= tagset[seltags];
 				tagschanged();
 			}
-			return;
+			return 0;
 		}
 	}
+	return 0;
 }
 
-void
+int
 focusnext(const char * const args[]) {
 	struct client *c;
 	if (!sel)
-		return;
+		return 0;
 	for (c = sel->next; c && !isvisible(c); c = c->next);
 	if (!c)
 		for (c = clients; c && !isvisible(c); c = c->next);
 	if (c)
 		focus(c);
+	return 0;
 }
 
-void
+int
 focusnextnm(const char * const args[]) {
 	if (!sel)
-		return;
+		return 0;
 	struct client *c = sel;
 	do {
 		c = nextvisible(c->next);
@@ -1154,13 +1166,14 @@ focusnextnm(const char * const args[]) {
 			c = nextvisible(clients);
 	} while (c->minimized && c != sel);
 	focus(c);
+	return 0;
 }
 
-void
+int
 focusprev(const char * const args[]) {
 	struct client *c;
 	if (!sel)
-		return;
+		return 0;
 	for (c = sel->prev; c && !isvisible(c); c = c->prev);
 	if (!c) {
 		for (c = clients; c && c->next; c = c->next);
@@ -1168,12 +1181,13 @@ focusprev(const char * const args[]) {
 	}
 	if (c)
 		focus(c);
+	return 0;
 }
 
-void
+int
 focusprevnm(const char * const args[]) {
 	if (!sel)
-		return;
+		return 0;
 	struct client *c = sel;
 	do {
 		for (c = c->prev; c && !isvisible(c); c = c->prev);
@@ -1183,81 +1197,90 @@ focusprevnm(const char * const args[]) {
 		}
 	} while (c && c != sel && c->minimized);
 	focus(c);
+	return 0;
 }
 
-void
+int
 focuslast(const char * const args[]) {
 	if (lastsel)
 		focus(lastsel);
+	return 0;
 }
 
-void
+int
 focusup(const char * const args[]) {
 	if (!sel)
-		return;
+		return 0;
 	/* avoid vertical separator, hence +1 in x direction */
 	struct client *c = get_client_by_coord(sel->x + 1, sel->y - 1);
 	if (c)
 		focus(c);
 	else
 		focusprev(args);
+	return 0;
 }
 
-void
+int
 focusdown(const char * const args[]) {
 	if (!sel)
-		return;
+		return 0;
 	struct client *c = get_client_by_coord(sel->x, sel->y + sel->h);
 	if (c)
 		focus(c);
 	else
 		focusnext(args);
+	return 0;
 }
 
-void
+int
 focusleft(const char * const args[]) {
 	if (!sel)
-		return;
+		return 0;
 	struct client *c = get_client_by_coord(sel->x - 2, sel->y);
 	if (c)
 		focus(c);
 	else
 		focusprev(args);
+	return 0;
 }
 
-void
+int
 focusright(const char * const args[]) {
 	if (!sel)
-		return;
+		return 0;
 	struct client *c = get_client_by_coord(sel->x + sel->w + 1, sel->y);
 	if (c)
 		focus(c);
 	else
 		focusnext(args);
+	return 0;
 }
 
-void
+int
 change_kill_signal(const char *const args[])
 {
 	state.signal = state.buf.count ? state.buf.count : SIGHUP;
+	return 0;
 }
 
-void
+int
 signalclient(const char * const args[])
 {
 	int signal = state.buf.count ? state.buf.count : SIGTERM;
 	if( sel ) {
 		kill( -sel->pid, signal);
 	}
+	return 0;
 }
 
-void
+int
 killclient(const char * const args[])
 {
 	struct client *c = select_client(0);
 	if( c != NULL ) {
 		kill( -c->pid, state.signal ? state.signal : SIGTERM);
 	}
+	return 0;
 }
 
 static void
@@ -1269,7 +1292,7 @@ trim_whitespace(struct data_buffer *r)
 	}
 }
 
-void
+int
 paste(const char * const args[]) {
 	if (sel && copyreg.data) {
 		trim_whitespace(&copyreg);
@@ -1277,14 +1300,16 @@ paste(const char * const args[]) {
 	}
 	assert(state.mode == command_mode);
 	change_mode(&state);
+	return 0;
 }
 
-void
+int
 quit(const char * const args[]) {
 	stop_requested = 1;
+	return 0;
 }
 
-void
+int
 redraw(const char * const args[]) {
 	for (struct client *c = clients; c; c = c->next) {
 		if (!c->minimized) {
@@ -1294,13 +1319,14 @@ redraw(const char * const args[]) {
 		}
 	}
 	resize_screen();
+	return 0;
 }
 
-void
+int
 scrollback(const char * const args[]) {
 	double pages = args[0] ? strtod(args[0], NULL) : -0.5;
 	if( !sel || !is_content_visible(sel) ) {
-		return;
+		return 0;
 	}
 	if( state.buf.count ) {
 		pages *= state.buf.count;
@@ -1308,15 +1334,17 @@ scrollback(const char * const args[]) {
 	vt_scroll(sel->term,  pages * sel->h);
 	draw(sel);
 	curs_set(vt_cursor_visible(sel->term));
+	return 0;
 }
 
-void
+int
 send(const char * const args[]) {
 	if (sel && args && args[0])
 		vt_write(sel->term, args[0], strlen(args[0]));
+	return 0;
 }
 
-void
+int
 incnmaster(const char * const args[]) {
 	int delta;
 
@@ -1332,9 +1360,10 @@ incnmaster(const char * const args[]) {
 			screen.nmaster = 1;
 	}
 	arrange();
+	return 0;
 }
 
-void
+int
 setmfact(const char * const args[]) {
 	float delta;
 
@@ -1352,21 +1381,22 @@ setmfact(const char * const args[]) {
 			screen.mfact = 0.9;
 	}
 	arrange();
+	return 0;
 }
 
-void
+int
 toggleminimize(const char * const args[]) {
 	struct client *c, *m, *t;
 	unsigned int n;
 	if (!sel)
-		return;
+		return 0;
 	/* the last window can't be minimized */
 	if (!sel->minimized) {
 		for (n = 0, c = nextvisible(clients); c; c = nextvisible(c->next))
 			if (!c->minimized)
 				n++;
 		if (n == 1)
-			return;
+			return 0;
 	}
 	sel->minimized = !sel->minimized;
 	m = sel;
@@ -1392,16 +1422,18 @@ toggleminimize(const char * const args[]) {
 		attach(m);
 	}
 	arrange();
+	return 0;
 }
 
-void
+int
 togglerunall(const char * const args[]) {
 	state.runinall = !state.runinall;
 	drawbar();
 	draw_all();
+	return 0;
 }
 
-void
+int
 zoom(const char * const args[]) {
 	struct client *c = select_client(0);
 
@@ -1414,6 +1446,7 @@ zoom(const char * const args[]) {
 		}
 		arrange();
 	}
+	return 0;
 }
 
 

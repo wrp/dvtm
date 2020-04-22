@@ -109,7 +109,7 @@ struct color_rule {
 # define CTRL(k)   ((k) & 0x1F)
 #endif
 
-typedef void (command)(const char * const args[]);
+typedef int (command)(const char * const args[]);
 extern command * get_function(const char *name);
 #define MAX_KEYS 3
 struct action {
@@ -201,41 +201,40 @@ int ESCDELAY;
 #define TAG_URGENT (COLOR(RED) | A_NORMAL | A_BLINK) /* attributes for unselected tags with urgent windows */
 
 /* commands for use by keybindings */
-void bind(const char * const args[]);
-void change_kill_signal(const char *const args[]);
-void copymode(const char * const args[]);
-void create(const char * const args[]);
-void focusdown(const char * const args[]);
-void focusid(const char * const args[]);
-void focuslast(const char * const args[]);
-void focusleft(const char * const args[]);
-void focusn(const char * const args[]);
-void focusnext(const char * const args[]);
-void focusnextnm(const char * const args[]);
-void focusprev(const char * const args[]);
-void focusprevnm(const char * const args[]);
-void focusright(const char * const args[]);
-void focusup(const char * const args[]);
-void incnmaster(const char * const args[]);
-void killclient(const char * const args[]);
-void paste(const char * const args[]);
-void quit(const char * const args[]);
-void redraw(const char * const args[]);
-void scrollback(const char * const args[]);
-void send(const char * const args[]);
-void setmfact(const char * const args[]);
-void startup(const char * const args[]);
-void tag(const char * const args[]);
-void togglebar(const char * const args[]);
-void togglebarpos(const char * const args[]);
-void toggleminimize(const char * const args[]);
-void togglerunall(const char * const args[]);
-void toggletag(const char * const args[]);
-void toggleview(const char * const args[]);
-void untag(const char * const args[]);
-void view(const char * const args[]);
-void viewprevtag(const char * const args[]);
-void zoom(const char *const args[]);
-void fullscreen(void);
+int bind(const char * const arg[]);
+int change_kill_signal(const char * const arg[]);
+int copymode(const char * const arg[]);
+int create(const char * const arg[]);
+int focusdown(const char * const arg[]);
+int focusid(const char * const arg[]);
+int focuslast(const char * const arg[]);
+int focusleft(const char * const arg[]);
+int focusn(const char * const arg[]);
+int focusnext(const char * const arg[]);
+int focusnextnm(const char * const arg[]);
+int focusprev(const char * const arg[]);
+int focusprevnm(const char * const arg[]);
+int focusright(const char * const arg[]);
+int focusup(const char * const arg[]);
+int incnmaster(const char * const arg[]);
+int killclient(const char * const arg[]);
+int paste(const char * const arg[]);
+int quit(const char * const arg[]);
+int redraw(const char * const arg[]);
+int scrollback(const char * const arg[]);
+int send(const char * const arg[]);
+int setmfact(const char * const arg[]);
+int startup(const char * const arg[]);
+int tag(const char * const arg[]);
+int togglebar(const char * const arg[]);
+int togglebarpos(const char * const arg[]);
+int toggleminimize(const char * const arg[]);
+int togglerunall(const char * const arg[]);
+int toggletag(const char * const arg[]);
+int toggleview(const char * const arg[]);
+int untag(const char * const arg[]);
+int view(const char * const arg[]);
+int viewprevtag(const char * const arg[]);
+int zoom(const char * const arg[]);
 
 enum { DEFAULT, BLUE, RED };
