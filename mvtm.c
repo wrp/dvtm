@@ -617,10 +617,10 @@ keybinding(unsigned char k, const struct key_binding *r)
 }
 
 unsigned int
-bitoftag(const char *tag) {
+bitoftag(int tag) {
 	unsigned t = tag ? 0 : ~0;
-	if( tag && strchr("123456789", *tag) ) {
-		t = 1 << (*tag - '1');
+	if( tag > 0 && tag < 9 ) {
+		t = 1 << tag - 1;
 	}
 	return t;
 }
@@ -654,8 +654,7 @@ void
 tag(const char * const args[]) {
 	if( sel != NULL ) {
 		int t = state.buf.count % 8;
-		const char *digits = "012345678";
-		sel->tags |= bitoftag( t ? digits + t : NULL);
+		sel->tags |= bitoftag(t);
 		tagschanged();
 	}
 }
@@ -664,7 +663,8 @@ void
 toggletag(const char * const args[]) {
 	if (!sel)
 		return;
-	unsigned int newtags = sel->tags ^ (bitoftag(args[0]));
+	int tag = args[0] ? args[0][0] - '0' : 0;
+	unsigned int newtags = sel->tags ^ (bitoftag(tag));
 	if (newtags) {
 		sel->tags = newtags;
 		tagschanged();
@@ -673,7 +673,8 @@ toggletag(const char * const args[]) {
 
 void
 toggleview(const char * const args[]) {
-	unsigned int newtagset = tagset[seltags] ^ (bitoftag(args[0]));
+	int tag = args[0] ? args[0][0] - '0' : 0;
+	unsigned int newtagset = tagset[seltags] ^ (bitoftag(tag));
 	if (newtagset) {
 		tagset[seltags] = newtagset;
 		tagschanged();
@@ -682,7 +683,8 @@ toggleview(const char * const args[]) {
 
 void
 view(const char * const args[]) {
-	unsigned int newtagset = bitoftag(args[0]);
+	int tag = state.buf.count;
+	unsigned int newtagset = bitoftag(tag);
 	if (tagset[seltags] != newtagset && newtagset) {
 		seltags ^= 1; /* toggle sel tagset */
 		tagset[seltags] = newtagset;
