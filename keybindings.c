@@ -33,7 +33,6 @@ char *binding_desc[][5] = {
 	{ "?",   "create", "man dvtm", "dvtm help" },
 	{ "u",   "scrollback", "-.5" },
 	{ "n",   "scrollback", "+.5" },
-	{ "0",   "view" },
 	{ "qq",  "quit" },
 	{ "v0",  "view" },
 	{ "v\t", "viewprevtag" },
