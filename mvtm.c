@@ -1120,8 +1120,6 @@ copymode(const char * const args[])
 		sel->editor_fds[0] = -1;
 	}
 
-	if (args[1])
-		vt_write(sel->editor, args[1], strlen(args[1]));
 end:
 	assert(state.mode == command_mode);
 	change_mode(&state);
