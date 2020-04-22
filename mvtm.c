@@ -823,7 +823,7 @@ build_bindings(void)
 		}
 		buf[0] = modifier_key;
 		memcpy(buf + 1, e[0], len + 1);
-		const char *arr[] = {buf + 1, e[1], e[2], e[3], e[4]};
+		const char *arr[] = {buf, e[1], e[2], e[3], e[4]};
 		bind(arr);
 	}
 }
@@ -1020,7 +1020,7 @@ create(const char * const args[]) {
 void
 reset_entry(struct entry_buf *e)
 {
-	e->binding = bindings;
+	e->binding = bindings[modifier_key].next;
 	e->next = e->data;
 	e->count = 0;
 }
