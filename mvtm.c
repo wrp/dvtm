@@ -21,6 +21,11 @@
     Make it possible to pass layouts on the cmd fifo.  eg, give
       dimensions like "1:100x20@10,20\n2:hxw@y,x\n..."
 
+ Add checking of keybindings.  Keep running into functions that
+ are not found because they weren't added to struct command_name,
+ so the lookup fails.  Program should abort during build_bindings
+ in that case.
+
  get rid of status.fifo and command.fifo, instead us
  MVTM_STATUS_URL and MVTM_CMD_URL.  We can sent layout
  info, and status bar updates, etc to CMD_URL and query STATUS_URL
