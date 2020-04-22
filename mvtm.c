@@ -1664,15 +1664,15 @@ handle_keystroke(int code, struct state *s)
 		*s->buf.next++ = code;
 		*s->buf.next = '\0';
 
-		if( isdigit(code) ) {
-			s->buf.count = 10 * s->buf.count + code - '0';
-		} else if( NULL != (b = keybinding(code, s->buf.binding)) ) {
+		if( NULL != (b = keybinding(code, s->buf.binding)) ) {
 			if(b->action.cmd != NULL) {
 				b->action.cmd(b->action.args);
 				reset_entry(&s->buf);
 			} else {
 				s->buf.binding = b;
 			}
+		} else if( isdigit(code) ) {
+			s->buf.count = 10 * s->buf.count + code - '0';
 		} else {
 			reset_entry(&s->buf);
 		}
