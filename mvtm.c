@@ -61,10 +61,12 @@
 
 struct key_binding *bindings;
 struct state state;
+enum { DEFAULT, BLUE, RED, CYAN };
 struct color colors[] = {
 	[DEFAULT] = { .fg = -1,         .bg = -1, .fg256 =  -1, .bg256 = -1, },
 	[BLUE]    = { .fg = COLOR_BLUE, .bg = -1, .fg256 =  68, .bg256 = -1, },
 	[RED]     = { .fg = COLOR_RED,  .bg = -1, .fg256 =   9, .bg256 = -1, },
+	[CYAN]    = { .fg = COLOR_CYAN, .bg = -1, .fg256 =   9, .bg256 = -1, },
 };
 
 extern void wstack(void);
@@ -244,7 +246,7 @@ draw_border(struct client *c) {
 		attrs = COLOR(RED) | A_NORMAL;
 		msg = " *** COMMAND MODE *** ";
 	} else if( sel == c && c->term == c->editor ) {
-		attrs = COLOR(BLUE) | A_NORMAL;
+		attrs = COLOR(CYAN) | A_NORMAL;
 		msg = " *** COPY MODE *** ";
 	}
 

@@ -236,5 +236,3 @@ int untag(const char * const arg[]);
 int view(const char * const arg[]);
 int viewprevtag(const char * const arg[]);
 int zoom(const char * const arg[]);
-
-enum { DEFAULT, BLUE, RED };
