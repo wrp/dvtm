@@ -100,7 +100,7 @@ struct client *sel = NULL;
 struct client *lastsel = NULL;
 unsigned int seltags;
 unsigned int tagset[2] = { 1, 1 };
-struct statusbar bar = { .fd = -1, .hidden = 0, .h = 1 };
+struct statusbar bar = { .fd = -1, .h = 1 };
 CmdFifo cmdfifo = { .fd = -1 };
 const char *shell;
 struct data_buffer copyreg;
@@ -162,8 +162,6 @@ void
 drawbar(void) {
 	int sx, sy, x, y, width;
 	unsigned int occupied = 0, urgent = 0;
-	if( bar.hidden )
-		return;
 
 	for (struct client *c = clients; c; c = c->next) {
 		occupied |= c->tags;
@@ -226,7 +224,7 @@ drawbar(void) {
 
 int
 show_border(void) {
-	return !bar.hidden || (clients && clients->next);
+	return clients && clients->next;
 }
 
 void
@@ -333,12 +331,6 @@ arrange(void) {
 	}
 	erase();
 	attrset(NORMAL_ATTR);
-	if (bar.fd == -1 ) {
-		if ((!clients || !clients->next) && n == 1)
-			bar.hidden = 1;
-		else
-			bar.hidden = 0;
-	}
 	if( m )
 		available_height--;
 	wstack();
