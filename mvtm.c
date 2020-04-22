@@ -1052,6 +1052,8 @@ change_mode(const char * const args[])
 	case command_mode:
 		s->mode = keypress_mode;
 	}
+	drawbar();
+	draw_all();
 	return 0;
 }
 
@@ -1785,8 +1787,6 @@ handle_keystroke(int code, struct state *s)
 		/* TODO: consider just using bar.text for the buffer */
 		snprintf(bar.text, sizeof bar.text, "%s", s->buf.data);
 	}
-	drawbar();
-	draw_all();
 }
 
 int
