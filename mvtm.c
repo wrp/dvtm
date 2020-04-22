@@ -1762,7 +1762,7 @@ handle_keystroke(int code, struct state *s)
 	if( s->mode == keypress_mode && code != modifier_key ) {
 		keypress(code);
 	} else if( code == modifier_key || code == ESC || code == 0xd ) {
-		if( code == modifier_key ) {
+		if( s->mode == command_mode ) {
 			keypress(code);
 		}
 		change_mode(NULL);
