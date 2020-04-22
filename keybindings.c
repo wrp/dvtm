@@ -21,7 +21,7 @@ char *binding_desc[][5] = {
 	{ "f",   "focusn" },
 	{ "i",   "incnmaster", "+1" },
 	{ "d",   "incnmaster", "-1" },
-	{ "h",   "setmfact", "-0.05" },
+	{ "hup", "change_kill_signal" },
 	{ "l",   "setmfact", "+0.05" },
 	{ ".",   "toggleminimize" },
 	{ "m",   "zoom" },
@@ -47,6 +47,7 @@ struct command_name {
 };
 #define entry(x) { x, #x }
 static struct command_name names[] = {
+	entry(change_kill_signal),
 	entry(copymode),
 	entry(create),
 	entry(focusdown),

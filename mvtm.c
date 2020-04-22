@@ -1232,6 +1232,12 @@ focusright(const char * const args[]) {
 }
 
 void
+change_kill_signal(const char *const args[])
+{
+	state.signal = state.buf.count ? state.buf.count : SIGHUP;
+}
+
+void
 signalclient(const char * const args[])
 {
 	int signal = state.buf.count ? state.buf.count : SIGTERM;
@@ -1245,7 +1251,7 @@ killclient(const char * const args[])
 {
 	struct client *c = select_client(0);
 	if( c != NULL ) {
-		kill( -c->pid, SIGTERM);
+		kill( -c->pid, state.signal ? state.signal : SIGTERM);
 	}
 }
 

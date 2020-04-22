@@ -52,6 +52,7 @@ struct state {
 	enum { keypress_mode, command_mode } mode;
 	struct entry_buf buf; /* user entered keys in command_mode */
 	int runinall;
+	int signal;  /* Signal sent by killclient */
 };
 
 struct client {
@@ -201,6 +202,7 @@ int ESCDELAY;
 
 /* commands for use by keybindings */
 void bind(const char * const args[]);
+void change_kill_signal(const char *const args[]);
 void copymode(const char * const args[]);
 void create(const char * const args[]);
 void focusdown(const char * const args[]);
