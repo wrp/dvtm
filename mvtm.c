@@ -88,7 +88,7 @@ struct color colors[] = {
 
 extern void wstack(void);
 
-unsigned modifier_key = CTRL('g');
+unsigned char modifier_key = CTRL('g');
 
 const struct color_rule colorrules[] = {
 	{ "", A_NORMAL, &colors[DEFAULT] },
@@ -816,7 +816,14 @@ build_bindings(void)
 	bindings = xcalloc(1u << CHAR_BIT, sizeof *bindings);
 	for( ; b[0][0]; b++) {
 		char **e = *b;
-		const char *arr[] = {e[0], e[1], e[2], e[3], e[4]};
+		char buf[16];
+		int len = strlen(e[0]);
+		if(len > 6) {
+			error(0, "key binding too long.  Max length is 6");
+		}
+		buf[0] = modifier_key;
+		memcpy(buf + 1, e[0], len + 1);
+		const char *arr[] = {buf + 1, e[1], e[2], e[3], e[4]};
 		bind(arr);
 	}
 }
