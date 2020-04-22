@@ -258,7 +258,7 @@ draw_border(struct client *c) {
 		attrs = COLOR(BLUE) | A_NORMAL;
 
 	if( sel == c && state.mode == command_mode ) {
-		attrs = COLOR(RED) | A_NORMAL;
+		attrs = COLOR(RED) | A_REVERSE;
 	} else if( sel == c && c->term == c->editor ) {
 		attrs = COLOR(CYAN) | A_NORMAL;
 	}
@@ -270,7 +270,7 @@ draw_border(struct client *c) {
 
 	wattrset(c->window, attrs);
 	getyx(c->window, y, x);
-	mvwhline(c->window, 0, 0, msg ? '*' : ACS_HLINE, c->w);
+	mvwhline(c->window, 0, 0, ACS_HLINE, c->w);
 
 	snprintf(border_title, sizeof border_title, "%s%s#%d (%ld)",
 		*c->title ? c->title : "",
