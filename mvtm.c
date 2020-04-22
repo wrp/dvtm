@@ -1043,6 +1043,12 @@ copymode(const char * const args[]) {
 		char *buf = NULL;
 		size_t len = vt_content_get(sel->app, &buf, colored);
 		char *cur = buf;
+		char banner[] =
+			"*******************\n"
+			"In dvtm copymode !!\n"
+			"*******************\n"
+		;
+		write(sel->editor_fds[0], banner, sizeof banner - 1);
 		while (len > 0) {
 			ssize_t res = write(sel->editor_fds[0], cur, len);
 			if (res < 0) {
