@@ -12,6 +12,11 @@
  */
 
 /* TODO
+
+	 cleanup stuff up.  display is so slow, that we see blinking.
+
+	 When last window is closed, should exit.
+
     Make it possible to list current key bindings.
     Add ability to do simple commands without command mode.
       eg, window navigation commands.  Maybe have a command
