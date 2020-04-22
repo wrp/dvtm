@@ -36,8 +36,8 @@ char *mod_bindings[][5] = {
 	{ "u",   "scrollback", "-.5" },
 	{ "n",   "scrollback", "+.5" },
 	{ "qq",  "quit" },
-	{ "v0",  "view" },
-	{ "v\t", "viewprevtag" },
+	{ "v",   "view" },
+	{ "V",   "viewprevtag" },
 	{ "t",  "tag" },
 	{ "T0",  "untag" },
 	{ NULL }
