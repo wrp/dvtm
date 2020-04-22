@@ -14,6 +14,18 @@
 /* TODO
 
 	 cleanup stuff up.  display is so slow, that we see blinking.
+	 For comparison, running seq 100000 from dvtm in master
+	 takes approx:
+	 real    0m0.646s
+	 user    0m0.059s
+	 sys     0m0.050s
+	 outside dvtm on that same terminal is:
+	 real	0m0.157s
+	 user	0m0.053s
+	 sys	0m0.047s
+
+	 Note that tmux performance is comparable to the raw terminal
+
 
 	 When last window is closed, should exit.
 
