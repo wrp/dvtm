@@ -244,9 +244,12 @@ draw_border(struct client *c) {
 
 	if( sel == c && state.mode == command_mode ) {
 		attrs = COLOR(RED) | A_NORMAL;
-		msg = " *** COMMAND MODE *** ";
 	} else if( sel == c && c->term == c->editor ) {
 		attrs = COLOR(CYAN) | A_NORMAL;
+	}
+	if( state.mode == command_mode ) {
+		msg = " *** COMMAND MODE *** ";
+	} else if( c->term == c->editor ) {
 		msg = " *** COPY MODE *** ";
 	}
 
