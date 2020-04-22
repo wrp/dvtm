@@ -226,6 +226,7 @@ void
 draw_border(struct client *c) {
 	int x, y, attrs = NORMAL_ATTR;
 	char border_title[128];
+	char *msg = NULL;
 
 	if (!show_border())
 		return;
@@ -236,6 +237,10 @@ draw_border(struct client *c) {
 
 	if( sel == c && state.mode == command_mode ) {
 		attrs = COLOR(RED) | A_NORMAL;
+		msg = " *** COMMAND MODE *** ";
+	} else if( sel == c && c->term == c->editor ) {
+		attrs = COLOR(BLUE) | A_NORMAL;
+		msg = " *** COPY MODE *** ";
 	}
 
 	wattrset(c->window, attrs);
@@ -261,8 +266,7 @@ draw_border(struct client *c) {
 	}
 
 	mvwprintw(c->window, 0, 2, "[%s]", border_title);
-	if( sel == c && state.mode == command_mode ) {
-		char msg[] = " *** COMMAND MODE *** ";
+	if( msg != NULL ) {
 		int start = strlen(border_title) + 4 + 2;
 		mvwprintw(c->window, 0, start, "%s", msg);
 	}
@@ -1051,12 +1055,6 @@ copymode(const char * const args[]) {
 		char *buf = NULL;
 		size_t len = vt_content_get(sel->app, &buf, colored);
 		char *cur = buf;
-		char banner[] =
-			"*******************\n"
-			"In dvtm copymode !!\n"
-			"*******************\n"
-		;
-		write(sel->editor_fds[0], banner, sizeof banner - 1);
 		while (len > 0) {
 			ssize_t res = write(sel->editor_fds[0], cur, len);
 			if (res < 0) {
