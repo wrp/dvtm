@@ -37,11 +37,6 @@ struct screen {
 	int winched;
 };
 
-struct layout {
-	const char *symbol;
-	void (*arrange)(void);
-};
-
 struct entry_buf {
 	unsigned char data[128];;
 	const struct key_binding *binding;
@@ -84,7 +79,6 @@ struct client {
 	unsigned int tags;
 };
 
-/* functions and variables available to layouts */
 struct client* nextvisible(struct client *c);
 void focus(struct client *c);
 void resize(struct client *c, int x, int y, int w, int h);
@@ -92,7 +86,6 @@ extern struct screen screen;
 extern unsigned available_width, available_height;
 extern struct client *clients;
 extern char *title;
-
 
 struct color {
 	short fg;
@@ -229,7 +222,6 @@ void quit(const char * const args[]);
 void redraw(const char * const args[]);
 void scrollback(const char * const args[]);
 void send(const char * const args[]);
-void setlayout(const char * const args[]);
 void incnmaster(const char * const args[]);
 void setmfact(const char * const args[]);
 void startup(const char * const args[]);
