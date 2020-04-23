@@ -826,6 +826,14 @@ build_bindings(void)
 		const char *arr[] = {buf, e[1], e[2], e[3], e[4]};
 		bind(arr);
 	}
+	for( int i=0; i < 10; i++ ) {
+		char buf[3];
+		buf[0] = modifier_key;
+		buf[1] = '0' + i;
+		buf[2] = '\0';
+		const char *arr[] = {buf, "digit", buf + 1, NULL};
+		bind(arr);
+	}
 }
 
 void
@@ -944,6 +952,14 @@ bind(const char * const args[])
 		a.args[i] = args[i+2];
 	}
 	push_binding(bindings, binding, &a);
+	return 0;
+}
+
+int
+digit(const char *const args[])
+{
+	int val = args[0][0] - '0';
+	state.buf.count = 10 * state.buf.count + val - '0';
 	return 0;
 }
 
