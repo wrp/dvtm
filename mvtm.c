@@ -313,6 +313,7 @@ draw(struct client *c) {
 
 void
 draw_all(void) {
+	drawbar();
 	if (!nextvisible(clients)) {
 		sel = NULL;
 		curs_set(0);
@@ -359,7 +360,6 @@ arrange(void) {
 	}
 	focus(NULL);
 	wnoutrefresh(stdscr);
-	drawbar();
 	draw_all();
 }
 
@@ -1066,6 +1066,7 @@ reset_entry(struct entry_buf *e)
 {
 	e->next = e->data;
 	e->count = 0;
+	*e->next = '\0';
 }
 
 int
@@ -1081,7 +1082,6 @@ change_mode(const char * const args[])
 		s->mode = keypress_mode;
 		s->buf.binding = bindings;
 	}
-	drawbar();
 	draw_all();
 	return 0;
 }
@@ -1514,7 +1514,6 @@ toggleminimize(const char * const args[]) {
 int
 togglerunall(const char * const args[]) {
 	state.runinall = !state.runinall;
-	drawbar();
 	draw_all();
 	return 0;
 }
@@ -1823,6 +1822,7 @@ handle_input(int code, struct state *s)
 		/* TODO: consider just using bar.text for the buffer */
 		snprintf(bar.text, sizeof bar.text, "%s", s->buf.data);
 	}
+	drawbar();
 }
 
 int
