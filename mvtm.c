@@ -78,7 +78,7 @@ struct color colors[] = {
 	[DEFAULT] = { .fg = -1,         .bg = -1, .fg256 =  -1, .bg256 = -1, },
 	[BLUE]    = { .fg = COLOR_BLUE, .bg = -1, .fg256 =  68, .bg256 = -1, },
 	[RED]     = { .fg = COLOR_RED,  .bg = -1, .fg256 =   9, .bg256 = -1, },
-	[CYAN]    = { .fg = COLOR_CYAN, .bg = -1, .fg256 =   9, .bg256 = -1, },
+	[CYAN]    = { .fg = COLOR_CYAN, .bg = -1, .fg256 =  14, .bg256 = -1, },
 };
 
 extern void wstack(void);
