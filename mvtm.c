@@ -838,7 +838,7 @@ static void
 build_bindings(void)
 {
 	typeof(*mod_bindings) *b = mod_bindings;
-	bindings = xcalloc(1u << CHAR_BIT, sizeof *bindings);
+	state.buf.binding = bindings = xcalloc(1u << CHAR_BIT, sizeof *bindings);
 	bindings[modifier_key].next = xcalloc(1u << CHAR_BIT, sizeof *bindings->next);
 	for( ; b[0][0]; b++) {
 		char **e = *b;
@@ -1063,7 +1063,6 @@ create(const char * const args[]) {
 static void
 reset_entry(struct entry_buf *e)
 {
-	e->binding = bindings[modifier_key].next;
 	e->next = e->data;
 	e->count = 0;
 }
@@ -1072,13 +1071,14 @@ int
 change_mode(const char * const args[])
 {
 	struct state *s = &state;
+	reset_entry(&s->buf);
 	switch(s->mode) {
 	case keypress_mode:
 		s->mode = command_mode;
-		reset_entry(&s->buf);
 		break;
 	case command_mode:
 		s->mode = keypress_mode;
+		s->buf.binding = bindings;
 	}
 	drawbar();
 	draw_all();
@@ -1789,13 +1789,17 @@ handle_input(int code, struct state *s)
 {
 	const struct key_binding *b;
 
-	if( s->mode == keypress_mode && code != modifier_key ) {
+	b = keybinding(code, s->buf.binding);
+	if( s->mode == keypress_mode && b == NULL ) {
 		keypress(code);
 	} else if( code == modifier_key || code == ESC || code == 0xd ) {
 		if( code == modifier_key && s->mode == command_mode ) {
 			keypress(code);
 		}
 		change_mode(NULL);
+		if( b != NULL ) {
+			s->buf.binding = b;
+		}
 	} else if( code >= 0 && code < 1 << CHAR_BIT ) {
 		*s->buf.next++ = code;
 		*s->buf.next = '\0';
@@ -1805,12 +1809,14 @@ handle_input(int code, struct state *s)
 				b->action.cmd(b->action.args);
 				if(b->action.cmd != digit)  {
 					reset_entry(&s->buf);
+					s->buf.binding = bindings[modifier_key].next;
 				}
 			} else {
 				s->buf.binding = b;
 			}
 		} else {
 			reset_entry(&s->buf);
+			s->buf.binding = bindings[modifier_key].next;
 		}
 		/* TODO: consider just using bar.text for the buffer */
 		snprintf(bar.text, sizeof bar.text, "%s", s->buf.data);
