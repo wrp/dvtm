@@ -845,10 +845,18 @@ build_bindings(void)
 		internal_bind(1, 0, (unsigned char *)e[0], get_function(e[1]), args);
 	}
 	for( int i=0; i < 10; i++ ) {
-		char buf[2] = { 0 };
-		const char *args[] = { NULL };
+		/* Ick.   Currently, push_bind etc. expect the caller to be storing
+		the bindings.  This makes sense, as often they are character constants.
+		Eventually, we will be reading binding from a stream (eg startup
+		user redefinitions).  Make sure when we do that that the caller makes
+		copies....or clean this up some other way.  But for now we have
+		to have buf on the heap so the addresses stored in the bindings tree
+		are valid.
+		*/
+		char *buf = xcalloc(2, 1);
+		const char *args[] = { buf, NULL };
 		buf[0] = '0' + i;
-		internal_bind(0, 0, (unsigned char *)buf, digit, args);
+		internal_bind(1, 0, (unsigned char *)buf, digit, args);
 	}
 }
 
@@ -974,8 +982,10 @@ bind(const char * const args[])
 int
 digit(const char *const args[])
 {
+	assert( args && args[0]);
 	int val = args[0][0] - '0';
-	state.buf.count = 10 * state.buf.count + val - '0';
+
+	state.buf.count = 10 * state.buf.count + val;
 	return 0;
 }
 
@@ -1792,12 +1802,12 @@ handle_keystroke(int code, struct state *s)
 		if( NULL != (b = keybinding(code, s->buf.binding)) ) {
 			if(b->action.cmd != NULL) {
 				b->action.cmd(b->action.args);
-				reset_entry(&s->buf);
+				if(b->action.cmd != digit)  {
+					reset_entry(&s->buf);
+				}
 			} else {
 				s->buf.binding = b;
 			}
-		} else if( isdigit(code) ) {
-			s->buf.count = 10 * s->buf.count + code - '0';
 		} else {
 			reset_entry(&s->buf);
 		}
