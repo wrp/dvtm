@@ -232,6 +232,7 @@ command bind;
 command change_kill_signal;
 command copymode;
 command create;
+command digit;
 command focusdown;
 command focusid;
 command focuslast;

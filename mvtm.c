@@ -841,12 +841,10 @@ build_bindings(void)
 		internal_bind(1, (unsigned char *)e[0], get_function(e[1]), args);
 	}
 	for( int i=0; i < 10; i++ ) {
-		char buf[3];
-		buf[0] = modifier_key;
-		buf[1] = '0' + i;
-		buf[2] = '\0';
-		const char *arr[] = {buf, "digit", buf + 1, NULL};
-		bind(arr);
+		char buf[2] = { 0 };
+		const char *args[] = { NULL };
+		buf[0] = '0' + i;
+		internal_bind(0, (unsigned char *)buf, digit, args);
 	}
 }
 
