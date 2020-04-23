@@ -38,11 +38,6 @@
     Make it possible to pass layouts on the cmd fifo.  eg, give
       dimensions like "1:100x20@10,20\n2:hxw@y,x\n..."
 
- Add checking of keybindings.  Keep running into functions that
- are not found because they weren't added to struct command_name,
- so the lookup fails.  Program should abort during build_bindings
- in that case.
-
  get rid of status.fifo and command.fifo, instead us
  MVTM_STATUS_URL and MVTM_CMD_URL.  We can sent layout
  info, and status bar updates, etc to CMD_URL and query STATUS_URL
@@ -830,8 +825,7 @@ internal_bind(int leader, int loop, unsigned char *keys, command *func,
 	for(int i = 0; *args && i < MAX_ARGS; args++ ) {
 		a.args[i] = *args;
 	}
-	push_binding(b, keys, &a, loop);
-	return 0;
+	return push_binding(b, keys, &a, loop);
 }
 
 static void
@@ -842,8 +836,14 @@ build_bindings(void)
 	bindings[modifier_key].next = xcalloc(1u << CHAR_BIT, sizeof *bindings->next);
 	for( ; b[0][0]; b++) {
 		char **e = *b;
+		command *cmd = get_function(e[1]);
+		if( cmd == NULL ) {
+			error(0, "couldn't find %s", e[1]);
+		}
 		const char *args[] = {e[2], e[3], e[4]};
-		internal_bind(1, 0, (unsigned char *)e[0], get_function(e[1]), args);
+		if( internal_bind(1, 0, (unsigned char *)e[0], cmd, args) ) {
+			error(0, "failed to bind to %s", e[1]);
+		}
 	}
 	for( int i=0; i < 10; i++ ) {
 		/* Ick.   Currently, push_bind etc. expect the caller to be storing
@@ -857,7 +857,9 @@ build_bindings(void)
 		char *buf = xcalloc(2, 1);
 		const char *args[] = { buf, NULL };
 		buf[0] = '0' + i;
-		internal_bind(1, 0, (unsigned char *)buf, digit, args);
+		if( internal_bind(1, 0, (unsigned char *)buf, digit, args) ) {
+			error(0, "failed to bind to '%d'", i);
+		}
 	}
 }
 
@@ -976,8 +978,7 @@ bind(const char * const args[])
 	for(int i = 0; i < 3; i++ ) {
 		a.args[i] = args[i+2];
 	}
-	push_binding(bindings, binding, &a, 0);
-	return 0;
+	return push_binding(bindings, binding, &a, 0);
 }
 
 int

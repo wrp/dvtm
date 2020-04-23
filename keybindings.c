@@ -19,7 +19,6 @@ char *mod_bindings[][5] = {
 	{ "K",   "focusup" },
 	{ "H",   "focusleft" },
 	{ "L",   "focusright" },
-	{ "k",   "focusprev" },
 	{ "f",   "focusn" },
 	{ "i",   "incnmaster", "+1" },
 	{ "d",   "incnmaster", "-1" },
