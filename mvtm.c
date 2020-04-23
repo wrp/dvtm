@@ -273,9 +273,9 @@ draw_border(struct client *c) {
 	getyx(c->window, y, x);
 	mvwhline(c->window, 0, 0, ACS_HLINE, c->w);
 
-	snprintf(border_title, sizeof border_title, "%s%s#%d (%ld)",
-		*c->title ? c->title : "",
-		*c->title ? " | " : "",
+	snprintf(border_title, MIN(c->w, sizeof border_title), "%s%s#%d (%ld)",
+		c->w > 32 && *c->title ? c->title : "",
+		c->w > 32 && *c->title ? " | " : "",
 		c->id, (long)c->pid);
 
 	if(c->tags) {
