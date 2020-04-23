@@ -1792,6 +1792,7 @@ handle_input(int code, struct state *s)
 	b = keybinding(code, s->buf.binding);
 	if( s->mode == keypress_mode && b == NULL ) {
 		keypress(code);
+		s->buf.binding = bindings;
 	} else if( code == modifier_key || code == ESC || code == 0xd ) {
 		if( code == modifier_key && s->mode == command_mode ) {
 			keypress(code);
