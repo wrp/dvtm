@@ -120,17 +120,29 @@ struct color_rule {
 
 #define ESC 0x1b
 
-#define MAX_ARGS 8
+/*
+ * MAX_BIND is maximum length of a key binding
+ * Keybindings are handled by building a tree with fanout 256,
+ * and depth equal to the max length of a key.  Keep MAX_BIND
+ * low to prevent an explosion.  (It's not a full tree, and the
+ * max depth is only attained by the long keys.)
+ */
+#define MAX_BIND 6
+
+/*
+ * MAX_ARGS is the maximum number of args passed to a command
+ * TODO: get rid of this.  Use a char ** in struct action.
+ */
+#define MAX_ARGS 3
 #ifndef CTRL
 # define CTRL(k)   ((k) & 0x1F)
 #endif
 
 typedef int (command)(const char * const args[]);
 extern command * get_function(const char *name);
-#define MAX_KEYS 3
 struct action {
 	command *cmd;
-	const char *args[MAX_KEYS];
+	const char *args[MAX_ARGS];
 	struct action *next;
 };
 
