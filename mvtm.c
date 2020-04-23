@@ -1785,7 +1785,7 @@ check_client_fds(fd_set *rd, int *nfds, struct client *c)
 }
 
 void
-handle_keystroke(int code, struct state *s)
+handle_input(int code, struct state *s)
 {
 	const struct key_binding *b;
 
@@ -1852,7 +1852,7 @@ main(int argc, char *argv[])
 		}
 
 		if (FD_ISSET(STDIN_FILENO, &rd)) {
-			handle_keystroke(getch(), s);
+			handle_input(getch(), s);
 
 			if (r == 1) /* no data available on pty's */
 				continue;
