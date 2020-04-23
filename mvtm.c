@@ -102,6 +102,7 @@ struct command commands[] = {
 
 void cleanup(void);
 void push_action(const struct action *a);
+static void reset_entry(struct entry_buf *);
 
 unsigned available_width;  /* width of total available screen real estate */
 unsigned available_height; /* height of total available screen real estate */
@@ -1059,7 +1060,7 @@ create(const char * const args[]) {
 	return 0;
 }
 
-void
+static void
 reset_entry(struct entry_buf *e)
 {
 	e->binding = bindings[modifier_key].next;
