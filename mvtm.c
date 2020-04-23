@@ -809,22 +809,36 @@ push_binding(struct key_binding *b, const unsigned char *keys, const struct acti
 	return 0;
 }
 
+/*
+ * Wrapper around the external facing bind(), which
+ * may at some point be used as a command to allow
+ * run time override of bingings.
+ */
+static int
+internal_bind(int leader, const unsigned char *keys, command *func, const char * args[])
+{
+	struct action a = {0};
+	typeof(bindings) b;
+
+	b = leader ? bindings[modifier_key].next : bindings;
+	a.cmd = func;
+	for(int i = 0; *args && i < MAX_ARGS; args++ ) {
+		a.args[i] = *args;
+	}
+	push_binding(b, keys, &a);
+	return 0;
+}
+
 static void
 build_bindings(void)
 {
 	typeof(*mod_bindings) *b = mod_bindings;
 	bindings = xcalloc(1u << CHAR_BIT, sizeof *bindings);
+	bindings[modifier_key].next = xcalloc(1u << CHAR_BIT, sizeof *bindings->next);
 	for( ; b[0][0]; b++) {
 		char **e = *b;
-		char buf[16];
-		int len = strlen(e[0]);
-		if(len > 6) {
-			error(0, "key binding too long.  Max length is 6");
-		}
-		buf[0] = modifier_key;
-		memcpy(buf + 1, e[0], len + 1);
-		const char *arr[] = {buf, e[1], e[2], e[3], e[4]};
-		bind(arr);
+		const char *args[] = {e[2], e[3], e[4]};
+		internal_bind(1, (unsigned char *)e[0], get_function(e[1]), args);
 	}
 	for( int i=0; i < 10; i++ ) {
 		char buf[3];
