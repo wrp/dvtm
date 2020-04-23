@@ -791,20 +791,23 @@ xcalloc(size_t count, size_t size)
 
 
 static int
-push_binding(struct key_binding *b, const unsigned char *keys, const struct action *a)
+push_binding(struct key_binding *b, const unsigned char *keys, const struct action *a, int loop)
 {
 	struct key_binding *t = b + keys[0];
 	if( t->action.cmd != NULL ) {
 		return 1; /* conflicting binding */
 	}
+	if( keys[1] && loop ) {
+		return 1; /* invalid binding */
+	}
 	if( keys[1] ) {
 		if( t->next == NULL ) {
 			t->next = xcalloc(1u << CHAR_BIT, sizeof *t->next);
 		}
-		push_binding(t->next, keys + 1, a);
+		push_binding(t->next, keys + 1, a, 0);
 	} else {
 		memcpy(&t->action, a, sizeof t->action);
-		t->next = NULL;
+		t->next = loop ? t : NULL;
 	}
 	return 0;
 }
@@ -815,7 +818,8 @@ push_binding(struct key_binding *b, const unsigned char *keys, const struct acti
  * run time override of bingings.
  */
 static int
-internal_bind(int leader, const unsigned char *keys, command *func, const char * args[])
+internal_bind(int leader, int loop, unsigned char *keys, command *func,
+	const char * args[])
 {
 	struct action a = {0};
 	typeof(bindings) b;
@@ -825,7 +829,7 @@ internal_bind(int leader, const unsigned char *keys, command *func, const char *
 	for(int i = 0; *args && i < MAX_ARGS; args++ ) {
 		a.args[i] = *args;
 	}
-	push_binding(b, keys, &a);
+	push_binding(b, keys, &a, loop);
 	return 0;
 }
 
@@ -838,13 +842,13 @@ build_bindings(void)
 	for( ; b[0][0]; b++) {
 		char **e = *b;
 		const char *args[] = {e[2], e[3], e[4]};
-		internal_bind(1, (unsigned char *)e[0], get_function(e[1]), args);
+		internal_bind(1, 0, (unsigned char *)e[0], get_function(e[1]), args);
 	}
 	for( int i=0; i < 10; i++ ) {
 		char buf[2] = { 0 };
 		const char *args[] = { NULL };
 		buf[0] = '0' + i;
-		internal_bind(0, (unsigned char *)buf, digit, args);
+		internal_bind(0, 0, (unsigned char *)buf, digit, args);
 	}
 }
 
@@ -963,7 +967,7 @@ bind(const char * const args[])
 	for(int i = 0; i < 3; i++ ) {
 		a.args[i] = args[i+2];
 	}
-	push_binding(bindings, binding, &a);
+	push_binding(bindings, binding, &a, 0);
 	return 0;
 }
 
