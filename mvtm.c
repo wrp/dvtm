@@ -1866,19 +1866,21 @@ handle_input(struct state *s)
 		*s->buf.next = '\0';
 		if(b->action.cmd != NULL) {
 			b->action.cmd(b->action.args);
-			/* Some actions change s->mode.  digit does a loop back.
-			everything else needs to reset the keybinding lookup.
-			TODO: find a cleaner way to do this */
-			if(b->action.cmd != digit && s->mode == command_mode)  {
-				reset_entry(&s->buf);
+			/* Some actions change s->mode. */
+			if( s->mode == command_mode )  {
 				s->binding = cmd_bindings;
+			}
+			if( b->action.cmd != digit ) {
+				s->buf.count = 0;
 			}
 		} else {
 			s->binding = b;
 		}
 	} else {
-		reset_entry(&s->buf);
 		s->binding = cmd_bindings;
+	}
+	if( s->binding == cmd_bindings && s->buf.count == 0 ) {
+		reset_entry(&s->buf);
 	}
 	/* TODO: consider just using bar.text for the buffer */
 	snprintf(bar.text, sizeof bar.text, "%s", s->buf.data);
