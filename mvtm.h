@@ -63,7 +63,8 @@ struct client {
 	int editor_fds[2];
 	volatile sig_atomic_t editor_died;
 	const char *cmd;
-	char title[255];
+	char title[128];
+	char editor_title[128];
 	int order;
 	pid_t pid;
 	unsigned short int id;

@@ -245,6 +245,7 @@ draw_border(struct client *c) {
 	int x, y, attrs = NORMAL_ATTR;
 	char border_title[128];
 	char *msg = NULL;
+	char *title = c->title;
 
 	if (!show_border())
 		return;
@@ -262,6 +263,7 @@ draw_border(struct client *c) {
 		msg = " COMMAND MODE ";
 	} else if( c->term == c->editor ) {
 		msg = " COPY MODE ";
+		title = c->editor_title;
 	}
 
 	wattrset(c->window, attrs);
@@ -269,8 +271,8 @@ draw_border(struct client *c) {
 	mvwhline(c->window, 0, 0, ACS_HLINE, c->w);
 
 	snprintf(border_title, MIN(c->w, sizeof border_title), "%s%s#%d (%ld)",
-		c->w > 32 && *c->title ? c->title : "",
-		c->w > 32 && *c->title ? " | " : "",
+		c->w > 32 ? title : "",
+		c->w > 32 ? " | " : "",
 		c->id, (long)c->pid);
 
 	if(c->tags) {
@@ -1191,6 +1193,9 @@ copymode(const char * const args[])
 	if (sel->editor_fds[0] != -1) {
 		char *buf = NULL;
 		size_t len;
+
+		sanitize_string(args[0], sel->editor_title, sizeof sel->editor_title);
+
 		if( args[1] && !strcmp(args[1], "bindings") ) {
 			len = get_bindings(&buf);
 		} else {
@@ -1214,6 +1219,7 @@ copymode(const char * const args[])
 
 end:
 	assert(state.mode == command_mode);
+	draw_border(sel);
 	change_mode(NULL);
 	return 0;
 }
@@ -1658,6 +1664,7 @@ handle_editor(struct client *c) {
 	c->term = c->app;
 	vt_dirty(c->term);
 	draw_content(c);
+	draw_border(c);
 	wnoutrefresh(c->window);
 }
 
