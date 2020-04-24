@@ -1,12 +1,6 @@
 #include "config.h"
 #include "mvtm.h"
 
-#define TAGKEYS(KEY,TAG) \
-	{ { 'v', KEY,     }, { view,           { #TAG }               } }, \
-	{ { 't', KEY,     }, { tag,            { #TAG }               } }, \
-	{ { 'V', KEY,     }, { toggleview,     { #TAG }               } }, \
-	{ { 'T', KEY,     }, { toggletag,      { #TAG }               } }
-
 char esc[] = { ESC, 0 };
 
 /* Bindings following MOD */
@@ -124,6 +118,3 @@ parse_binding(struct action *a, const char *d)
 	}
 	return 0;
 }
-
-
-#undef TAGKEYS
