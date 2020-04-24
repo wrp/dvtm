@@ -1855,30 +1855,27 @@ handle_input(struct state *s)
 			&& s->mode == keypress_mode) {
 		assert(s->binding == bindings);
 		keypress(code);
-	} else {
-		if( b != NULL ) {
-			*s->buf.next++ = code;
-			*s->buf.next = '\0';
-			if(b->action.cmd != NULL) {
-				b->action.cmd(b->action.args);
-				/* Some actions change s->mode.  digit does a loop back.
-				everything else needs to reset the keybinding lookup.
-				TODO: find a cleaner way to do this */
-				if(b->action.cmd != digit && s->mode == command_mode)  {
-					reset_entry(&s->buf);
-					s->binding = cmd_bindings;
-				}
-			} else {
-				s->binding = b;
+	} else if( b != NULL ) {
+		*s->buf.next++ = code;
+		*s->buf.next = '\0';
+		if(b->action.cmd != NULL) {
+			b->action.cmd(b->action.args);
+			/* Some actions change s->mode.  digit does a loop back.
+			everything else needs to reset the keybinding lookup.
+			TODO: find a cleaner way to do this */
+			if(b->action.cmd != digit && s->mode == command_mode)  {
+				reset_entry(&s->buf);
+				s->binding = cmd_bindings;
 			}
 		} else {
-			reset_entry(&s->buf);
-			s->binding = cmd_bindings;
+			s->binding = b;
 		}
-
-		/* TODO: consider just using bar.text for the buffer */
-		snprintf(bar.text, sizeof bar.text, "%s", s->buf.data);
+	} else {
+		reset_entry(&s->buf);
+		s->binding = cmd_bindings;
 	}
+	/* TODO: consider just using bar.text for the buffer */
+	snprintf(bar.text, sizeof bar.text, "%s", s->buf.data);
 	drawbar();
 	draw(sel);
 }
