@@ -16,9 +16,7 @@ wstack(void)
 	unsigned tw; /* width of each tile window */
 
 	for( n = 0, c = nextvisible(clients); c; c = nextvisible(c->next) ) {
-		if( !c->minimized ) {
-			n++;
-		}
+		n++;
 	}
 
 	m  = MAX(1, MIN(n, screen.nmaster));
@@ -30,9 +28,6 @@ wstack(void)
 	for( i = 0, c = nextvisible(clients); c; c = nextvisible(c->next) ) {
 		unsigned nh; /* height of the current window */
 		unsigned nw; /* width of the current window */
-		if( c->minimized ) {
-			continue;
-		}
 		if (i < m) {	/* master */
 			nh = mh / m;
 			nw = available_width;

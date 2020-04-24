@@ -139,7 +139,7 @@ isvisible(struct client *c) {
 
 bool
 is_content_visible(struct client *c) {
-	return c && isvisible(c) && !c->minimized;
+	return c && isvisible(c);
 }
 
 struct client*
@@ -237,7 +237,7 @@ draw_border(struct client *c) {
 		return;
 	if (sel != c && c->urgent)
 		attrs = URGENT_ATTR;
-	if (sel == c || (state.runinall && !c->minimized))
+	if (sel == c || state.runinall)
 		attrs = COLOR(BLUE) | A_NORMAL;
 
 	if( sel == c && state.mode == command_mode ) {
@@ -328,24 +328,10 @@ arrange(void) {
 	unsigned int m = 0, n = 0;
 	for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
 		c->order = ++n;
-		if (c->minimized)
-			m++;
 	}
 	erase();
 	attrset(NORMAL_ATTR);
-	if( m )
-		available_height--;
 	wstack();
-	if( m ) {
-		unsigned int i = 0, nw = available_width / m, nx = 0;
-		for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
-			if (c->minimized) {
-				resize(c, nx, available_height, ++i == m ? available_width - nx : nw, 1);
-				nx += nw;
-			}
-		}
-		available_height++;
-	}
 	focus(NULL);
 	wnoutrefresh(stdscr);
 	draw_all();
@@ -445,7 +431,7 @@ focus(struct client *c) {
 		draw_border(c);
 		wnoutrefresh(c->window);
 	}
-	curs_set(c && !c->minimized && vt_cursor_visible(c->term));
+	curs_set(c && vt_cursor_visible(c->term));
 }
 
 void
@@ -648,17 +634,6 @@ bitoftag(int tag) {
 
 void
 tagschanged() {
-	bool allminimized = true;
-	for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
-		if (!c->minimized) {
-			allminimized = false;
-			break;
-		}
-	}
-	if (allminimized && nextvisible(clients)) {
-		focus(NULL);
-		toggleminimize(NULL);
-	}
 	arrange();
 }
 
@@ -1258,9 +1233,6 @@ focusn(const char * const args[])
 	struct client *c = select_client(1);
 	if( c != NULL ) {
 		focus(c);
-		if( c->minimized ) {
-			toggleminimize(NULL);
-		}
 	}
 	return 0;
 }
@@ -1274,8 +1246,6 @@ focusid(const char * const args[]) {
 	for (struct client *c = clients; c; c = c->next) {
 		if (c->id == win_id) {
 			focus(c);
-			if (c->minimized)
-				toggleminimize(NULL);
 			if (!isvisible(c)) {
 				c->tags |= tagset[seltags];
 				tagschanged();
@@ -1308,7 +1278,7 @@ focusnextnm(const char * const args[]) {
 		c = nextvisible(c->next);
 		if (!c)
 			c = nextvisible(clients);
-	} while (c->minimized && c != sel);
+	} while (c != sel);
 	focus(c);
 	return 0;
 }
@@ -1333,13 +1303,6 @@ focusprevnm(const char * const args[]) {
 	if (!sel)
 		return 0;
 	struct client *c = sel;
-	do {
-		for (c = c->prev; c && !isvisible(c); c = c->prev);
-		if (!c) {
-			for (c = clients; c && c->next; c = c->next);
-			for (; c && !isvisible(c); c = c->prev);
-		}
-	} while (c && c != sel && c->minimized);
 	focus(c);
 	return 0;
 }
@@ -1456,11 +1419,9 @@ quit(const char * const args[]) {
 int
 redraw(const char * const args[]) {
 	for (struct client *c = clients; c; c = c->next) {
-		if (!c->minimized) {
-			vt_dirty(c->term);
-			wclear(c->window);
-			wnoutrefresh(c->window);
-		}
+		vt_dirty(c->term);
+		wclear(c->window);
+		wnoutrefresh(c->window);
 	}
 	resize_screen();
 	return 0;
