@@ -12,28 +12,7 @@
  */
 
 /* TODO
-
-	 cleanup stuff up.  display is so slow, that we see blinking.
-	 For comparison, running seq 100000 from dvtm in master
-	 takes approx:
-	 real    0m0.646s
-	 user    0m0.059s
-	 sys     0m0.050s
-	 outside dvtm on that same terminal is:
-	 real	0m0.157s
-	 user	0m0.053s
-	 sys	0m0.047s
-
-	 Note that tmux performance is comparable to the raw terminal
-
-
-	 When last window is closed, should exit.
-
     Make it possible to list current key bindings.
-    Add ability to do simple commands without command mode.
-      eg, window navigation commands.  Maybe have a command
-      to enter command mode rather than always going in, or
-      have 2 prefix sequences.
     Make layout more flexible, perhaps dlopenable.
     Make it possible to pass layouts on the cmd fifo.  eg, give
       dimensions like "1:100x20@10,20\n2:hxw@y,x\n..."
@@ -63,10 +42,13 @@
  N windows and the current tag has M > N windows, we only
  display N.  Makes the implementation simpler.
 
- *
- * Write errors somewhere.  Either in a dedidcated window
- * or in the status bar.  Write any final error to stderr
- * on exit.  Probably should read initialization from stdin.
+ Write errors somewhere.  Either in a dedidcated window
+ or in the status bar.  Write any final error to stderr
+ on exit.  Probably should read initialization from stdin.
+
+ Need to checke errors in copymode.  If mvtm-editor is not in the
+ path,for example, we should see an error message.  copymode needs
+ to read the error stream and print somewhere.  (See previous TODO)
  */
 #include "config.h"
 #include "mvtm.h"
