@@ -47,8 +47,9 @@ struct entry_buf {
  to move global objects into here as I manipulate the code and learn then
  architecture.
  */
+enum mode { keypress_mode, command_mode };
 struct state {
-	enum { keypress_mode, command_mode } mode;
+	enum mode mode;
 	int code;  /* The last code returned by getch() */
 	struct entry_buf buf; /* user entered keys in command_mode */
 	const struct key_binding *binding;

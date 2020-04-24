@@ -847,13 +847,16 @@ push_binding(struct key_binding *b, const unsigned char *keys, const struct acti
  * they are non-volatile. (eg, don't pass a stack variable).
  */
 static int
-internal_bind(int leader, int loop, unsigned char *keys, command *func,
+internal_bind(enum mode m, int loop, unsigned char *keys, command *func,
 	const char * args[])
 {
 	struct action a = {0};
 	typeof(bindings) b;
 
-	b = leader ? bindings[modifier_key].next : bindings;
+	switch( m ) {
+	case keypress_mode: b = bindings; break;;
+	case command_mode: b = cmd_bindings; break;;
+	}
 	a.cmd = func;
 	for(int i = 0; *args && i < MAX_ARGS; args++ ) {
 		a.args[i] = *args;
@@ -866,8 +869,7 @@ build_bindings(void)
 {
 	binding_description *b = mod_bindings;
 	state.binding = bindings = xcalloc(1u << CHAR_BIT, sizeof *bindings);
-	bindings[modifier_key].next = xcalloc(1u << CHAR_BIT, sizeof *bindings->next);
-	cmd_bindings = bindings[modifier_key].next;
+	cmd_bindings = xcalloc(1u << CHAR_BIT, sizeof *cmd_bindings);
 	for( b = mod_bindings; b[0][0]; b++) {
 		char **e = *b;
 		command *cmd = get_function(e[1]);
@@ -875,7 +877,7 @@ build_bindings(void)
 			error(0, "couldn't find %s", e[1]);
 		}
 		const char *args[] = {e[2], e[3], e[4]};
-		if( internal_bind(1, 0, (unsigned char *)e[0], cmd, args) ) {
+		if( internal_bind(command_mode, 0, (unsigned char *)e[0], cmd, args) ) {
 			error(0, "failed to bind to %s", e[1]);
 		}
 	}
@@ -883,7 +885,7 @@ build_bindings(void)
 		char *buf = xcalloc(2, 1);
 		const char *args[] = { buf, NULL };
 		buf[0] = '0' + i;
-		if( internal_bind(1, 0, (unsigned char *)buf, digit, args) ) {
+		if( internal_bind(command_mode, 0, (unsigned char *)buf, digit, args) ) {
 			error(0, "failed to bind to '%d'", i);
 		}
 	}
@@ -894,7 +896,7 @@ build_bindings(void)
 			error(0, "couldn't find %s", e[1]);
 		}
 		const char *args[] = {e[2], e[3], e[4]};
-		if( internal_bind(0, 0, (unsigned char *)e[0], cmd, args) ) {
+		if( internal_bind(keypress_mode, 0, (unsigned char *)e[0], cmd, args) ) {
 			error(0, "failed to bind to %s", e[1]);
 		}
 	}
