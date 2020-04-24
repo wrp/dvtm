@@ -155,6 +155,7 @@ struct key_binding {
 };
 extern int parse_binding(struct action *a, const char *d);
 extern char *mod_bindings[][MAX_BIND];
+extern char *keypress_bindings[][MAX_BIND];
 
 struct command {
 	const char *name;

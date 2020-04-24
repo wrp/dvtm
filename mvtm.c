@@ -868,7 +868,7 @@ build_bindings(void)
 	state.binding = bindings = xcalloc(1u << CHAR_BIT, sizeof *bindings);
 	bindings[modifier_key].next = xcalloc(1u << CHAR_BIT, sizeof *bindings->next);
 	cmd_bindings = bindings[modifier_key].next;
-	for( ; b[0][0]; b++) {
+	for( b = mod_bindings; b[0][0]; b++) {
 		char **e = *b;
 		command *cmd = get_function(e[1]);
 		if( cmd == NULL ) {
@@ -885,6 +885,17 @@ build_bindings(void)
 		buf[0] = '0' + i;
 		if( internal_bind(1, 0, (unsigned char *)buf, digit, args) ) {
 			error(0, "failed to bind to '%d'", i);
+		}
+	}
+	for( b = keypress_bindings; b[0][0]; b++) {
+		char **e = *b;
+		command *cmd = get_function(e[1]);
+		if( cmd == NULL ) {
+			error(0, "couldn't find %s", e[1]);
+		}
+		const char *args[] = {e[2], e[3], e[4]};
+		if( internal_bind(0, 0, (unsigned char *)e[0], cmd, args) ) {
+			error(0, "failed to bind to %s", e[1]);
 		}
 	}
 }
@@ -1021,7 +1032,6 @@ digit(const char *const args[])
 int
 transition_no_send(const char * const args[])
 {
-	assert(state.mode == command_mode);
 	change_mode(NULL);
 }
 
@@ -1843,11 +1853,6 @@ handle_input(struct state *s)
 			&& s->mode == keypress_mode) {
 		assert(s->binding == bindings);
 		keypress(code);
-	} else if( code == modifier_key ) {
-		if( s->mode == command_mode ) {
-			keypress(code);
-		}
-		change_mode(NULL);
 	} else {
 		if( b != NULL ) {
 			*s->buf.next++ = code;
@@ -1859,15 +1864,16 @@ handle_input(struct state *s)
 				TODO: find a cleaner way to do this */
 				if(b->action.cmd != digit && s->mode == command_mode)  {
 					reset_entry(&s->buf);
-					s->binding = bindings[modifier_key].next;
+					s->binding = cmd_bindings;
 				}
 			} else {
 				s->binding = b;
 			}
 		} else {
 			reset_entry(&s->buf);
-			s->binding = bindings[modifier_key].next;
+			s->binding = cmd_bindings;
 		}
+
 		/* TODO: consider just using bar.text for the buffer */
 		snprintf(bar.text, sizeof bar.text, "%s", s->buf.data);
 	}

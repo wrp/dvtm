@@ -47,6 +47,11 @@ binding_description mod_bindings[] = {
 	{ "T0",  "untag" },
 	{ NULL }
 };
+/* Bindings that take effect in keypress mode */
+char *keypress_bindings[][MAX_BIND] = {
+	{ ctrl_g, "transition_no_send" },
+	{ NULL }
+};
 
 struct command_name {
 	command *cmd;
