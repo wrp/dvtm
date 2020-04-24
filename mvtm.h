@@ -129,7 +129,7 @@ struct color_rule {
  * low to prevent an explosion.  (It's not a full tree, and the
  * max depth is only attained by the long keys.)
  */
-#define MAX_BIND 6
+#define MAX_BIND 5
 
 /*
  * MAX_ARGS is the maximum number of args passed to a command
@@ -153,7 +153,7 @@ struct key_binding {
 	struct key_binding *next;
 };
 extern int parse_binding(struct action *a, const char *d);
-extern char *mod_bindings[][5];
+extern char *mod_bindings[][MAX_BIND];
 
 struct command {
 	const char *name;
