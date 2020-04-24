@@ -266,3 +266,5 @@ command view;
 command viewprevtag;
 command zoom;
 command change_mode;
+command transition_no_send;
+command transition_with_send;

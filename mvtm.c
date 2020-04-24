@@ -888,6 +888,7 @@ build_bindings(void)
 void
 setup(void) {
 	build_bindings();
+	reset_entry(&state.buf);
 	shell = getshell();
 	setlocale(LC_CTYPE, "");
 	setenv("MVTM", VERSION, 1);
@@ -1013,6 +1014,20 @@ digit(const char *const args[])
 	return 0;
 }
 
+int
+transition_no_send(const char * const args[])
+{
+	assert(state.mode == command_mode);
+	change_mode(NULL);
+}
+
+int
+transition_with_send(const char * const args[])
+{
+	assert(state.mode == command_mode);
+	keypress(state.code);
+	change_mode(NULL);
+}
 
 int
 create(const char * const args[]) {
@@ -1819,15 +1834,15 @@ handle_input(struct state *s)
 			&& s->mode == keypress_mode) {
 		assert(s->buf.binding == bindings);
 		keypress(code);
-	} else if( code == modifier_key || code == ESC || code == 0xd ) {
-		if( code == modifier_key && s->mode == command_mode ) {
+	} else if( code == modifier_key ) {
+		if( s->mode == command_mode ) {
 			keypress(code);
 		}
 		change_mode(NULL);
 	} else {
-		*s->buf.next++ = code;
-		*s->buf.next = '\0';
 		if( b != NULL ) {
+			*s->buf.next++ = code;
+			*s->buf.next = '\0';
 			if(b->action.cmd != NULL) {
 				b->action.cmd(b->action.args);
 				/* Some actions change s->mode.  digit does a loop back.

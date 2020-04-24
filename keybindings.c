@@ -7,8 +7,14 @@
 	{ { 'V', KEY,     }, { toggleview,     { #TAG }               } }, \
 	{ { 'T', KEY,     }, { toggletag,      { #TAG }               } }
 
+char ctrl_g[] = { CTRL('g'), 0 };
+char esc[] = { ESC, 0 };
+
 /* Bindings following MOD */
 char *mod_bindings[][5] = {
+	{ ctrl_g, "transition_with_send" },
+	{ esc,    "transition_no_send" },
+	{ "\x0d", "transition_no_send" },
 	{ "xx",  "killclient" },
 	{ "qq",  "quit" },
 	{ "B",   "copymode", "mvtm-pager", "bindings" },
@@ -69,6 +75,8 @@ static struct command_name names[] = {
 	entry(tag),
 	entry(toggleminimize),
 	entry(togglerunall),
+	entry(transition_no_send),
+	entry(transition_with_send),
 	entry(untag),
 	entry(view),
 	entry(viewprevtag),
