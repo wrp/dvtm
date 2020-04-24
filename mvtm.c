@@ -71,8 +71,12 @@
 #include "config.h"
 #include "mvtm.h"
 
-struct key_binding *bindings;
+struct key_binding *bindings;     /* keypress_mode bindings */
+struct key_binding *cmd_bindings;  /* command_mode bindings */
+
+
 struct state state;
+
 enum { DEFAULT, BLUE, RED, CYAN };
 struct color colors[] = {
 	[DEFAULT] = { .fg = -1,         .bg = -1, .fg256 =  -1, .bg256 = -1, },
@@ -863,6 +867,7 @@ build_bindings(void)
 	binding_description *b = mod_bindings;
 	state.binding = bindings = xcalloc(1u << CHAR_BIT, sizeof *bindings);
 	bindings[modifier_key].next = xcalloc(1u << CHAR_BIT, sizeof *bindings->next);
+	cmd_bindings = bindings[modifier_key].next;
 	for( ; b[0][0]; b++) {
 		char **e = *b;
 		command *cmd = get_function(e[1]);
@@ -1113,7 +1118,7 @@ change_mode(const char * const args[])
 	switch(s->mode) {
 	case keypress_mode:
 		s->mode = command_mode;
-		s->binding = bindings[modifier_key].next;
+		s->binding = cmd_bindings;
 		break;
 	case command_mode:
 		s->mode = keypress_mode;
