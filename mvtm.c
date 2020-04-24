@@ -1814,8 +1814,8 @@ handle_input(int code, struct state *s)
 
 	if( code < 0 || code > 1 << CHAR_BIT ) {
 		keypress(code);
-	} else if( s->mode == keypress_mode
-			&& NULL == (b = keybinding(code, s->buf.binding))) {
+	} else if( NULL == (b = keybinding(code, s->buf.binding))
+			&& s->mode == keypress_mode) {
 		assert(s->buf.binding == bindings);
 		keypress(code);
 	} else if( code == modifier_key || code == ESC || code == 0xd ) {
@@ -1826,8 +1826,7 @@ handle_input(int code, struct state *s)
 	} else {
 		*s->buf.next++ = code;
 		*s->buf.next = '\0';
-
-		if( NULL != (b = keybinding(code, s->buf.binding)) ) {
+		if( b != NULL ) {
 			if(b->action.cmd != NULL) {
 				b->action.cmd(b->action.args);
 				/* Some actions change s->mode.  digit does a loop back.
