@@ -929,7 +929,6 @@ destroy(struct client *c) {
 		struct client *next = nextvisible(clients);
 		if (next) {
 			focus(next);
-			toggleminimize(NULL);
 		} else {
 			sel = NULL;
 		}
@@ -1490,47 +1489,6 @@ setmfact(const char * const args[]) {
 }
 
 int
-toggleminimize(const char * const args[]) {
-	struct client *c, *m, *t;
-	unsigned int n;
-	if (!sel)
-		return 0;
-	/* the last window can't be minimized */
-	if (!sel->minimized) {
-		for (n = 0, c = nextvisible(clients); c; c = nextvisible(c->next))
-			if (!c->minimized)
-				n++;
-		if (n == 1)
-			return 0;
-	}
-	sel->minimized = !sel->minimized;
-	m = sel;
-	/* check whether the master client was minimized */
-	if (sel == nextvisible(clients) && sel->minimized) {
-		c = nextvisible(sel->next);
-		detach(c);
-		attach(c);
-		focus(c);
-		detach(m);
-		for (; c && (t = nextvisible(c->next)) && !t->minimized; c = t);
-		attachafter(m, c);
-	} else if (m->minimized) {
-		/* non master window got minimized move it above all other
-		 * minimized ones */
-		focusnextnm(NULL);
-		detach(m);
-		for (c = nextvisible(clients); c && (t = nextvisible(c->next)) && !t->minimized; c = t);
-		attachafter(m, c);
-	} else { /* window is no longer minimized, move it to the master area */
-		vt_dirty(m->term);
-		detach(m);
-		attach(m);
-	}
-	arrange();
-	return 0;
-}
-
-int
 togglerunall(const char * const args[]) {
 	state.runinall = !state.runinall;
 	draw_all();
@@ -1545,9 +1503,6 @@ zoom(const char * const args[]) {
 		detach(c);
 		attach(c);
 		focus(c);
-		if( c->minimized ) {
-			toggleminimize(NULL);
-		}
 		arrange();
 	}
 	return 0;
