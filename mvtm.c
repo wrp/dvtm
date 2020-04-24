@@ -1873,6 +1873,7 @@ handle_input(struct state *s)
 		snprintf(bar.text, sizeof bar.text, "%s", s->buf.data);
 	}
 	drawbar();
+	draw(sel);
 }
 
 int
