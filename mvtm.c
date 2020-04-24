@@ -861,7 +861,7 @@ static void
 build_bindings(void)
 {
 	typeof(*mod_bindings) *b = mod_bindings;
-	state.buf.binding = bindings = xcalloc(1u << CHAR_BIT, sizeof *bindings);
+	state.binding = bindings = xcalloc(1u << CHAR_BIT, sizeof *bindings);
 	bindings[modifier_key].next = xcalloc(1u << CHAR_BIT, sizeof *bindings->next);
 	for( ; b[0][0]; b++) {
 		char **e = *b;
@@ -1113,11 +1113,11 @@ change_mode(const char * const args[])
 	switch(s->mode) {
 	case keypress_mode:
 		s->mode = command_mode;
-		s->buf.binding = bindings[modifier_key].next;
+		s->binding = bindings[modifier_key].next;
 		break;
 	case command_mode:
 		s->mode = keypress_mode;
-		s->buf.binding = bindings;
+		s->binding = bindings;
 	}
 	draw_all();
 	return 0;
@@ -1834,9 +1834,9 @@ handle_input(struct state *s)
 	int code = s->code = getch();
 	if( code < 0 || code > 1 << CHAR_BIT ) {
 		keypress(code);
-	} else if( NULL == (b = keybinding(code, s->buf.binding))
+	} else if( NULL == (b = keybinding(code, s->binding))
 			&& s->mode == keypress_mode) {
-		assert(s->buf.binding == bindings);
+		assert(s->binding == bindings);
 		keypress(code);
 	} else if( code == modifier_key ) {
 		if( s->mode == command_mode ) {
@@ -1854,14 +1854,14 @@ handle_input(struct state *s)
 				TODO: find a cleaner way to do this */
 				if(b->action.cmd != digit && s->mode == command_mode)  {
 					reset_entry(&s->buf);
-					s->buf.binding = bindings[modifier_key].next;
+					s->binding = bindings[modifier_key].next;
 				}
 			} else {
-				s->buf.binding = b;
+				s->binding = b;
 			}
 		} else {
 			reset_entry(&s->buf);
-			s->buf.binding = bindings[modifier_key].next;
+			s->binding = bindings[modifier_key].next;
 		}
 		/* TODO: consider just using bar.text for the buffer */
 		snprintf(bar.text, sizeof bar.text, "%s", s->buf.data);

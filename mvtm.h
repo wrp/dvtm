@@ -39,7 +39,6 @@ struct screen {
 
 struct entry_buf {
 	unsigned char data[128];;
-	const struct key_binding *binding;
 	int count;
 	unsigned char *next; /* first unused char in data */
 };
@@ -52,6 +51,7 @@ struct state {
 	enum { keypress_mode, command_mode } mode;
 	int code;  /* The last code returned by getch() */
 	struct entry_buf buf; /* user entered keys in command_mode */
+	const struct key_binding *binding;
 	int runinall;
 	int signal;  /* Signal sent by killclient */
 };
