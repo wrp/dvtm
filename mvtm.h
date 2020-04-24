@@ -73,7 +73,6 @@ struct client {
 	unsigned short y, x;  /* position of upper left corner */
 	unsigned short h, w;  /* height and width */
 	bool has_title_line;
-	bool minimized;
 	bool urgent;
 	volatile sig_atomic_t died;
 	struct client *next;

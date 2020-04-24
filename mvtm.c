@@ -233,8 +233,9 @@ draw_border(struct client *c) {
 	char *msg = NULL;
 	char *title = c->title;
 
-	if (!show_border())
+	if( !show_border() || c == NULL ) {
 		return;
+	}
 	if (sel != c && c->urgent)
 		attrs = URGENT_ATTR;
 	if (sel == c || state.runinall)
@@ -291,6 +292,10 @@ draw_content(struct client *c) {
 
 void
 draw(struct client *c) {
+	if( c == NULL ) {
+		return;
+	}
+
 	if (is_content_visible(c)) {
 		redrawwin(c->window);
 		draw_content(c);
