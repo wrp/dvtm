@@ -854,7 +854,8 @@ build_bindings(void)
 	char const *args[2] = { mod_binding, NULL };
 	state.binding = bindings = xcalloc(1u << CHAR_BIT, sizeof *bindings);
 	cmd_bindings = xcalloc(1u << CHAR_BIT, sizeof *cmd_bindings);
-	internal_bind(keypress_mode, 0, mod_binding, transition_no_send, args );
+	internal_bind(keypress_mode, 0, (unsigned char *)mod_binding,
+		transition_no_send, args );
 
 	for( b = mod_bindings; b[0][0]; b++) {
 		char **e = *b;
@@ -876,7 +877,8 @@ build_bindings(void)
 		}
 	}
 
-	internal_bind(command_mode, 0, mod_binding, transition_with_send, args );
+	internal_bind(command_mode, 0, (unsigned char *)mod_binding,
+		transition_with_send, args );
 	for( b = keypress_bindings; b[0][0]; b++) {
 		char **e = *b;
 		command *cmd = get_function(e[1]);
@@ -1023,6 +1025,7 @@ int
 transition_no_send(const char * const args[])
 {
 	change_mode(NULL);
+	return 0;
 }
 
 int
@@ -1031,11 +1034,15 @@ transition_with_send(const char * const args[])
 	assert(state.mode == command_mode);
 	keypress(state.code);
 	change_mode(NULL);
+	return 0;
 }
 
 int
-toggle_borders(const char * const args[]) {
+toggle_borders(const char * const args[])
+{
 	state.hide_borders = !state.hide_borders;
+	draw_all();
+	return 0;
 }
 
 int
