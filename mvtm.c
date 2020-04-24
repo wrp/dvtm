@@ -87,7 +87,7 @@ struct color colors[] = {
 
 extern void wstack(void);
 
-unsigned char modifier_key = CTRL('g');
+static unsigned char modifier_key = CTRL('g');
 
 const struct color_rule colorrules[] = {
 	{ "", A_NORMAL, &colors[DEFAULT] },
@@ -868,8 +868,12 @@ static void
 build_bindings(void)
 {
 	binding_description *b = mod_bindings;
+	char mod_binding[] = { modifier_key, '\0' };
+	char const *args[2] = { mod_binding, NULL };
 	state.binding = bindings = xcalloc(1u << CHAR_BIT, sizeof *bindings);
 	cmd_bindings = xcalloc(1u << CHAR_BIT, sizeof *cmd_bindings);
+	internal_bind(keypress_mode, 0, mod_binding, transition_no_send, args );
+
 	for( b = mod_bindings; b[0][0]; b++) {
 		char **e = *b;
 		command *cmd = get_function(e[1]);
@@ -889,6 +893,8 @@ build_bindings(void)
 			error(0, "failed to bind to '%d'", i);
 		}
 	}
+
+	internal_bind(command_mode, 0, mod_binding, transition_with_send, args );
 	for( b = keypress_bindings; b[0][0]; b++) {
 		char **e = *b;
 		command *cmd = get_function(e[1]);
