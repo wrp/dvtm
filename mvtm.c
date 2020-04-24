@@ -1099,6 +1099,7 @@ change_mode(const char * const args[])
 	switch(s->mode) {
 	case keypress_mode:
 		s->mode = command_mode;
+		s->buf.binding = bindings[modifier_key].next;
 		break;
 	case command_mode:
 		s->mode = keypress_mode;
@@ -1811,26 +1812,28 @@ handle_input(int code, struct state *s)
 {
 	const struct key_binding *b;
 
-	b = keybinding(code, s->buf.binding);
-	if( s->mode == keypress_mode && b == NULL ) {
+	if( code < 0 || code > 1 << CHAR_BIT ) {
 		keypress(code);
-		s->buf.binding = bindings;
+	} else if( s->mode == keypress_mode
+			&& NULL == (b = keybinding(code, s->buf.binding))) {
+		assert(s->buf.binding == bindings);
+		keypress(code);
 	} else if( code == modifier_key || code == ESC || code == 0xd ) {
 		if( code == modifier_key && s->mode == command_mode ) {
 			keypress(code);
 		}
 		change_mode(NULL);
-		if( b != NULL ) {
-			s->buf.binding = b;
-		}
-	} else if( code >= 0 && code < 1 << CHAR_BIT ) {
+	} else {
 		*s->buf.next++ = code;
 		*s->buf.next = '\0';
 
 		if( NULL != (b = keybinding(code, s->buf.binding)) ) {
 			if(b->action.cmd != NULL) {
 				b->action.cmd(b->action.args);
-				if(b->action.cmd != digit)  {
+				/* Some actions change s->mode.  digit does a loop back.
+				everything else needs to reset the keybinding lookup.
+				TODO: find a cleaner way to do this */
+				if(b->action.cmd != digit && s->mode == command_mode)  {
 					reset_entry(&s->buf);
 					s->buf.binding = bindings[modifier_key].next;
 				}
