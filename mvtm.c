@@ -479,13 +479,16 @@ applycolorrules(struct client *c) {
 	vt_default_colors_set(c->term, attrs, fg, bg);
 }
 
-static void set_client_title(struct client *c, const char *title) {
-	char *d = c->title;
-	char *e = c->title + sizeof c->title - 1;
+/* copy title to dest, compressing whitespace and discarding non-printable */
+static void
+sanitize_string(const char *title, char *dest, size_t siz)
+{
+	char *d = dest;
+	char *e = dest + siz - 1;
 	for( ; title && *title && d < e; title += 1 ) {
 		if( isprint(*title) && ! isspace(*title)) {
 			*d++ = *title;
-		} else if( d > c->title && d[-1] != ' ') {
+		} else if( d > dest && d[-1] != ' ') {
 			*d++ = ' ';
 		}
 	}
@@ -495,7 +498,7 @@ static void set_client_title(struct client *c, const char *title) {
 void
 term_title_handler(Vt *term, const char *title) {
 	struct client *c = (struct client *)vt_data_get(term);
-	set_client_title(c, title);
+	sanitize_string(title, c->title, sizeof c->title);
 	if( sel == c ) {
 		set_term_title(c->title);
 	}
@@ -1069,9 +1072,9 @@ create(const char * const args[]) {
 	}
 
 	if( args && args[1] ) {
-		set_client_title(c, args[1]);
+		sanitize_string(args[1], c->title, sizeof c->title);
 	} else {
-		set_client_title(c, c->cmd);
+		sanitize_string(c->cmd, c->title, sizeof c->title);
 	}
 
 	if (args && args[2])
