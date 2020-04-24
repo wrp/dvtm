@@ -130,6 +130,7 @@ struct color_rule {
  * max depth is only attained by the long keys.)
  */
 #define MAX_BIND 5
+typedef char * binding_description[MAX_BIND];
 
 /*
  * MAX_ARGS is the maximum number of args passed to a command

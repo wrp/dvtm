@@ -11,7 +11,7 @@ char ctrl_g[] = { CTRL('g'), 0 };
 char esc[] = { ESC, 0 };
 
 /* Bindings following MOD */
-char *mod_bindings[][MAX_BIND] = {
+binding_description mod_bindings[] = {
 	{ ctrl_g, "transition_with_send" },
 	{ esc,    "transition_no_send" },
 	{ "\x0d", "transition_no_send" },

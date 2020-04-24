@@ -860,7 +860,7 @@ internal_bind(int leader, int loop, unsigned char *keys, command *func,
 static void
 build_bindings(void)
 {
-	typeof(*mod_bindings) *b = mod_bindings;
+	binding_description *b = mod_bindings;
 	state.binding = bindings = xcalloc(1u << CHAR_BIT, sizeof *bindings);
 	bindings[modifier_key].next = xcalloc(1u << CHAR_BIT, sizeof *bindings->next);
 	for( ; b[0][0]; b++) {
