@@ -872,10 +872,45 @@ build_bindings(void)
 	}
 }
 
+struct layout *
+new_layout(const char *description)
+{
+	struct layout *n;
+	n = xcalloc(1, sizeof *n);
+	n->next = NULL;
+	if( 4 !=
+		sscanf(description, "%gx%g@%g,%g",
+			&n->relative.y,
+			&n->relative.x,
+			&n->relative.h,
+			&n->relative.w
+		)
+	) {
+		free(n);
+		return NULL;
+	}
+	n->absolute.y = n->relative.y * screen.h;
+	n->absolute.x = n->relative.x * screen.w;
+	n->absolute.h = n->relative.h * screen.h;
+	n->absolute.w = n->relative.w * screen.w;
+	return n;
+}
+
+void
+create_views(void)
+{
+	for( int i=0; i < LENGTH(state.views); i++ ) {
+		state.views[i].tag = i + 1;
+		state.views[i].layout = NULL;
+	}
+	state.views[0].layout = new_layout("1.0x1.0@0,0");
+}
+
 void
 setup(void) {
 	build_bindings();
 	reset_entry(&state.buf);
+	create_views();
 	shell = getshell();
 	setlocale(LC_CTYPE, "");
 	setenv("MVTM", VERSION, 1);

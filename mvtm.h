@@ -42,6 +42,26 @@ struct entry_buf {
 	int count;
 	unsigned char *next; /* first unused char in data */
 };
+struct rel_window {
+	/* relative position and height, width */
+	/* Values between 0 and 1, indicating fraction of total available */
+	float y, x;  /* position of upper left corner */
+	float h, w;  /* height and width */
+};
+struct abs_window {
+	/* absolute position and height, width */
+	unsigned short y, x;   /* position of upper left corner */
+	unsigned short h, w;   /* height and width */
+};
+struct layout {
+	struct rel_window relative;
+	struct abs_window absolute;
+	struct layout *next;
+};
+struct view {
+	struct layout *layout;
+	int tag;
+};
 /*
  struct state is the global state.  Currently, not much is here.  I intend
  to move global objects into here as I manipulate the code and learn then
@@ -56,6 +76,7 @@ struct state {
 	int signal;  /* Signal sent by killclient */
 	int runinall;
 	int hide_borders;
+	struct view views[8];
 };
 
 struct client {
@@ -79,23 +100,6 @@ struct client {
 	struct client *prev;
 	struct client *snext;
 	unsigned int tags;
-};
-
-
-struct window {
-	unsigned short y, x;  /* position of upper left corner */
-	unsigned short h, w;  /* height and width */
-};
-
-struct layout_entry {
-	struct client *c;
-	struct window window;
-	struct layout_entry *next;
-};
-
-struct layout {
-	struct layout_entry *entry;
-	struct layout *next;
 };
 
 
