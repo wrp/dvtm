@@ -838,7 +838,9 @@ push_binding(struct key_binding *b, const unsigned char *keys, const struct acti
 /*
  * Wrapper around the external facing bind(), which
  * may at some point be used as a command to allow
- * run time override of bingings.
+ * run time override of bingings.  The data in args
+ * is *not* copied, so the caller must ensure that
+ * they are non-volatile. (eg, don't pass a stack variable).
  */
 static int
 internal_bind(int leader, int loop, unsigned char *keys, command *func,
@@ -873,14 +875,6 @@ build_bindings(void)
 		}
 	}
 	for( int i=0; i < 10; i++ ) {
-		/* Ick.   Currently, push_bind etc. expect the caller to be storing
-		the bindings.  This makes sense, as often they are character constants.
-		Eventually, we will be reading binding from a stream (eg startup
-		user redefinitions).  Make sure when we do that that the caller makes
-		copies....or clean this up some other way.  But for now we have
-		to have buf on the heap so the addresses stored in the bindings tree
-		are valid.
-		*/
 		char *buf = xcalloc(2, 1);
 		const char *args[] = { buf, NULL };
 		buf[0] = '0' + i;
