@@ -1808,10 +1808,11 @@ check_client_fds(fd_set *rd, int *nfds, struct client *c)
 }
 
 void
-handle_input(int code, struct state *s)
+handle_input(struct state *s)
 {
 	const struct key_binding *b;
 
+	int code = s->code = getch();
 	if( code < 0 || code > 1 << CHAR_BIT ) {
 		keypress(code);
 	} else if( NULL == (b = keybinding(code, s->buf.binding))
@@ -1884,7 +1885,7 @@ main(int argc, char *argv[])
 		}
 
 		if (FD_ISSET(STDIN_FILENO, &rd)) {
-			handle_input(getch(), s);
+			handle_input(s);
 
 			if (r == 1) /* no data available on pty's */
 				continue;

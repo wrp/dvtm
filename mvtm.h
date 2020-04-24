@@ -50,6 +50,7 @@ struct entry_buf {
  */
 struct state {
 	enum { keypress_mode, command_mode } mode;
+	int code;  /* The last code returned by getch() */
 	struct entry_buf buf; /* user entered keys in command_mode */
 	int runinall;
 	int signal;  /* Signal sent by killclient */
