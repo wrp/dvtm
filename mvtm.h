@@ -53,8 +53,9 @@ struct state {
 	int code;  /* The last code returned by getch() */
 	struct entry_buf buf; /* user entered keys in command_mode */
 	const struct key_binding *binding;
-	int runinall;
 	int signal;  /* Signal sent by killclient */
+	int runinall;
+	int hide_borders;
 };
 
 struct client {
@@ -272,3 +273,4 @@ command zoom;
 command change_mode;
 command transition_no_send;
 command transition_with_send;
+command toggle_borders;

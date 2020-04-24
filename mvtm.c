@@ -223,7 +223,7 @@ drawbar(void) {
 
 int
 show_border(void) {
-	return clients && clients->next;
+	return clients && clients->next && ! state.hide_borders;
 }
 
 void
@@ -1031,6 +1031,11 @@ transition_with_send(const char * const args[])
 	assert(state.mode == command_mode);
 	keypress(state.code);
 	change_mode(NULL);
+}
+
+int
+toggle_borders(const char * const args[]) {
+	state.hide_borders = !state.hide_borders;
 }
 
 int
