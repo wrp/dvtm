@@ -12,15 +12,22 @@
  */
 
 /* TODO
-    Make it possible to list current key bindings.
-    Make layout more flexible, perhaps dlopenable.
-    Make it possible to pass layouts on the cmd fifo.  eg, give
-      dimensions like "1:100x20@10,20\n2:hxw@y,x\n..."
+  Implement Command-line mode (eg, :create arg1 args)
+  Make it possible to list current key bindings.
+  Make layout more flexible, perhaps dlopenable.
+  Make it possible to pass layouts on the cmd fifo.  eg, give
+    dimensions like "1:100x20@10,20\n2:hxw@y,x\n..."
+  Write errors somewhere.  Either in a dedidcated window
+    or in the status bar.  Write any final error to stderr
+    on exit.  Probably should read initialization from stdin.
+  Need to check errors in copymode.  If mvtm-editor is not in the
+    path,for example, we should see an error message.  copymode needs
+    to read the error stream and print somewhere.  (See previous TODO)
+  Get rid of status.fifo and command.fifo, instead use
+    MVTM_STATUS_URL and MVTM_CMD_URL.  We can send layout
+    info, and status bar updates, etc to CMD_URL and query STATUS_URL
+    for current state.
 
- get rid of status.fifo and command.fifo, instead us
- MVTM_STATUS_URL and MVTM_CMD_URL.  We can sent layout
- info, and status bar updates, etc to CMD_URL and query STATUS_URL
- for current state.
 
  A window data structure should not contain any layout info.
  layouts can look like:  wxh@x,y (eg 100x80@0,0 as above,
@@ -42,13 +49,7 @@
  N windows and the current tag has M > N windows, we only
  display N.  Makes the implementation simpler.
 
- Write errors somewhere.  Either in a dedidcated window
- or in the status bar.  Write any final error to stderr
- on exit.  Probably should read initialization from stdin.
 
- Need to checke errors in copymode.  If mvtm-editor is not in the
- path,for example, we should see an error message.  copymode needs
- to read the error stream and print somewhere.  (See previous TODO)
  */
 #include "config.h"
 #include "mvtm.h"
