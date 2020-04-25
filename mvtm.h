@@ -53,11 +53,16 @@ struct abs_window {
 	unsigned short y, x;   /* position of upper left corner */
 	unsigned short h, w;   /* height and width */
 };
-struct layout {
+struct window {
 	struct rel_window relative;
 	struct abs_window absolute;
+	struct window *next;
+};
+struct layout {
+	struct window w;
 	struct layout *next;
 };
+/* A view is a user selected set of layouts. */
 struct view {
 	struct layout *layout;
 	int tag;

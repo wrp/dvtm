@@ -39,7 +39,8 @@ test_copymode() {
 	sh_cmd "cat <<'EOF' > $COPY"
 	mvtm_cmd 'p'
 	sh_cmd 'EOF'
-	while [ ! -r "$COPY" ]; do sleep 1; done;
+	# while [ ! -r "$COPY" ]; do sleep 1; done;
+	sleep 1
 	mvtm_input "exit\n"
 	diff -u "$FILENAME" "$COPY" 1>&2
 	local RESULT=$?

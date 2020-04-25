@@ -873,27 +873,45 @@ build_bindings(void)
 	}
 }
 
-struct layout *
-new_layout(const char *description)
+const char *
+scan_fmt(const char *d, struct layout *layout)
 {
-	struct layout *n;
-	n = xcalloc(1, sizeof *n);
-	n->next = NULL;
-	if( 4 !=
-		sscanf(description, "%gx%g@%g,%g",
-			&n->relative.y,
-			&n->relative.x,
-			&n->relative.h,
-			&n->relative.w
-		)
-	) {
-		free(n);
+	/* expected format: "%gx%g@%g,%g " */
+	char *end;
+
+	layout->w.relative.h = strtod(d, &end);
+	if(*end++ != 'x') {
 		return NULL;
 	}
-	n->absolute.y = n->relative.y * screen.h;
-	n->absolute.x = n->relative.x * screen.w;
-	n->absolute.h = n->relative.h * screen.h;
-	n->absolute.w = n->relative.w * screen.w;
+	layout->w.relative.w = strtod(end, &end);
+	if(*end++ != '@') {
+		return NULL;
+	}
+	layout->w.relative.y = strtod(end, &end);
+	if(*end++ != ',') {
+		return NULL;
+	}
+	layout->w.relative.x = strtod(end, &end);
+	if( ! strchr(" \n", *end)) {
+		return NULL;
+	}
+	layout->w.absolute.y = layout->w.relative.y * screen.h;
+	layout->w.absolute.x = layout->w.relative.x * screen.w;
+	layout->w.absolute.h = layout->w.relative.h * screen.h;
+	layout->w.absolute.w = layout->w.relative.w * screen.w;
+	return end;
+}
+
+struct layout *
+new_layout(const char *d)
+{
+	struct layout *prev = NULL, *n = NULL, k = {0};
+
+	while( NULL != (d = scan_fmt(d, &k)) ) {
+		n = xcalloc(1, sizeof *n);
+		memcpy(n, &k, sizeof *n);
+		n->next = prev;
+	}
 	return n;
 }
 
@@ -905,6 +923,7 @@ create_views(void)
 		state.views[i].layout = NULL;
 	}
 	state.views[0].layout = new_layout("1.0x1.0@0,0");
+	assert(state.views[0].layout);
 }
 
 void
