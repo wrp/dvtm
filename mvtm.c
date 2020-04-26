@@ -1101,21 +1101,21 @@ create(const char * const args[]) {
 	}
 	struct client *c = calloc(1, sizeof *c);
 	if (!c)
-		return 0;
+		return 1;
 	c->tags = tagset[seltags];
 	c->id = ++cmdfifo.id;
 	snprintf(buf, sizeof buf, "%d", c->id);
 
 	if (!(c->window = newwin(available_height, available_width, 0, 0))) {
 		free(c);
-		return 0;
+		return 1;
 	}
 
 	c->term = c->app = vt_create(screen.h, screen.w, screen.history);
 	if (!c->term) {
 		delwin(c->window);
 		free(c);
-		return 0;
+		return 1;
 	}
 
 	if (args && args[0]) {
