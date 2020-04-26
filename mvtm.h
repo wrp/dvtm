@@ -89,6 +89,7 @@ struct state {
 	int runinall;
 	int hide_borders;
 	struct view views[8];
+	struct view *current_view;
 };
 
 struct client {

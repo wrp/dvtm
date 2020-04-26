@@ -930,6 +930,7 @@ void
 init_state(struct state *s)
 {
 	reset_entry(&s->buf);
+	s->current_view = s->views;
 }
 
 void
@@ -1085,6 +1086,27 @@ toggle_borders(const char * const args[])
 	return 0;
 }
 
+static void
+push_client_to_view(struct state *s, struct client *c)
+{
+	struct layout *n = s->current_view->layout;
+	assert( n != NULL );
+	struct client_list **cl = &n->cl;
+	struct client_list **prev = NULL;
+
+	while( *cl != NULL ) {
+		prev = cl;
+		cl = &(*cl)->next;
+	}
+	*cl = xcalloc(1, sizeof **cl);
+	(*cl)->c = c;
+	if( prev != NULL ) {
+		(*prev)->next = *cl;
+	}
+
+	return;
+}
+
 int
 create(const char * const args[]) {
 	const char *pargs[4] = { shell, NULL };
@@ -1146,6 +1168,7 @@ create(const char * const args[]) {
 	attach(c);
 	focus(c);
 	arrange();
+	push_client_to_view(&state, c);
 
 	if( args && args[2] && ! strcmp(args[2], "master") ) {
 		const char * const args[2] = { "+1", NULL };
