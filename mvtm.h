@@ -36,7 +36,7 @@ struct screen {
 	int h;
 	int winched;
 };
-
+struct client;
 struct entry_buf {
 	unsigned char data[128];;
 	int count;
@@ -53,16 +53,23 @@ struct abs_window {
 	unsigned short y, x;   /* position of upper left corner */
 	unsigned short h, w;   /* height and width */
 };
+/* window.next is the list of windows in a layout */
 struct window {
 	struct rel_window relative;
 	struct abs_window absolute;
 	struct window *next;
 };
+struct client_list {
+	struct client *c;
+	struct client_list *next;
+};
+/* layout.next stores the history of a view */
 struct layout {
 	struct window w;
+	struct client_list *cl;
 	struct layout *next;
 };
-/* A view is a user selected set of layouts. */
+/* A view is a history of layouts. */
 struct view {
 	struct layout *layout;
 	int tag;
