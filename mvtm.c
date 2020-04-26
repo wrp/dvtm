@@ -908,15 +908,17 @@ scan_fmt(const char *d, struct window *w)
 struct layout *
 new_layout(const char *d)
 {
-	struct layout *n = NULL;
+	struct layout *n = NULL, *t = NULL;
 	struct window w;
 
 	while( NULL != (d = scan_fmt(d, &w)) ) {
-		n = xcalloc(1, sizeof *n);
-		n->w = xcalloc(1, sizeof *n->w);
-		memcpy(n->w, &w, sizeof *n->w);
+		t = xcalloc(1, sizeof *n);
+		t->w = xcalloc(1, sizeof *n->w);
+		memcpy(t->w, &w, sizeof *t->w);
+		t->next = n;
+		n = t;
 	}
-	return n;
+	return t;
 }
 
 void
