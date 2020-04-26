@@ -58,6 +58,7 @@ struct window {
 	struct rel_window relative;
 	struct abs_window absolute;
 	struct window *next;
+	struct window *prev;
 	struct client *c;
 };
 struct client_list {
