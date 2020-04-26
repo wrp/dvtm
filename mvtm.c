@@ -927,9 +927,15 @@ create_views(void)
 }
 
 void
+init_state(struct state *s)
+{
+	reset_entry(&s->buf);
+}
+
+void
 setup(void) {
 	build_bindings();
-	reset_entry(&state.buf);
+	init_state(&state);
 	create_views();
 	shell = getshell();
 	setlocale(LC_CTYPE, "");
