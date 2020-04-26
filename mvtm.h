@@ -73,7 +73,7 @@ struct layout {
 /* A view is a history of layouts. */
 struct view {
 	struct layout *layout;
-	int tag;
+	char name[64];
 };
 /*
  struct state is the global state.  Currently, not much is here.  I intend

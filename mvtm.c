@@ -922,7 +922,7 @@ void
 create_views(void)
 {
 	for( int i=0; i < LENGTH(state.views); i++ ) {
-		state.views[i].tag = i + 1;
+		sprintf(state.views[i].name, "%d", i + 1);
 		state.views[i].layout = NULL;
 	}
 	state.views[0].layout = new_layout("1.0x1.0@0,0");
