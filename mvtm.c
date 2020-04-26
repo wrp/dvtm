@@ -1324,6 +1324,7 @@ focusn(const char * const args[])
 	struct client *c = select_client(1);
 	if( c != NULL ) {
 		focus(c);
+		change_mode(NULL);
 	}
 	return 0;
 }
