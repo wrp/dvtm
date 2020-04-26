@@ -1091,7 +1091,7 @@ toggle_borders(const char * const args[])
 }
 
 static void
-push_client_to_view(struct layout *n, struct client *c)
+add_client_to_layout_pool(struct layout *n, struct client *c)
 {
 	assert( n != NULL );
 	struct client_list **cl = &n->cl;
@@ -1115,6 +1115,11 @@ push_client_to_view(struct layout *n, struct client *c)
 	}
 
 	return;
+}
+
+static void
+push_client_to_view(struct layout *n, struct client *c) {
+	add_client_to_layout_pool(n, c);
 }
 
 int
