@@ -1091,9 +1091,8 @@ toggle_borders(const char * const args[])
 }
 
 static void
-push_client_to_view(struct state *s, struct client *c)
+push_client_to_view(struct layout *n, struct client *c)
 {
-	struct layout *n = s->current_view->layout;
 	assert( n != NULL );
 	struct client_list **cl = &n->cl;
 	struct client_list **prev = NULL;
@@ -1172,7 +1171,7 @@ create(const char * const args[]) {
 	attach(c);
 	focus(c);
 	arrange();
-	push_client_to_view(&state, c);
+	push_client_to_view(state.current_view->layout, c);
 
 	if( args && args[2] && ! strcmp(args[2], "master") ) {
 		const char * const args[2] = { "+1", NULL };
