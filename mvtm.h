@@ -64,9 +64,14 @@ struct client_list {
 	struct client *c;
 	struct client_list *next;
 };
-/* A layout is loosely coupled lists of windows and clients.*/
+/*
+ * A layout is a loosely coupled list of windows and clients.
+ * When rendering a layout, any window without an
+ * associated client will be filled with a filler character.
+*/
 struct layout {
 	struct window *w;
+	struct window *focus;
 	struct client_list *cl;
 	struct layout *next;
 };
