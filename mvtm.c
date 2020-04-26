@@ -877,43 +877,44 @@ build_bindings(void)
 }
 
 const char *
-scan_fmt(const char *d, struct layout *layout)
+scan_fmt(const char *d, struct window *w)
 {
 	/* expected format: "%gx%g@%g,%g " */
 	char *end;
 
-	layout->w.relative.h = strtod(d, &end);
+	w->relative.h = strtod(d, &end);
 	if(*end++ != 'x') {
 		return NULL;
 	}
-	layout->w.relative.w = strtod(end, &end);
+	w->relative.w = strtod(end, &end);
 	if(*end++ != '@') {
 		return NULL;
 	}
-	layout->w.relative.y = strtod(end, &end);
+	w->relative.y = strtod(end, &end);
 	if(*end++ != ',') {
 		return NULL;
 	}
-	layout->w.relative.x = strtod(end, &end);
+	w->relative.x = strtod(end, &end);
 	if( ! strchr(" \n", *end)) {
 		return NULL;
 	}
-	layout->w.absolute.y = layout->w.relative.y * screen.h;
-	layout->w.absolute.x = layout->w.relative.x * screen.w;
-	layout->w.absolute.h = layout->w.relative.h * screen.h;
-	layout->w.absolute.w = layout->w.relative.w * screen.w;
+	w->absolute.y = w->relative.y * screen.h;
+	w->absolute.x = w->relative.x * screen.w;
+	w->absolute.h = w->relative.h * screen.h;
+	w->absolute.w = w->relative.w * screen.w;
 	return end;
 }
 
 struct layout *
 new_layout(const char *d)
 {
-	struct layout *prev = NULL, *n = NULL, k = {0};
+	struct layout *n = NULL;
+	struct window w;
 
-	while( NULL != (d = scan_fmt(d, &k)) ) {
+	while( NULL != (d = scan_fmt(d, &w)) ) {
 		n = xcalloc(1, sizeof *n);
-		memcpy(n, &k, sizeof *n);
-		n->next = prev;
+		n->w = xcalloc(1, sizeof *n->w);
+		memcpy(n->w, &w, sizeof *n->w);
 	}
 	return n;
 }

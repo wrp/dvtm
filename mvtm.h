@@ -66,7 +66,7 @@ struct client_list {
 };
 /* A layout is loosely coupled lists of windows and clients.*/
 struct layout {
-	struct window w;
+	struct window *w;
 	struct client_list *cl;
 	struct layout *next;
 };
