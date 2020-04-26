@@ -286,7 +286,7 @@ command untag;
 command view;
 command viewprevtag;
 command zoom;
-command change_mode;
+command toggle_mode;
 command transition_no_send;
 command transition_with_send;
 command toggle_borders;

@@ -1068,7 +1068,7 @@ digit(const char *const args[])
 int
 transition_no_send(const char * const args[])
 {
-	change_mode(NULL);
+	toggle_mode(NULL);
 	return 0;
 }
 
@@ -1077,7 +1077,7 @@ transition_with_send(const char * const args[])
 {
 	assert(state.mode == command_mode);
 	keypress(state.code);
-	change_mode(NULL);
+	toggle_mode(NULL);
 	return 0;
 }
 
@@ -1189,7 +1189,7 @@ reset_entry(struct entry_buf *e)
 }
 
 int
-change_mode(const char * const args[])
+toggle_mode(const char * const args[])
 {
 	struct state *s = &state;
 	reset_entry(&s->buf);
@@ -1297,7 +1297,7 @@ copymode(const char * const args[])
 end:
 	assert(state.mode == command_mode);
 	draw_border(sel);
-	change_mode(NULL);
+	toggle_mode(NULL);
 	return 0;
 }
 
@@ -1324,7 +1324,7 @@ focusn(const char * const args[])
 	struct client *c = select_client(1);
 	if( c != NULL ) {
 		focus(c);
-		change_mode(NULL);
+		toggle_mode(NULL);
 	}
 	return 0;
 }
@@ -1498,7 +1498,7 @@ paste(const char * const args[]) {
 		vt_write(sel->term, copyreg.data, copyreg.len);
 	}
 	assert(state.mode == command_mode);
-	change_mode(NULL);
+	toggle_mode(NULL);
 	return 0;
 }
 
