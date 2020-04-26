@@ -27,6 +27,9 @@
     MVTM_STATUS_URL and MVTM_CMD_URL.  We can send layout
     info, and status bar updates, etc to CMD_URL and query STATUS_URL
     for current state.
+  Consider name change: 'mtm'
+  Make tagset nameable.  As soon as we do that, we basically have
+  named tabs.
 
 
  A window data structure should not contain any layout info.
