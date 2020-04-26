@@ -1096,15 +1096,22 @@ push_client_to_view(struct layout *n, struct client *c)
 	assert( n != NULL );
 	struct client_list **cl = &n->cl;
 	struct client_list **prev = NULL;
+	int found = 0;
 
 	while( *cl != NULL ) {
 		prev = cl;
+		if( (*cl)->c == c ) {
+			found = 1;
+			break;
+		}
 		cl = &(*cl)->next;
 	}
-	*cl = xcalloc(1, sizeof **cl);
-	(*cl)->c = c;
-	if( prev != NULL ) {
-		(*prev)->next = *cl;
+	if( ! found ) {
+		*cl = xcalloc(1, sizeof **cl);
+		(*cl)->c = c;
+		if( prev != NULL ) {
+			(*prev)->next = *cl;
+		}
 	}
 
 	return;
