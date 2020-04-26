@@ -43,27 +43,28 @@ struct entry_buf {
 	unsigned char *next; /* first unused char in data */
 };
 struct rel_window {
-	/* relative position and height, width */
+	/* relative position and size */
 	/* Values between 0 and 1, indicating fraction of total available */
 	float y, x;  /* position of upper left corner */
 	float h, w;  /* height and width */
 };
 struct abs_window {
-	/* absolute position and height, width */
+	/* absolute position and size */
 	unsigned short y, x;   /* position of upper left corner */
 	unsigned short h, w;   /* height and width */
 };
-/* window.next is the list of windows in a layout */
+/* A window is a specified chunk of screen which contains at most 1 client */
 struct window {
 	struct rel_window relative;
 	struct abs_window absolute;
 	struct window *next;
+	struct client *c;
 };
 struct client_list {
 	struct client *c;
 	struct client_list *next;
 };
-/* layout.next stores the history of a view */
+/* A layout is loosely coupled lists of windows and clients.*/
 struct layout {
 	struct window w;
 	struct client_list *cl;
