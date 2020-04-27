@@ -43,48 +43,51 @@ struct entry_buf {
 	unsigned char *next; /* first unused char in data */
 };
 enum window_description_type { relative, absolute };
-struct rel_window {
+struct position {
 	/* relative position and size */
 	/* Values between 0 and 1, indicating fraction of total available */
 	float y, x;  /* position of upper left corner */
 	float h, w;  /* height and width */
 };
-struct abs_window {
+struct abs_position {
 	/* absolute position and size */
 	unsigned short y, x;   /* position of upper left corner */
 	unsigned short h, w;   /* height and width */
 };
-/* A window is a specified chunk of screen which contains at most 1 client */
+/*
+ * A window is a specified chunk of screen which contains either at most
+ * one client or one layout (the layout can contain multiple windows).
+ */
 struct window {
-	struct rel_window relative;
-	struct abs_window absolute;
-	struct window *next;
-	struct window *prev;
+	struct position p;  /* relative to enclosing layout */
 	struct client *c;
+	struct layout *layout;
 };
-struct client_list {
-	struct client *c;
-	struct client_list *next;
+struct circular_queue {
+	void *v;
+	struct circular_queue *next;
+	struct circular_queue *prev;
+};
+struct list {
+	void *v;
+	struct list *next;
 };
 /*
- * A layout is a loosely coupled list of windows and clients.
- * When rendering a layout, any window without an
- * associated client will be filled with a filler character.
+ * A layout is a set of windows, each having either the same height
+ * (a row layout) or the same width (a column layout).
 */
 struct layout {
-	struct window *w;
-	struct layout *next;
+	enum { undecided, row_layout, column_layout } type;
+	struct window *enclosing;
+	struct circular_queue *windows;
 };
-/* A view is a history of layouts. */
 struct view {
-	struct layout *layout;
-	struct client_list *cl;
-	char name[64];
+	struct list *clients;
+	struct layout layout;
+	char name[32];
 };
 /*
- struct state is the global state.  Currently, not much is here.  I intend
- to move global objects into here as I manipulate the code and learn then
- architecture.
+ * struct state is the global state.
  */
 enum mode { keypress_mode, command_mode };
 struct state {
@@ -95,7 +98,7 @@ struct state {
 	int signal;  /* Signal sent by killclient */
 	int runinall;
 	int hide_borders;
-	struct view views[8];
+	struct list views;
 	struct view *current_view;
 };
 
@@ -117,10 +120,10 @@ struct state {
    |                |               |
    +--------------------------------+
 
-   Here, *state.current_view is a row layout with two windows, described
+   Here, *state.current_view->layout is a row layout with two windows, described
    by "1x.5@0,0 1x.5@0,.5" (in any window of a row layout, y == 0, h == 1, and
-   the sum of w's == 1).  Also, state.current_view->windows->client == NULL,
-   while *state.current_view->windows->layout is a column layout with 3 windows
+   the sum of w's == 1).  Also, state.current_view->layout.windows->client == NULL,
+   while *state.current_view->layout.windows->layout is a column layout with 3 windows
    described by ".2x1@0,0 .5x1@.2,0 .3x1@.7,0"
 
    There are some issues.  I had thought that the circular queue layout.windows

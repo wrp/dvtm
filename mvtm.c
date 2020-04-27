@@ -882,52 +882,47 @@ scan_fmt(const char *d, struct window *w)
 	/* expected format: "%gx%g@%g,%g " */
 	char *end;
 
-	w->relative.h = strtod(d, &end);
+	w->p.h = strtod(d, &end);
 	if(*end++ != 'x') {
 		return NULL;
 	}
-	w->relative.w = strtod(end, &end);
+	w->p.w = strtod(end, &end);
 	if(*end++ != '@') {
 		return NULL;
 	}
-	w->relative.y = strtod(end, &end);
+	w->p.y = strtod(end, &end);
 	if(*end++ != ',') {
 		return NULL;
 	}
-	w->relative.x = strtod(end, &end);
+	w->p.x = strtod(end, &end);
 	if( ! strchr(" \n", *end)) {
 		return NULL;
 	}
-	w->absolute.y = w->relative.y * screen.h;
-	w->absolute.x = w->relative.x * screen.w;
-	w->absolute.h = w->relative.h * screen.h;
-	w->absolute.w = w->relative.w * screen.w;
 	return end;
 }
 
-struct layout *
-new_layout(const char *d)
+struct window *
+new_window(void)
 {
-	struct window w;
-	struct layout *n = xcalloc(1, sizeof *n);
+	struct window *ret = xcalloc(1, sizeof *ret);
+	ret->p.y = 0;
+	ret->p.x = 0;
+	ret->p.h = 1.0;
+	ret->p.w = 1.0;
+	return ret;
+}
 
-	while( NULL != (d = scan_fmt(d, &w)) ) {
-		struct window *t;
-		t = xcalloc(1, sizeof *t);
-		memcpy(t, &w, sizeof *t);
-		if( n->w == NULL ) {
-			t->next = t->prev = n->w = t;
-		} else {
-			struct window *p = n->w->prev;
-			assert( p != NULL );
-			assert( p->next == n->w );
-			p->next = n->w->prev = t;
-			t->prev = p;
-			t->next = p->next;
-		}
-		n->w = t;
-	}
-	return n;
+struct layout *
+new_layout(struct window *enclosing)
+{
+	struct layout *ret;
+
+	ret = xcalloc(1, sizeof *ret);
+	ret->enclosing = enclosing;
+	ret->windows = xcalloc(1, sizeof *ret->windows);
+	ret->windows->next = ret->windows->prev = ret->windows;
+	ret->windows->v = new_window();
+	return ret;
 }
 
 static void
@@ -941,65 +936,21 @@ clamp( char ** d, char *e, int count, size_t *r)
 	*r += count;
 }
 
-size_t
-describe_layout(const struct layout *layout, enum window_description_type t,
-	char *description, size_t siz)
-{
-	char *d = description;
-	char *const e = d + siz;
-	struct window *w = layout->w;
-
-	char *div = "";
-	size_t count = 0;
-	size_t ret = 0;
-	while( w != NULL ) {
-		if( w->c != NULL ) {
-			count = snprintf(d, e - d, "%d:", w->c->id);
-			clamp(&d, e, count, &ret);
-		}
-		switch(t) {
-		case absolute:
-			count = snprintf(d, e - d, "%s%dx%d@%d,%d", div,
-				w->absolute.h,
-				w->absolute.w,
-				w->absolute.y,
-				w->absolute.x
-			);
-			break;
-		case relative:
-			count = snprintf(d, e - d, "%s%.2fx%.2f@%.2f,%.2f", div,
-				w->relative.h,
-				w->relative.w,
-				w->relative.y,
-				w->relative.x
-			);
-			break;
-		}
-		clamp(&d, e, count, &ret);
-		div = " ";
-		if( (w = w->next) == layout->w ) {
-			break;
-		}
-	}
-	return ret;
-}
-
 void
 create_views(void)
 {
-	for( int i=0; i < LENGTH(state.views); i++ ) {
-		sprintf(state.views[i].name, "%d", i + 1);
-		state.views[i].layout = NULL;
-	}
-	state.views[0].layout = new_layout("1.0x1.0@0,0");
-	assert(state.views[0].layout);
+	struct list views;
+	struct view *current_view;
+
+	state.views.v = new_layout(NULL);
+	state.views.next = NULL;
+	state.current_view = state.views.v;
 }
 
 void
 init_state(struct state *s)
 {
 	reset_entry(&s->buf);
-	s->current_view = s->views;
 }
 
 void
@@ -1159,13 +1110,13 @@ static void
 add_client_to_view(struct view *v, struct client *c)
 {
 	assert( v != NULL );
-	struct client_list **cl = &v->cl;
-	struct client_list **prev = NULL;
+	struct list **cl = &v->clients;
+	struct list **prev = NULL;
 	int found = 0;
 
 	while( *cl != NULL ) {
 		prev = cl;
-		if( (*cl)->c == c ) {
+		if( (*cl)->v == c ) {
 			found = 1;
 			break;
 		}
@@ -1173,7 +1124,7 @@ add_client_to_view(struct view *v, struct client *c)
 	}
 	if( ! found ) {
 		*cl = xcalloc(1, sizeof **cl);
-		(*cl)->c = c;
+		(*cl)->v = c;
 		if( prev != NULL ) {
 			(*prev)->next = *cl;
 		}
