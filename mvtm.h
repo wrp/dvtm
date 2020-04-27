@@ -99,6 +99,40 @@ struct state {
 	struct view *current_view;
 };
 
+/*
+   TODO
+   ASCII art to describe layouts.  Consider the following, in which the screen
+   (10 rows) is split once vertically, each half is split horizontally once and
+   twice, respectively, and the focus is on the window marked x.  eg:
+
+   +--------------------------------+
+   |                |               |
+   |                +---------------+
+   |                |               |
+   |                |               |
+   +----------------+       x       |
+   |                |               |
+   |                +---------------+
+   |                |               |
+   |                |               |
+   +--------------------------------+
+
+   Here, *state.current_view is a row layout with two windows, described
+   by "1x.5@0,0 1x.5@0,.5" (in any window of a row layout, y == 0, h == 1, and
+   the sum of w's == 1).  Also, state.current_view->windows->client == NULL,
+   while *state.current_view->windows->layout is a column layout with 3 windows
+   described by ".2x1@0,0 .5x1@.2,0 .3x1@.7,0"
+
+   There are some issues.  I had thought that the circular queue layout.windows
+   could be used to inidcate focus by having the "first" element of the queue
+   be the window with focus, but I'm not sure how the recursion should work.
+   If the user changes focus, do we change it recursively in all the layouts?
+   I like the flexibility, since we could easily do things like "z" to zoom
+   the current window to full screen, and "2z" to zoom the encolsing layout
+   to full screen.  More consideration is needed.
+
+*/
+
 struct client {
 	WINDOW *window;
 	Vt *term;
