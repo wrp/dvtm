@@ -930,6 +930,60 @@ new_layout(const char *d)
 	return n;
 }
 
+static void
+clamp( char ** d, char *e, int count, size_t *r)
+{
+	if( *d + count > e ) {
+		*d = e;
+	} else {
+		*d += count;
+	}
+	*r += count;
+}
+
+size_t
+describe_layout(const struct layout *layout, enum window_description_type t,
+	char *description, size_t siz)
+{
+	char *d = description;
+	char *const e = d + siz;
+	struct window *w = layout->w;
+
+	char *div = "";
+	size_t count = 0;
+	size_t ret = 0;
+	while( w != NULL ) {
+		if( w->c != NULL ) {
+			count = snprintf(d, e - d, "%d:", w->c->id);
+			clamp(&d, e, count, &ret);
+		}
+		switch(t) {
+		case absolute:
+			count = snprintf(d, e - d, "%s%dx%d@%d,%d", div,
+				w->absolute.h,
+				w->absolute.w,
+				w->absolute.y,
+				w->absolute.x
+			);
+			break;
+		case relative:
+			count = snprintf(d, e - d, "%s%.2fx%.2f@%.2f,%.2f", div,
+				w->relative.h,
+				w->relative.w,
+				w->relative.y,
+				w->relative.x
+			);
+			break;
+		}
+		clamp(&d, e, count, &ret);
+		div = " ";
+		if( (w = w->next) == layout->w ) {
+			break;
+		}
+	}
+	return ret;
+}
+
 void
 create_views(void)
 {

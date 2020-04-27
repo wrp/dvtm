@@ -42,6 +42,7 @@ struct entry_buf {
 	int count;
 	unsigned char *next; /* first unused char in data */
 };
+enum window_description_type { relative, absolute };
 struct rel_window {
 	/* relative position and size */
 	/* Values between 0 and 1, indicating fraction of total available */
