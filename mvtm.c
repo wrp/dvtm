@@ -951,12 +951,12 @@ void
 init_state(struct state *s)
 {
 	reset_entry(&s->buf);
+	create_views();
 }
 
 void
 setup(void) {
 	build_bindings();
-	init_state(&state);
 	shell = getshell();
 	setlocale(LC_CTYPE, "");
 	setenv("MVTM", VERSION, 1);
@@ -977,7 +977,6 @@ setup(void) {
 		t->pair = vt_color_reserve(t->fg, t->bg);
 	}
 	resize_screen();
-	create_views();
 
 	int *pipes[] = { sigwinch_pipe, sigchld_pipe };
 	for (int i = 0; i < 2; ++i) {
@@ -1927,6 +1926,7 @@ main(int argc, char *argv[])
 
 	parse_args(argc, argv);
 	setup();
+	init_state(&state);
 	for( struct action *a = actions; a && a->cmd; a = a->next ) {
 		a->cmd(a->args);
 	}
