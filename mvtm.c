@@ -952,7 +952,6 @@ void
 setup(void) {
 	build_bindings();
 	init_state(&state);
-	create_views();
 	shell = getshell();
 	setlocale(LC_CTYPE, "");
 	setenv("MVTM", VERSION, 1);
@@ -973,6 +972,7 @@ setup(void) {
 		t->pair = vt_color_reserve(t->fg, t->bg);
 	}
 	resize_screen();
+	create_views();
 
 	int *pipes[] = { sigwinch_pipe, sigchld_pipe };
 	for (int i = 0; i < 2; ++i) {
