@@ -73,12 +73,12 @@ struct client_list {
 */
 struct layout {
 	struct window *w;
-	struct client_list *cl;
 	struct layout *next;
 };
 /* A view is a history of layouts. */
 struct view {
 	struct layout *layout;
+	struct client_list *cl;
 	char name[64];
 };
 /*

@@ -1156,10 +1156,10 @@ toggle_borders(const char * const args[])
 }
 
 static void
-add_client_to_layout_pool(struct layout *n, struct client *c)
+add_client_to_view(struct view *v, struct client *c)
 {
-	assert( n != NULL );
-	struct client_list **cl = &n->cl;
+	assert( v != NULL );
+	struct client_list **cl = &v->cl;
 	struct client_list **prev = NULL;
 	int found = 0;
 
@@ -1183,8 +1183,9 @@ add_client_to_layout_pool(struct layout *n, struct client *c)
 }
 
 static void
-push_client_to_view(struct layout *n, struct client *c) {
-	add_client_to_layout_pool(n, c);
+push_client_to_view(struct view *v, struct client *c)
+{
+	add_client_to_view(v, c);
 }
 
 int
@@ -1248,7 +1249,7 @@ create(const char * const args[]) {
 	attach(c);
 	focus(c);
 	arrange();
-	push_client_to_view(state.current_view->layout, c);
+	push_client_to_view(state.current_view, c);
 
 	if( args && args[2] && ! strcmp(args[2], "master") ) {
 		const char * const args[2] = { "+1", NULL };
