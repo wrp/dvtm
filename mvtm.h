@@ -73,7 +73,6 @@ struct client_list {
 */
 struct layout {
 	struct window *w;
-	struct window *focus;
 	struct client_list *cl;
 	struct layout *next;
 };
