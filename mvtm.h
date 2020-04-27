@@ -83,7 +83,7 @@ struct layout {
 };
 struct view {
 	struct list *clients;
-	struct layout layout;
+	struct layout *layout;
 	char name[32];
 };
 /*

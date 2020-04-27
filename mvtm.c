@@ -942,9 +942,11 @@ create_views(void)
 	struct list views;
 	struct view *current_view;
 
-	state.views.v = new_layout(NULL);
+	state.views.v = current_view = xcalloc(1, sizeof *current_view);
+	current_view->layout = new_layout(NULL);
+
 	state.views.next = NULL;
-	state.current_view = state.views.v;
+	state.current_view = current_view;
 }
 
 void
@@ -1133,9 +1135,45 @@ add_client_to_view(struct view *v, struct client *c)
 }
 
 static void
+split_current_window(struct client *c)
+{
+	struct window *w = state.current_view->layout->windows->v;
+	while( w->layout != NULL ) {
+		w = w->layout->windows->v;
+	}
+	assert( w->c != NULL );
+}
+
+struct window *
+find_empty_window(struct layout *layout)
+{
+	if( layout == NULL || layout->windows == NULL ) {
+		return NULL;
+	}
+	struct circular_queue *cq = layout->windows;
+	do {
+		struct window *w = cq->v;
+		if( w->c == NULL ) {
+			return w;
+		}
+		if( (w = find_empty_window(w->layout)) != NULL ) {
+			return w;
+		}
+	} while( ( cq = cq->next ) != layout->windows );
+	return NULL;
+}
+
+
+static void
 push_client_to_view(struct view *v, struct client *c)
 {
+	struct window *w;
 	add_client_to_view(v, c);
+	if( ( w = find_empty_window(state.current_view->layout)) != NULL ) {
+		w->c = c;
+	} else {
+		split_current_window(c);
+	}
 }
 
 int
