@@ -103,10 +103,9 @@ struct state {
 };
 
 /*
-   TODO
-   ASCII art to describe layouts.  Consider the following, in which the screen
-   (10 rows) is split once vertically, each half is split horizontally once and
-   twice, respectively, and the focus is on the window marked x.  eg:
+   Consider the following, in which the screen (10 rows) is split
+   once vertically, each half is split horizontally once and twice,
+   respectively, and the focus is on the window marked x.  eg:
 
    +--------------------------------+
    |                |               |
