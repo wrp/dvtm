@@ -1239,6 +1239,28 @@ push_client_to_view(struct view *v, struct client *c)
 }
 
 int
+vsplit(const char * const args[])
+{
+	struct layout *lay = get_current_layout();
+	struct window *w = lay->windows->v, *n;
+	switch( lay->type ) {
+	case column_layout:
+		lay = w->layout = new_layout(w);
+		n = w->layout->windows->v;
+		n->c = w->c;
+		w->c = NULL;
+		/* Fall Thru */
+	case undetermined:
+		lay->type = row_layout; /* Fall thru */
+	case row_layout:
+		;
+	}
+	create(args);
+
+	return 1;
+}
+
+int
 create(const char * const args[]) {
 	const char *pargs[4] = { shell, NULL };
 	char buf[8], *cwd = NULL;
