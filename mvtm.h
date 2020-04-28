@@ -63,10 +63,6 @@ struct window {
 	struct client *c;
 	struct layout *layout;
 };
-struct list {
-	void *v;
-	struct list *next;
-};
 /*
  * A layout is a set of windows, each having either the same height
  * (a row layout) or the same width (a column layout).
@@ -79,7 +75,8 @@ struct layout {
 	size_t count;    /* Number of windows */
 };
 struct view {
-	struct list *clients;
+	struct client **clients; /* NULL terminated array */
+	unsigned capacity;
 	struct layout *layout;
 	char name[32];
 };

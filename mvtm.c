@@ -935,15 +935,15 @@ clamp( char ** d, char *e, int count, size_t *r)
 void
 create_views(void)
 {
-	struct view *current_view;
+	struct view *v;
 
-	state.views = current_view = xcalloc(1, sizeof *current_view);
-	current_view->layout = new_layout();
-	if( current_view->layout == NULL) {
+	state.views = v = xcalloc(1, sizeof *v);
+	v->layout = new_layout();
+	if( v->layout == NULL) {
 		error(0, "out of memory");
 	}
-
-	state.current_view = current_view;
+	v->clients = xcalloc(v->capacity = 32, sizeof *v->clients);
+	state.current_view = v;
 }
 
 void
@@ -1104,31 +1104,35 @@ toggle_borders(const char * const args[])
 	return 0;
 }
 
-static void
+static int
 add_client_to_view(struct view *v, struct client *c)
 {
 	assert( v != NULL );
-	struct list **cl = &v->clients;
-	struct list **prev = NULL;
+	struct client **cl = v->clients;
 	int found = 0;
 
-	while( *cl != NULL ) {
-		prev = cl;
-		if( (*cl)->v == c ) {
+	for( ; *cl != NULL; cl++ ) {
+		if( *cl == c ) {
 			found = 1;
 			break;
 		}
-		cl = &(*cl)->next;
 	}
 	if( ! found ) {
-		*cl = xcalloc(1, sizeof **cl);
-		(*cl)->v = c;
-		if( prev != NULL ) {
-			(*prev)->next = *cl;
+		assert( *cl == NULL );
+		assert( cl - v->clients < v->capacity );
+		if( cl - v->clients == v->capacity - 1 ) {
+			struct client **t = realloc( v->clients, (v->capacity + 32) * sizeof *t);
+			if( t == NULL ) {
+				return 0;
+			}
+			v->clients = t;
+			v->capacity += 32;
 		}
+		cl[0] = c;
+		cl[1] = NULL;
 	}
 
-	return;
+	return 1;
 }
 
 static struct layout *
