@@ -95,7 +95,7 @@ struct state {
 	int signal;  /* Signal sent by killclient */
 	int runinall;
 	int hide_borders;
-	struct list views;
+	struct view *views;
 	struct view *current_view;
 };
 

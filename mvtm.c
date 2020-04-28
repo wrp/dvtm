@@ -935,16 +935,14 @@ clamp( char ** d, char *e, int count, size_t *r)
 void
 create_views(void)
 {
-	struct list views;
 	struct view *current_view;
 
-	state.views.v = current_view = xcalloc(1, sizeof *current_view);
+	state.views = current_view = xcalloc(1, sizeof *current_view);
 	current_view->layout = new_layout();
 	if( current_view->layout == NULL) {
 		error(0, "out of memory");
 	}
 
-	state.views.next = NULL;
 	state.current_view = current_view;
 }
 
