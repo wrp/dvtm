@@ -63,11 +63,6 @@ struct window {
 	struct client *c;
 	struct layout *layout;
 };
-struct circular_queue {
-	void *v;
-	struct circular_queue *next;
-	struct circular_queue *prev;
-};
 struct list {
 	void *v;
 	struct list *next;
@@ -78,8 +73,10 @@ struct list {
 */
 struct layout {
 	enum { undetermined, column_layout, row_layout } type;
-	struct window *enclosing;
-	struct circular_queue *windows;
+	struct window *windows;
+	struct window *focus;
+	size_t capacity; /* Space allocated for windows */
+	size_t count;    /* Number of windows */
 };
 struct view {
 	struct list *clients;

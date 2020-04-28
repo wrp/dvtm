@@ -901,27 +901,23 @@ scan_fmt(const char *d, struct window *w)
 	return end;
 }
 
-struct window *
-new_window(double y, double x, double h, double w)
-{
-	struct window *ret = xcalloc(1, sizeof *ret);
-	ret->p.y = y;
-	ret->p.x = x;
-	ret->p.h = h;
-	ret->p.w = w;
-	return ret;
-}
-
 struct layout *
-new_layout(struct window *enclosing)
+new_layout(void)
 {
 	struct layout *ret;
 
-	ret = xcalloc(1, sizeof *ret);
-	ret->enclosing = enclosing;
-	ret->windows = xcalloc(1, sizeof *ret->windows);
-	ret->windows->next = ret->windows->prev = ret->windows;
-	ret->windows->v = new_window(0, 0, 1.0, 1.0);
+	ret = calloc(1, sizeof *ret);
+	if( ret != NULL ) {
+		ret->windows = calloc(ret->capacity = 32, sizeof *ret->windows);
+		if( ret->windows == NULL ) {
+			free(ret);
+			ret = NULL;
+		} else {
+			ret->count = 1;
+			ret->windows[0].p = (struct position){.y = 0, .x = 0, .h = 1.0, .w = 1.0};
+			ret->focus = ret->windows;
+		}
+	}
 	return ret;
 }
 
@@ -943,7 +939,10 @@ create_views(void)
 	struct view *current_view;
 
 	state.views.v = current_view = xcalloc(1, sizeof *current_view);
-	current_view->layout = new_layout(NULL);
+	current_view->layout = new_layout();
+	if( current_view->layout == NULL) {
+		error(0, "out of memory");
+	}
 
 	state.views.next = NULL;
 	state.current_view = current_view;
@@ -1139,42 +1138,26 @@ get_current_layout(void)
 {
 	struct layout *lay = state.current_view->layout;
 	struct window *w;
-	while( ( w = lay->windows->v)->layout != NULL ) {
+	while( ( w = lay->focus)->layout != NULL ) {
 		lay = w->layout;
 	}
 	return lay;
 }
 
-int
-cq_count(const struct circular_queue *q)
-{
-	int count;
-	if( q == NULL ) {
-		count = 0;
-	} else {
-		struct circular_queue *e = q->prev;
-		for( count = 1; q != e; q = q->next ) {
-			count += 1;
-		}
-	}
-	return count;
-}
-
-static void
+static struct window *
 split_current_window(struct client *c)
 {
 	struct window *w;
-	struct circular_queue *cq, *n, *e;
+	struct circular_queue *cq, *n;
 	double factor;
 	struct layout *lay = get_current_layout();
-	int count = cq_count(lay->windows);
+	unsigned count = lay->count;
 	if( lay->type == undetermined ) {
 		assert( count == 1 );
 		lay->type = column_layout;
 	}
 	factor = (double)count / ( count + 1 );
-	do {
-		w = cq->v;
+	for( w = lay->windows; w < lay->windows + count; w++ ) {
 		switch(lay->type) {
 		case undetermined: assert(0); break;
 		case row_layout:
@@ -1189,22 +1172,23 @@ split_current_window(struct client *c)
 			w->p.y *= factor;
 			w->p.h *= factor;
 		}
-	} while( ( cq = cq->next ) != lay->windows );
-
-	n = xcalloc(1, sizeof *n);
-	switch(lay->type) {
-	case undetermined: assert(0); break;
-	case row_layout:
-		n->v = new_window( 0, factor, 1.0, 1-factor );
-		break;
-	case column_layout:
-		n->v = new_window( factor, 0, 1-factor, 1.0 );
 	}
-	n->next = cq->next;
-	n->prev = cq;
-	cq->next = n;
-	n->next->prev = n;
+	if( w != NULL && count >= lay->capacity ) {
+		struct window *tmp = realloc(lay->windows, sizeof *tmp * (lay->capacity += 32));
+		if(tmp == NULL) {
+			return NULL;
+		}
+		lay->windows = tmp;
+	}
+	if(lay->type == row_layout) {
+		lay->windows[count].p = (struct position){.y = 0, .x = factor, .h = 1.0, .w = 1.0 - factor};
+	} else {
+		assert(lay->type == column_layout);
+		lay->windows[count].p = (struct position){.y = factor, .x = 0, .h = 1.0 - factor, .w = 1.0};
+	}
+	return lay->windows + lay->count++;
 }
+
 
 struct window *
 find_empty_window(struct layout *layout)
@@ -1212,16 +1196,16 @@ find_empty_window(struct layout *layout)
 	if( layout == NULL || layout->windows == NULL ) {
 		return NULL;
 	}
-	struct circular_queue *cq = layout->windows;
-	do {
-		struct window *w = cq->v;
+	struct window *w = layout->windows;
+	for( ; w < layout->windows + layout->count; w++ ) {
+		struct window *t;
 		if( w->c == NULL ) {
 			return w;
 		}
-		if( (w = find_empty_window(w->layout)) != NULL ) {
-			return w;
+		if( (t = find_empty_window(w->layout)) != NULL ) {
+			return t;
 		}
-	} while( ( cq = cq->next ) != layout->windows );
+	}
 	return NULL;
 }
 
@@ -1242,12 +1226,11 @@ int
 vsplit(const char * const args[])
 {
 	struct layout *lay = get_current_layout();
-	struct window *w = lay->windows->v, *n;
+	struct window *w = lay->focus;
 	switch( lay->type ) {
 	case column_layout:
-		lay = w->layout = new_layout(w);
-		n = w->layout->windows->v;
-		n->c = w->c;
+		lay = w->layout = new_layout();
+		lay->focus->c = w->c;
 		w->c = NULL;
 		/* Fall Thru */
 	case undetermined:
