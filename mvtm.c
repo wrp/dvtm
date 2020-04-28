@@ -1134,21 +1134,40 @@ add_client_to_view(struct view *v, struct client *c)
 	return;
 }
 
-static void
-split_current_window(struct client *c)
+static struct layout *
+get_current_layout(void)
 {
 	struct layout *lay = state.current_view->layout;
 	struct window *w;
-	struct circular_queue *cq, *n;
-	double factor;
-	int count;
 	while( ( w = lay->windows->v)->layout != NULL ) {
 		lay = w->layout;
 	}
-	cq = lay->windows->next;
-	for( count = 1; cq != lay->windows; cq = cq->next ) {
-		count += 1;
+	return lay;
+}
+
+int
+cq_count(const struct circular_queue *q)
+{
+	int count;
+	if( q == NULL ) {
+		count = 0;
+	} else {
+		struct circular_queue *e = q->prev;
+		for( count = 1; q != e; q = q->next ) {
+			count += 1;
+		}
 	}
+	return count;
+}
+
+static void
+split_current_window(struct client *c)
+{
+	struct window *w;
+	struct circular_queue *cq, *n, *e;
+	double factor;
+	struct layout *lay = get_current_layout();
+	int count = cq_count(lay->windows);
 	if( lay->type == undetermined ) {
 		assert( count == 1 );
 		lay->type = column_layout;
