@@ -2150,6 +2150,7 @@ render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w
 				mvvline(ny, nx, ACS_VLINE, nh);
 				mvaddch(ny, nx, ACS_TTEE);
 				nx += 1;
+				nw -= 1;
 			}
 			resize(win->c, nx, ny, nw, nh);
 		} else if( win->layout ) {
