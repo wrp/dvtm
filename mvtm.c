@@ -71,9 +71,8 @@ struct color colors[] = {
 	[CYAN]    = { .fg = COLOR_CYAN, .bg = -1, .fg256 =  14, .bg256 = -1, },
 };
 
-extern void wstack(void);
-
 static unsigned char modifier_key = CTRL('g');
+static void render_layout(struct layout *, unsigned, unsigned, unsigned, unsigned);
 
 const struct color_rule colorrules[] = {
 	{ "", A_NORMAL, &colors[DEFAULT] },
@@ -340,7 +339,10 @@ arrange(void) {
 	}
 	erase();
 	attrset(NORMAL_ATTR);
-	wstack();
+	if(state.current_view) {
+		render_layout(state.current_view->layout, 0, 0,
+			available_height, available_width);
+	}
 	focus(NULL);
 	wnoutrefresh(stdscr);
 	draw_all();
@@ -1147,7 +1149,7 @@ get_current_layout(void)
 }
 
 static struct window *
-split_current_window(struct client *c)
+split_current_window(void)
 {
 	struct window *w;
 	struct circular_queue *cq, *n;
@@ -1201,7 +1203,7 @@ find_empty_window(struct layout *layout)
 	struct window *w = layout->windows;
 	for( ; w < layout->windows + layout->count; w++ ) {
 		struct window *t;
-		if( w->c == NULL ) {
+		if( w->c == NULL && w->layout == NULL ) {
 			return w;
 		}
 		if( (t = find_empty_window(w->layout)) != NULL ) {
@@ -1217,11 +1219,10 @@ push_client_to_view(struct view *v, struct client *c)
 {
 	struct window *w;
 	add_client_to_view(v, c);
-	if( ( w = find_empty_window(state.current_view->layout)) != NULL ) {
-		w->c = c;
-	} else {
-		split_current_window(c);
+	if( ( w = find_empty_window(state.current_view->layout)) == NULL ) {
+		w = split_current_window();
 	}
+	w->c = c;
 }
 
 int
@@ -1305,8 +1306,8 @@ create(const char * const args[]) {
 	debug("client with pid %d forked\n", c->pid);
 	attach(c);
 	focus(c);
-	arrange();
 	push_client_to_view(state.current_view, c);
+	arrange();
 
 	if( args && args[2] && ! strcmp(args[2], "master") ) {
 		const char * const args[2] = { "+1", NULL };
@@ -2120,4 +2121,39 @@ main(int argc, char *argv[])
 
 	cleanup();
 	return 0;
+}
+
+
+static void
+render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w)
+{
+	/* This shouldn't be necessary, but currently resize_screen()
+	and arrange() are coupled, and we don't know the screen size
+	so cannot initialize state until resize_screen() is called.
+	But we cannot arrange until state is initialized.
+	Until  that is decoupled, just do this check
+	*/
+	if(lay == NULL ) {
+		return;
+	}
+	struct window *win = lay->windows;
+	struct window *end = win + lay->count;
+	for( ; win < end; win++ ) {
+		struct position *p = &win->p;
+		unsigned ny = y + p->y * h;
+		unsigned nx = x + p->x * w;
+		unsigned nh = p->h * h;
+		unsigned nw = p->w * w;
+
+		if( win->c ) {
+			if( nx > 0 && nx < available_width ) {
+				mvvline(ny, nx, ACS_VLINE, nh);
+				mvaddch(ny, nx, ACS_TTEE);
+				nx += 1;
+			}
+			resize(win->c, nx, ny, nw, nh);
+		} else if( win->layout ) {
+			render_layout(win->layout, ny, nx, nh, nw);
+		}
+	}
 }
