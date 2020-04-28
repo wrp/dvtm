@@ -62,6 +62,7 @@ struct window {
 	struct position p;  /* relative to enclosing layout */
 	struct client *c;
 	struct layout *layout;
+	struct layout *enclosing_layout;
 };
 /*
  * A layout is a set of windows, each having either the same height
@@ -70,7 +71,6 @@ struct window {
 struct layout {
 	enum { undetermined, column_layout, row_layout } type;
 	struct window *windows;
-	struct window *focus;
 	size_t capacity; /* Space allocated for windows */
 	size_t count;    /* Number of windows */
 };
@@ -78,6 +78,7 @@ struct view {
 	struct client **clients; /* NULL terminated array */
 	unsigned capacity;
 	struct layout *layout;
+	struct window *vfocus;
 	char name[32];
 };
 /*

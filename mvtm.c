@@ -904,7 +904,7 @@ scan_fmt(const char *d, struct window *w)
 }
 
 struct layout *
-new_layout(void)
+new_layout(struct client *c)
 {
 	struct layout *ret;
 
@@ -917,7 +917,8 @@ new_layout(void)
 		} else {
 			ret->count = 1;
 			ret->windows[0].p = (struct position){.y = 0, .x = 0, .h = 1.0, .w = 1.0};
-			ret->focus = ret->windows;
+			ret->windows[0].enclosing_layout = ret;
+			ret->windows[0].c = c;
 		}
 	}
 	return ret;
@@ -940,11 +941,12 @@ create_views(void)
 	struct view *v;
 
 	state.views = v = xcalloc(1, sizeof *v);
-	v->layout = new_layout();
+	v->layout = new_layout(NULL);
 	if( v->layout == NULL) {
 		error(0, "out of memory");
 	}
 	v->clients = xcalloc(v->capacity = 32, sizeof *v->clients);
+	v->vfocus = v->layout->windows;
 	state.current_view = v;
 }
 
@@ -1140,12 +1142,7 @@ add_client_to_view(struct view *v, struct client *c)
 static struct layout *
 get_current_layout(void)
 {
-	struct layout *lay = state.current_view->layout;
-	struct window *w;
-	while( ( w = lay->focus)->layout != NULL ) {
-		lay = w->layout;
-	}
-	return lay;
+	return state.current_view->vfocus->enclosing_layout;
 }
 
 static struct window *
@@ -1190,6 +1187,7 @@ split_current_window(void)
 		assert(lay->type == column_layout);
 		lay->windows[count].p = (struct position){.y = factor, .x = 0, .h = 1.0 - factor, .w = 1.0};
 	}
+	lay->windows[count].enclosing_layout = lay;
 	return lay->windows + lay->count++;
 }
 
@@ -1229,11 +1227,11 @@ int
 vsplit(const char * const args[])
 {
 	struct layout *lay = get_current_layout();
-	struct window *w = lay->focus;
+	struct window *w = state.current_view->vfocus;
 	switch( lay->type ) {
 	case column_layout:
-		lay = w->layout = new_layout();
-		lay->focus->c = w->c;
+		lay = w->layout = new_layout(w->c);
+		state.current_view->vfocus = lay->windows;
 		w->c = NULL;
 		/* Fall Thru */
 	case undetermined:
