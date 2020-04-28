@@ -420,6 +420,31 @@ detachstack(struct client *c) {
 	*tc = c->snext;
 }
 
+
+/* this is a tragic hack.  All of the functions
+that manipulat clients ought instead to be manipulating
+windows.  until we have enough changes in place to make
+that happen, we need somehting like this.  NOte that eventually
+it will be possible to have a client mapped to multiple
+windows, but for now the mapping should be unique*/
+struct window *
+find_window(struct layout *lay, struct client *c)
+{
+	struct window *w;
+	struct window *k;
+	if( lay == NULL ) {
+		return NULL;
+	}
+	for(w = lay->windows; w < lay->windows + lay->count; w++ ) {
+		if( w->c == c ) {
+			return w;
+		} else if( ( k = find_window(w->layout, c)) != NULL ) {
+			return k;
+		}
+	}
+	return NULL;
+}
+
 void
 focus(struct client *c) {
 	if (!c)
@@ -443,6 +468,7 @@ focus(struct client *c) {
 		wnoutrefresh(c->window);
 	}
 	curs_set(c && vt_cursor_visible(c->term));
+	state.current_view->vfocus = find_window(state.current_view->layout, c);
 }
 
 void
@@ -1303,8 +1329,8 @@ create(const char * const args[]) {
 	c->y = 0;
 	debug("client with pid %d forked\n", c->pid);
 	attach(c);
-	focus(c);
 	push_client_to_view(state.current_view, c);
+	focus(c);
 	arrange();
 
 	if( args && args[2] && ! strcmp(args[2], "master") ) {
