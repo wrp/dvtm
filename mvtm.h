@@ -77,7 +77,7 @@ struct list {
  * (a row layout) or the same width (a column layout).
 */
 struct layout {
-	enum { undecided, row_layout, column_layout } type;
+	enum { undetermined, column_layout, row_layout } type;
 	struct window *enclosing;
 	struct circular_queue *windows;
 };

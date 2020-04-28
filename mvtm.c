@@ -902,13 +902,13 @@ scan_fmt(const char *d, struct window *w)
 }
 
 struct window *
-new_window(void)
+new_window(double y, double x, double h, double w)
 {
 	struct window *ret = xcalloc(1, sizeof *ret);
-	ret->p.y = 0;
-	ret->p.x = 0;
-	ret->p.h = 1.0;
-	ret->p.w = 1.0;
+	ret->p.y = y;
+	ret->p.x = x;
+	ret->p.h = h;
+	ret->p.w = w;
 	return ret;
 }
 
@@ -921,7 +921,7 @@ new_layout(struct window *enclosing)
 	ret->enclosing = enclosing;
 	ret->windows = xcalloc(1, sizeof *ret->windows);
 	ret->windows->next = ret->windows->prev = ret->windows;
-	ret->windows->v = new_window();
+	ret->windows->v = new_window(0, 0, 1.0, 1.0);
 	return ret;
 }
 
@@ -1137,11 +1137,54 @@ add_client_to_view(struct view *v, struct client *c)
 static void
 split_current_window(struct client *c)
 {
-	struct window *w = state.current_view->layout->windows->v;
-	while( w->layout != NULL ) {
-		w = w->layout->windows->v;
+	struct layout *lay = state.current_view->layout;
+	struct window *w;
+	struct circular_queue *cq, *n;
+	double factor;
+	int count;
+	while( ( w = lay->windows->v)->layout != NULL ) {
+		lay = w->layout;
 	}
-	assert( w->c != NULL );
+	cq = lay->windows->next;
+	for( count = 1; cq != lay->windows; cq = cq->next ) {
+		count += 1;
+	}
+	if( lay->type == undetermined ) {
+		assert( count == 1 );
+		lay->type = column_layout;
+	}
+	factor = (double)count / ( count + 1 );
+	do {
+		w = cq->v;
+		switch(lay->type) {
+		case undetermined: assert(0); break;
+		case row_layout:
+			assert( w->p.y == 0 );
+			assert( w->p.h == 1.0 );
+			w->p.x *= factor;
+			w->p.w *= factor;
+			break;
+		case column_layout:
+			assert( w->p.x == 0 );
+			assert( w->p.w == 1.0 );
+			w->p.y *= factor;
+			w->p.h *= factor;
+		}
+	} while( ( cq = cq->next ) != lay->windows );
+
+	n = xcalloc(1, sizeof *n);
+	switch(lay->type) {
+	case undetermined: assert(0); break;
+	case row_layout:
+		n->v = new_window( 0, factor, 1.0, 1-factor );
+		break;
+	case column_layout:
+		n->v = new_window( factor, 0, 1-factor, 1.0 );
+	}
+	n->next = cq->next;
+	n->prev = cq;
+	cq->next = n;
+	n->next->prev = n;
 }
 
 struct window *
