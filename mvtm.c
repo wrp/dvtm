@@ -581,20 +581,6 @@ untag(const char * const args[]) {
 	return 0;
 }
 
-int
-toggletag(const char * const args[]) {
-	assert(sel == state.current_view->vfocus->c);
-	if (!sel)
-		return 0;
-	int tag = args[0] ? args[0][0] - '0' : 0;
-	unsigned int newtags = sel->tags ^ (bitoftag(tag));
-	if (newtags) {
-		sel->tags = newtags;
-		tagschanged();
-	}
-	return 0;
-}
-
 void
 keypress(int code) {
 	int key = -1;

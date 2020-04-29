@@ -282,7 +282,6 @@ command redraw;
 command scrollback;
 command send;
 command startup;
-command toggletag;
 command toggleview;
 command untag;
 command viewprevtag;
