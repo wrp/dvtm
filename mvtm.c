@@ -191,7 +191,8 @@ show_border(void) {
 }
 
 void
-draw_border(struct client *c) {
+draw_border(struct window *w) {
+	struct client *c = w->c;
 	int x, y, attrs = NORMAL_ATTR;
 	char border_title[128];
 	char *msg = NULL;
@@ -262,7 +263,7 @@ draw(struct client *c) {
 		redrawwin(c->window);
 		draw_content(c);
 	}
-	draw_border(c);
+	draw_border(c->win);
 	wnoutrefresh(c->window);
 }
 
@@ -393,14 +394,14 @@ focus(struct client *c) {
 	sel = c;
 	if (lastsel) {
 		lastsel->urgent = false;
-		draw_border(lastsel);
+		draw_border(lastsel->win);
 		wnoutrefresh(lastsel->window);
 	}
 
 	if (c) {
 		set_term_title(c->title);
 		c->urgent = false;
-		draw_border(c);
+		draw_border(c->win);
 		wnoutrefresh(c->window);
 	}
 	curs_set(c && vt_cursor_visible(c->term));
@@ -449,7 +450,7 @@ term_title_handler(Vt *term, const char *title) {
 	if( sel == c ) {
 		set_term_title(c->title);
 	}
-	draw_border(c);
+	draw_border(c->win);
 	applycolorrules(c);
 }
 
@@ -461,7 +462,7 @@ term_urgent_handler(Vt *term) {
 	fflush(stdout);
 	drawbar();
 	if( sel != c && isvisible(c) )
-		draw_border(c);
+		draw_border(c->win);
 }
 
 void
@@ -1323,7 +1324,7 @@ copymode(const char * const args[])
 
 end:
 	assert(state.mode == command_mode);
-	draw_border(sel);
+	draw_border(sel->win);
 	toggle_mode(NULL);
 	return 0;
 }
@@ -1545,7 +1546,7 @@ handle_editor(struct client *c) {
 	c->term = c->app;
 	vt_dirty(c->term);
 	draw_content(c);
-	draw_border(c);
+	draw_border(c->win);
 	wnoutrefresh(c->window);
 }
 
