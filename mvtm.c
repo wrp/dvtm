@@ -1827,7 +1827,9 @@ main(int argc, char *argv[])
 		if (bar.fd != -1 && FD_ISSET(bar.fd, &rd))
 			handle_statusbar();
 
-		for (struct client *c = clients; c; c = c->next) {
+		for_each_client(1);
+		struct client *c;
+		while( (c = for_each_client(0)) != NULL ) {
 			if (FD_ISSET(vt_pty_get(c->term), &rd)) {
 				if (vt_process(c->term) < 0 && errno == EIO) {
 					if (c->editor)
