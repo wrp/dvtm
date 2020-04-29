@@ -1010,12 +1010,12 @@ get_current_layout(void)
 }
 
 static struct window *
-split_current_window(void)
+split_window(struct window *target)
 {
 	struct window *w;
 	struct circular_queue *cq, *n;
 	double factor;
-	struct layout *lay = get_current_layout();
+	struct layout *lay = target->enclosing_layout;
 	unsigned count = lay->count;
 	if( lay->type == undetermined ) {
 		assert( count == 1 );
@@ -1082,7 +1082,7 @@ push_client_to_view(struct view *v, struct client *c)
 	struct window *w;
 	add_client_to_view(v, c);
 	if( (w = find_empty_window(state.current_view->layout)) == NULL ) {
-		w = split_current_window();
+		w = split_window(state.current_view->vfocus);
 	}
 	w->c = c;
 	c->win = w;
