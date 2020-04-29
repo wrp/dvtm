@@ -97,7 +97,6 @@ struct action *actions = NULL; /* actions are executed when mvtm is started */
 
 struct screen screen = { .mfact = MFACT, .nmaster = NMASTER, .history = SCROLL_HISTORY };
 
-struct client *stack = NULL;  /* clients are pushed onto the stack as they get the focus */
 struct client *sel = NULL;
 struct client *lastsel = NULL;
 unsigned int seltags;
@@ -378,12 +377,6 @@ attachafter(struct client *c, struct client *a) { /* attach c after a */
 }
 
 void
-attachstack(struct client *c) {
-	c->snext = stack;
-	stack = c;
-}
-
-void
 detach(struct client *c) {
 	struct client *d;
 	if (c->prev)
@@ -413,13 +406,6 @@ set_term_title(char *new_title) {
 	}
 }
 
-void
-detachstack(struct client *c) {
-	struct client **tc;
-	for (tc = &stack; *tc && *tc != c; tc = &(*tc)->snext);
-	*tc = c->snext;
-}
-
 
 /* this is a tragic hack.  All of the functions
 that manipulat clients ought instead to be manipulating
@@ -447,8 +433,9 @@ find_window(struct layout *lay, struct client *c)
 
 void
 focus(struct client *c) {
-	if (!c)
-		for (c = stack; c && !isvisible(c); c = c->snext);
+	if( c == NULL && state.current_view && state.current_view->clients) {
+		c = state.current_view->clients[0];
+	}
 	if (sel == c)
 		return;
 	lastsel = sel;
@@ -460,8 +447,6 @@ focus(struct client *c) {
 	}
 
 	if (c) {
-		detachstack(c);
-		attachstack(c);
 		set_term_title(c->title);
 		c->urgent = false;
 		draw_border(c);
@@ -1039,7 +1024,6 @@ destroy(struct client *c) {
 	if (sel == c)
 		focusnextnm(NULL);
 	detach(c);
-	detachstack(c);
 	if (sel == c) {
 		struct client *next = nextvisible(clients);
 		if (next) {
