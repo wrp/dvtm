@@ -141,11 +141,6 @@ drawbar(void) {
 	int sx, sy, x, y, width;
 	unsigned int occupied = 0, urgent = 0;
 
-	for (struct client *c = clients; c; c = c->next) {
-		occupied |= c->tags;
-		if (c->urgent)
-			urgent |= c->tags;
-	}
 
 	getyx(stdscr, sy, sx);
 	attrset(BAR_ATTR);
