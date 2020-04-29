@@ -136,12 +136,11 @@ struct client {
 	int editor_fds[2];
 	volatile sig_atomic_t editor_died;
 	const char *cmd;
+	struct abs_position p;
 	char title[128];
 	char editor_title[128];
 	pid_t pid;
 	unsigned short int id;
-	unsigned short y, x;  /* position of upper left corner */
-	unsigned short h, w;  /* height and width */
 	bool has_title_line;
 	bool urgent;
 	volatile sig_atomic_t died;

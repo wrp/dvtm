@@ -230,11 +230,11 @@ draw_border(struct window *w) {
 
 	wattrset(c->window, attrs);
 	getyx(c->window, y, x);
-	mvwhline(c->window, 0, 0, ACS_HLINE, c->w);
+	mvwhline(c->window, 0, 0, ACS_HLINE, c->p.w);
 
-	snprintf(border_title, MIN(c->w, sizeof border_title), "%s%s#%d (%ld)",
-		c->w > 32 ? title : "",
-		c->w > 32 ? " | " : "",
+	snprintf(border_title, MIN(c->p.w, sizeof border_title), "%s%s#%d (%ld)",
+		c->p.w > 32 ? title : "",
+		c->p.w > 32 ? " | " : "",
 		c->id, (long)c->pid);
 
 	if(c->tags) {
@@ -253,7 +253,7 @@ draw_border(struct window *w) {
 	mvwprintw(c->window, 0, 2, "[%s]", border_title);
 	if( msg != NULL ) {
 		int start = strlen(border_title) + 4 + 2;
-		if( c->w > start + strlen(msg) + 2 ) {
+		if( c->p.w > start + strlen(msg) + 2 ) {
 			mvwprintw(c->window, 0, start, "%s", msg);
 		}
 	}
@@ -420,28 +420,28 @@ term_urgent_handler(Vt *term) {
 
 void
 move_client(struct client *c, int x, int y) {
-	if (c->x == x && c->y == y)
+	if (c->p.x == x && c->p.y == y)
 		return;
 	debug("moving, x: %d y: %d\n", x, y);
 	if (mvwin(c->window, y, x) == ERR) {
 		eprint("error moving, x: %d y: %d\n", x, y);
 	} else {
-		c->x = x;
-		c->y = y;
+		c->p.x = x;
+		c->p.y = y;
 	}
 }
 
 void
 resize_client(struct client *c, int w, int h) {
 	bool has_title_line = show_border();
-	bool resize_window = c->w != w || c->h != h;
+	bool resize_window = c->p.w != w || c->p.h != h;
 	if (resize_window) {
 		debug("resizing, w: %d h: %d\n", w, h);
 		if (wresize(c->window, h, w) == ERR) {
 			eprint("error resizing, w: %d h: %d\n", w, h);
 		} else {
-			c->w = w;
-			c->h = h;
+			c->p.w = w;
+			c->p.h = h;
 		}
 	}
 	if (resize_window || c->has_title_line != has_title_line) {
@@ -1168,8 +1168,8 @@ create(const char * const args[]) {
 	vt_title_handler_set(c->term, term_title_handler);
 	vt_urgent_handler_set(c->term, term_urgent_handler);
 	applycolorrules(c);
-	c->x = 0;
-	c->y = 0;
+	c->p.x = 0;
+	c->p.y = 0;
 	debug("client with pid %d forked\n", c->pid);
 	push_client_to_view(state.current_view, c);
 	focus(c);
@@ -1244,7 +1244,7 @@ copymode(const char * const args[])
 
 	bool colored = strstr(args[0], "pager") != NULL;
 
-	if (!(sel->editor = vt_create(sel->h - sel->has_title_line, sel->w, 0)))
+	if (!(sel->editor = vt_create(sel->p.h - sel->has_title_line, sel->p.w, 0)))
 		goto end;
 
 	int *to = &sel->editor_fds[0];
@@ -1412,7 +1412,7 @@ scrollback(const char * const args[]) {
 	if( state.buf.count ) {
 		pages *= state.buf.count;
 	}
-	vt_scroll(sel->term,  pages * sel->h);
+	vt_scroll(sel->term,  pages * sel->p.h);
 	draw(sel);
 	curs_set(vt_cursor_visible(sel->term));
 	return 0;
