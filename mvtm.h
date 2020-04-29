@@ -151,6 +151,7 @@ struct client {
 	struct client *prev;
 	struct client *snext;
 	unsigned int tags;
+	struct window *win;
 };
 
 

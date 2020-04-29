@@ -1247,6 +1247,7 @@ push_client_to_view(struct view *v, struct client *c)
 		w = split_current_window();
 	}
 	w->c = c;
+	c->win = w;
 }
 
 int
