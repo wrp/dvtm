@@ -1350,16 +1350,26 @@ end:
 }
 
 static struct client *
-select_client(int only_visible)
+select_client(const struct view *v)
 {
 	struct client *c = sel;
+
 	if( state.buf.count != 0 ) {
-		for( c = clients; c; c = c->next) {
-			if( only_visible && ! isvisible(c) ) {
-				continue;
+		struct client *t;
+		if( v == NULL ) {
+			struct view *v = state.views;
+			for( ; v < state.views + state.viewcount; v++ ) {
+				if( (t = select_client(v)) != NULL ) {
+					c = t;
+					break;
+				}
 			}
-			if( c->id == state.buf.count) {
-				break;
+		} else {
+			for( struct client **cp = v->vclients; *cp; cp++ ) {
+				if( (*cp)->id == state.buf.count) {
+					c = *cp;
+					break;
+				}
 			}
 		}
 	}
@@ -1369,7 +1379,7 @@ select_client(int only_visible)
 int
 focusn(const char * const args[])
 {
-	struct client *c = select_client(1);
+	struct client *c = select_client(state.current_view);
 	if( c != NULL ) {
 		focus(c);
 		toggle_mode(NULL);
@@ -1411,7 +1421,7 @@ signalclient(const char * const args[])
 int
 killclient(const char * const args[])
 {
-	struct client *c = select_client(0);
+	struct client *c = select_client(NULL);
 	if( c != NULL ) {
 		kill( -c->pid, state.signal ? state.signal : SIGHUP);
 	}
