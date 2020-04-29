@@ -196,6 +196,7 @@ show_border(void) {
 void
 draw_border(struct window *w) {
 	struct client *c = w->c;
+	struct client *f;
 	int x, y, attrs = NORMAL_ATTR;
 	char border_title[128];
 	char *msg = NULL;
@@ -208,13 +209,13 @@ draw_border(struct window *w) {
 	if( !show_border() || c == NULL ) {
 		return;
 	}
-	assert(sel == state.current_view->vfocus->c);
-	if (sel == c )
+	f = state.current_view->vfocus->c;
+	if( f == c )
 		attrs = COLOR(BLUE) | A_NORMAL;
 
-	if( sel == c && state.mode == command_mode ) {
+	if( f == c && state.mode == command_mode ) {
 		attrs = COLOR(RED) | A_REVERSE;
-	} else if( sel == c && c->term == c->editor ) {
+	} else if( f == c && c->term == c->editor ) {
 		attrs = COLOR(CYAN) | A_NORMAL;
 	}
 	if( state.mode == command_mode ) {
@@ -321,9 +322,9 @@ arrange(void) {
 static void
 set_term_title(char *new_title) {
 	char *term, *t = title;
+	struct client *f = state.current_view->vfocus->c;
 
-	assert(sel == state.current_view->vfocus->c);
-	assert(new_title == sel->title);
+	assert(new_title == f->title);
 	if( !t && *new_title ) {
 		t = new_title;
 	}
@@ -398,9 +399,9 @@ sanitize_string(const char *title, char *dest, size_t siz)
 void
 term_title_handler(Vt *term, const char *title) {
 	struct client *c = (struct client *)vt_data_get(term);
+	struct client *f = state.current_view->vfocus->c;
 	sanitize_string(title, c->title, sizeof c->title);
-	assert(sel == state.current_view->vfocus->c);
-	if( sel == c ) {
+	if( f == c ) {
 		set_term_title(c->title);
 	}
 	draw_border(c->win);
@@ -410,12 +411,12 @@ term_title_handler(Vt *term, const char *title) {
 void
 term_urgent_handler(Vt *term) {
 	struct client *c = (struct client *)vt_data_get(term);
+	struct client *f = state.current_view->vfocus->c;
 	c->urgent = true;
 	printf("\a");
 	fflush(stdout);
 	drawbar();
-	assert(sel == state.current_view->vfocus->c);
-	if( sel != c && isvisible(c) )
+	if( f != c && isvisible(c) )
 		draw_border(c->win);
 }
 
@@ -572,9 +573,9 @@ tagschanged() {
 
 int
 untag(const char * const args[]) {
-	assert(sel == state.current_view->vfocus->c);
-	if( sel ) {
-		sel->tags = 1;
+	struct client *f = state.current_view->vfocus->c;
+	if( f ) {
+		f->tags = 1;
 		tagschanged();
 	}
 	return 0;
