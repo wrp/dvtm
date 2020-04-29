@@ -53,11 +53,6 @@ const struct color_rule colorrules[] = {
 	{ "", A_NORMAL, &colors[DEFAULT] },
 };
 
-/* Commands which can be invoked via the cmdfifo */
-struct command commands[] = {
-	{ "create", { create,	{ NULL } } },
-};
-
 void cleanup(void);
 void push_action(const struct action *a);
 static void reset_entry(struct entry_buf *);
@@ -75,7 +70,7 @@ struct client *lastsel = NULL;
 unsigned int seltags;
 unsigned int tagset[2] = { 1, 1 };
 struct statusbar bar = { .fd = -1, .h = 1 };
-CmdFifo cmdfifo = { .fd = -1 };
+static unsigned id;
 const char *shell;
 struct data_buffer copyreg;
 volatile sig_atomic_t stop_requested = 0;
@@ -927,10 +922,6 @@ cleanup(void) {
 		close(bar.fd);
 	if (bar.file)
 		unlink(bar.file);
-	if (cmdfifo.fd > 0)
-		close(cmdfifo.fd);
-	if (cmdfifo.file)
-		unlink(cmdfifo.file);
 }
 
 int
@@ -1136,7 +1127,7 @@ create(const char * const args[]) {
 	if (!c)
 		return 1;
 	c->tags = tagset[seltags];
-	c->id = ++cmdfifo.id;
+	c->id = ++id;
 	snprintf(buf, sizeof buf, "%d", c->id);
 
 	if (!(c->window = newwin(available_height, available_width, 0, 0))) {
@@ -1426,34 +1417,6 @@ send(const char * const args[]) {
 }
 
 
-struct command *
-get_cmd_by_name(const char *name) {
-	for (unsigned int i = 0; i < LENGTH(commands); i++) {
-		if (!strcmp(name, commands[i].name))
-			return &commands[i];
-	}
-	return NULL;
-}
-
-void
-handle_cmdfifo(void) {
-	int r;
-	char *p, *s, cmdbuf[512], c;
-	struct command *cmd;
-
-	r = read(cmdfifo.fd, cmdbuf, sizeof cmdbuf - 1);
-	if (r <= 0) {
-		cmdfifo.fd = -1;
-		return;
-	}
-
-	cmdbuf[r] = '\0';
-	cmd = get_cmd_by_name(cmdbuf);
-	if( cmd != NULL ) {
-		cmd->action.cmd(cmd->action.args);
-	}
-}
-
 void
 handle_statusbar(void) {
 	char *p;
@@ -1561,14 +1524,14 @@ parse_args(int argc, char *argv[]) {
 			push_action(&a);
 			continue;
 		}
-		if( strchr("drtscm", arg[1]) != NULL && argv[1] == NULL ) {
+		if( strchr("drtsm", arg[1]) != NULL && argv[1] == NULL ) {
 			error(0, "%s requires an argument (-h for usage)", arg);
 		}
 		switch (arg[1]) {
 		case 'h':
 			printf("usage: %s [-v] [-h] [-f] [-m mod] [-d delay] "
 				"[-r lines] [-t title] [-s status-fifo] "
-				"[-c cmd-fifo] [cmd...]\n", basename);
+				"[cmd...]\n", basename);
 			exit(EXIT_SUCCESS);
 		case 'v':
 			printf("%s-%s\n", PACKAGE, VERSION);
@@ -1600,10 +1563,6 @@ parse_args(int argc, char *argv[]) {
 		case 's':
 			bar.fd = open_or_create_fifo(*++argv, &bar.file, "MVTM_STATUS_FIFO");
 			break;
-		case 'c': {
-			cmdfifo.fd = open_or_create_fifo(*++argv, &cmdfifo.file, "MVTM_CMD_FIFO");
-			break;
-		}
 		default:
 			error(0, "unknown option: %s (-h for usage)", arg);
 		}
@@ -1734,7 +1693,6 @@ main(int argc, char *argv[])
 		set_fd_mask(STDIN_FILENO, &rd, &nfds);
 		set_fd_mask(sigwinch_pipe[0], &rd, &nfds);
 		set_fd_mask(sigchld_pipe[0], &rd, &nfds);
-		set_fd_mask(cmdfifo.fd, &rd, &nfds);
 		set_fd_mask(bar.fd, &rd, &nfds);
 
 		check_client_fds(&rd, &nfds);
@@ -1771,9 +1729,6 @@ main(int argc, char *argv[])
 			}
 			handle_sigchld();
 		}
-
-		if (cmdfifo.fd != -1 && FD_ISSET(cmdfifo.fd, &rd))
-			handle_cmdfifo();
 
 		if (bar.fd != -1 && FD_ISSET(bar.fd, &rd))
 			handle_statusbar();

@@ -221,12 +221,6 @@ struct statusbar {
 	const char *file;
 };
 
-typedef struct {
-	int fd;
-	const char *file;
-	unsigned short int id;
-} CmdFifo;
-
 struct data_buffer {
 	char *data;
 	size_t len;
