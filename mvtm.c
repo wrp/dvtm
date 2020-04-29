@@ -1698,9 +1698,11 @@ set_fd_mask(int fd, fd_set *r, int *nfds) {
 }
 
 void
-cleanup_dead_clients(struct client *c)
+cleanup_dead_clients(void)
 {
-	while( c != NULL ) {
+	struct client *c;
+	for_each_client(1);
+	while( (c = for_each_client(0)) != NULL ) {
 		if( c->editor && c->editor_died ) {
 			handle_editor(c);
 		}
@@ -1853,7 +1855,7 @@ main(int argc, char *argv[])
 			curs_set(vt_cursor_visible(sel->term));
 			wnoutrefresh(sel->window);
 		}
-		cleanup_dead_clients(clients);
+		cleanup_dead_clients();
 		if( screen.winched ) {
 			resize_screen();
 		}
