@@ -556,15 +556,6 @@ keybinding(unsigned char k, const struct key_binding *r)
 	return b->action.cmd ? b : b->next;
 }
 
-unsigned int
-bitoftag(int tag) {
-	unsigned t = tag ? 0 : ~0;
-	if( tag > 0 && tag < 9 ) {
-		t = 1 << (tag - 1);
-	}
-	return t;
-}
-
 void
 tagschanged() {
 	arrange();
