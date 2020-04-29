@@ -525,18 +525,6 @@ resize(struct client *c, int x, int y, int w, int h) {
 	move_client(c, x, y);
 }
 
-struct client*
-get_client_by_coord(unsigned int x, unsigned int y) {
-	if (y < 0 || y >= available_height)
-		return NULL;
-	for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
-		if (x >= c->x && x < c->x + c->w && y >= c->y && y < c->y + c->h) {
-			return c;
-		}
-	}
-	return NULL;
-}
-
 void
 sigchld_handler(int sig) {
 	write(sigchld_pipe[1], "\0", 1);
@@ -1519,54 +1507,6 @@ focuslast(const char * const args[]) {
 	return 0;
 }
 
-int
-focusup(const char * const args[]) {
-	if (!sel)
-		return 0;
-	/* avoid vertical separator, hence +1 in x direction */
-	struct client *c = get_client_by_coord(sel->x + 1, sel->y - 1);
-	if (c)
-		focus(c);
-	else
-		focusprev(args);
-	return 0;
-}
-
-int
-focusdown(const char * const args[]) {
-	if (!sel)
-		return 0;
-	struct client *c = get_client_by_coord(sel->x, sel->y + sel->h);
-	if (c)
-		focus(c);
-	else
-		focusnext(args);
-	return 0;
-}
-
-int
-focusleft(const char * const args[]) {
-	if (!sel)
-		return 0;
-	struct client *c = get_client_by_coord(sel->x - 2, sel->y);
-	if (c)
-		focus(c);
-	else
-		focusprev(args);
-	return 0;
-}
-
-int
-focusright(const char * const args[]) {
-	if (!sel)
-		return 0;
-	struct client *c = get_client_by_coord(sel->x + sel->w + 1, sel->y);
-	if (c)
-		focus(c);
-	else
-		focusnext(args);
-	return 0;
-}
 
 int
 change_kill_signal(const char *const args[])
