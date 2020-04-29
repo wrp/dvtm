@@ -187,7 +187,8 @@ drawbar(void) {
 
 int
 show_border(void) {
-	return clients && clients->next && ! state.hide_borders;
+	struct view *v = state.current_view;
+	return v && v->vclients && v->vclients[0] != NULL;
 }
 
 void
