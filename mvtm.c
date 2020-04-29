@@ -58,7 +58,6 @@ const struct color_rule colorrules[] = {
 /* Commands which can be invoked via the cmdfifo */
 struct command commands[] = {
 	{ "create", { create,	{ NULL } } },
-	{ "focus",  { focusid,	{ NULL } } },
 };
 
 void cleanup(void);
@@ -1426,25 +1425,6 @@ focusn(const char * const args[])
 	if( c != NULL ) {
 		focus(c);
 		toggle_mode(NULL);
-	}
-	return 0;
-}
-
-int
-focusid(const char * const args[]) {
-	if (!args[0])
-		return 0;
-
-	const int win_id = atoi(args[0]);
-	for (struct client *c = clients; c; c = c->next) {
-		if (c->id == win_id) {
-			focus(c);
-			if (!isvisible(c)) {
-				c->tags |= tagset[seltags];
-				tagschanged();
-			}
-			return 0;
-		}
 	}
 	return 0;
 }
