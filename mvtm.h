@@ -29,7 +29,6 @@
 #include "vt.h"
 
 struct screen {
-	float mfact;
 	unsigned int nmaster;
 	int history;
 	int w;
@@ -275,8 +274,6 @@ int ESCDELAY;
 /* characters for beginning and end of status bar message */
 #define BAR_BEGIN       '['
 #define BAR_END         ']'
-/* master width factor [0.1 .. 0.9] */
-#define MFACT 0.8
 /* number of clients in master area */
 #define NMASTER 1
 /* scroll back buffer size in lines */

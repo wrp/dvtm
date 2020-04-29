@@ -95,7 +95,7 @@ char *title;
 
 struct action *actions = NULL; /* actions are executed when mvtm is started */
 
-struct screen screen = { .mfact = MFACT, .nmaster = NMASTER, .history = SCROLL_HISTORY };
+struct screen screen = { .nmaster = NMASTER, .history = SCROLL_HISTORY };
 
 struct client *sel = NULL;
 struct client *lastsel = NULL;
@@ -1700,27 +1700,6 @@ incnmaster(const char * const args[]) {
 			screen.nmaster = delta;
 		if (screen.nmaster < 1)
 			screen.nmaster = 1;
-	}
-	arrange();
-	return 0;
-}
-
-int
-setmfact(const char * const args[]) {
-	float delta;
-
-	/* arg handling, manipulate mfact */
-	if (args[0] == NULL) {
-		screen.mfact = MFACT;
-	} else if (sscanf(args[0], "%f", &delta) == 1) {
-		if (args[0][0] == '+' || args[0][0] == '-')
-			screen.mfact += delta;
-		else
-			screen.mfact = delta;
-		if (screen.mfact < 0.1)
-			screen.mfact = 0.1;
-		else if (screen.mfact > 0.9)
-			screen.mfact = 0.9;
 	}
 	arrange();
 	return 0;
