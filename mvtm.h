@@ -137,7 +137,6 @@ struct client {
 	const char *cmd;
 	char title[128];
 	char editor_title[128];
-	int order;
 	pid_t pid;
 	unsigned short int id;
 	unsigned short y, x;  /* position of upper left corner */

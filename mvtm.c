@@ -36,8 +36,6 @@
 
 struct key_binding *bindings;     /* keypress_mode bindings */
 struct key_binding *cmd_bindings;  /* command_mode bindings */
-
-
 struct state state;
 
 enum { DEFAULT, BLUE, RED, CYAN };
@@ -294,10 +292,7 @@ draw_all(void) {
 
 void
 arrange(void) {
-	unsigned int m = 0, n = 0;
-	for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
-		c->order = ++n;
-	}
+	unsigned int m = 0;
 	erase();
 	attrset(NORMAL_ATTR);
 	if(state.current_view) {
@@ -316,8 +311,6 @@ attach(struct client *c) {
 	c->next = clients;
 	c->prev = NULL;
 	clients = c;
-	for (int o = 1; c; c = nextvisible(c->next), o++)
-		c->order = o;
 }
 
 void
@@ -333,8 +326,6 @@ attachafter(struct client *c, struct client *a) { /* attach c after a */
 		c->next = a->next;
 		c->prev = a;
 		a->next = c;
-		for (int o = a->order; c; c = nextvisible(c->next))
-			c->order = ++o;
 	}
 }
 
@@ -345,8 +336,6 @@ detach(struct client *c) {
 		c->prev->next = c->next;
 	if (c->next) {
 		c->next->prev = c->prev;
-		for (d = nextvisible(c->next); d; d = nextvisible(d->next))
-			--d->order;
 	}
 	if (c == clients)
 		clients = c->next;
