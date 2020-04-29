@@ -24,7 +24,6 @@ binding_description mod_bindings[] = {
 	{ "n",   "scrollback", "+.5" },
 	{ "qq",  "quit" },
 	{ "v",   "view" },
-	{ "V",   "viewprevtag" },
 	{ "t",  "tag" },
 	{ "T0",  "untag" },
 	{ NULL }
@@ -57,7 +56,6 @@ static struct command_name names[] = {
 	entry(untag),
 	entry(view),
 	entry(vsplit),
-	entry(viewprevtag),
 	{NULL},
 };
 #undef entry

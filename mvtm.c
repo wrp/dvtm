@@ -663,13 +663,6 @@ view(const char * const args[]) {
 	return 0;
 }
 
-int
-viewprevtag(const char * const args[]) {
-	seltags ^= 1;
-	tagschanged();
-	return 0;
-}
-
 void
 keypress(int code) {
 	int key = -1;
