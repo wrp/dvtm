@@ -131,12 +131,6 @@ is_content_visible(struct client *c) {
 	return c && isvisible(c);
 }
 
-struct client*
-nextvisible(struct client *c) {
-	for (; c && !isvisible(c); c = c->next);
-	return c;
-}
-
 void
 updatebarpos(void) {
 	bar.y = 0;
@@ -1683,12 +1677,9 @@ cleanup_dead_clients(void)
 			handle_editor(c);
 		}
 		if( !c->editor && c->died ) {
-			struct client *t = c->next;
 			destroy(c);
-			c = t;
 			continue;
 		}
-		c = c->next;
 	}
 }
 

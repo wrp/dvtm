@@ -145,9 +145,6 @@ struct client {
 	bool has_title_line;
 	bool urgent;
 	volatile sig_atomic_t died;
-	struct client *next;
-	struct client *prev;
-	struct client *snext;
 	unsigned int tags;
 	struct window *win;
 };
