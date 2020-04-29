@@ -1464,21 +1464,6 @@ focusnextnm(const char * const args[]) {
 }
 
 int
-focusprev(const char * const args[]) {
-	struct client *c;
-	if (!sel)
-		return 0;
-	for (c = sel->prev; c && !isvisible(c); c = c->prev);
-	if (!c) {
-		for (c = clients; c && c->next; c = c->next);
-		for (; c && !isvisible(c); c = c->prev);
-	}
-	if (c)
-		focus(c);
-	return 0;
-}
-
-int
 focusprevnm(const char * const args[]) {
 	if (!sel)
 		return 0;
