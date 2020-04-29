@@ -925,6 +925,7 @@ setup(void) {
 
 void
 destroy(struct client *c) {
+	return;
 	if (sel == c)
 		focusnextnm(NULL);
 	detach(c);
@@ -951,8 +952,10 @@ destroy(struct client *c) {
 
 void
 cleanup(void) {
+/*
 	while (clients)
 		destroy(clients);
+		*/
 	vt_shutdown();
 	endwin();
 	free(copyreg.data);
