@@ -57,8 +57,6 @@ void cleanup(void);
 void push_action(const struct action *a);
 static void reset_entry(struct entry_buf *);
 
-unsigned available_width;  /* width of total available screen real estate */
-unsigned available_height; /* height of total available screen real estate */
 char *title;
 
 struct action *actions = NULL; /* actions are executed when mvtm is started */
@@ -128,11 +126,7 @@ is_content_visible(struct client *c) {
 
 void
 updatebarpos(void) {
-	bar.y = 0;
-	available_height = screen.h;
-	available_width = screen.w;
-	available_height -= bar.h;
-	bar.y = available_height;
+	bar.y = screen.h;
 }
 
 void
@@ -299,8 +293,9 @@ arrange(void) {
 	erase();
 	attrset(NORMAL_ATTR);
 	if(state.current_view) {
+		/* Subtract one for bar */
 		render_layout(state.current_view->layout, 0, 0,
-			available_height, available_width);
+			screen.h - 1, screen.w);
 	}
 	focus(NULL);
 	wnoutrefresh(stdscr);
@@ -1095,7 +1090,8 @@ create(const char * const args[]) {
 	c->id = ++id;
 	snprintf(buf, sizeof buf, "%d", c->id);
 
-	if (!(c->window = newwin(available_height, available_width, 0, 0))) {
+	/* Subtract one for bar */
+	if (!(c->window = newwin(screen.h - 1, screen.w, 0, 0))) {
 		free(c);
 		return 1;
 	}
@@ -1764,7 +1760,7 @@ render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w
 		unsigned nw = p->w * w;
 
 		if( win->c ) {
-			if( nx > 0 && nx < available_width ) {
+			if( nx > 0 && nx < screen.w ) {
 				mvvline(ny, nx, ACS_VLINE, nh);
 				mvaddch(ny, nx, ACS_TTEE);
 				nx += 1;
