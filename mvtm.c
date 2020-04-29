@@ -138,21 +138,14 @@ updatebarpos(void) {
 void
 drawbar(void) {
 	int sx, sy, x, y, width;
-	unsigned int occupied = 0, urgent = 0;
-
 
 	getyx(stdscr, sy, sx);
-	attrset(BAR_ATTR);
 	move(bar.y, 0);
 
 	for( unsigned i = 0; i < TAG_COUNT; i++ ) {
 		unsigned mask = 1 << i;
 		if( tagset[seltags] & mask ) {
 			attrset(TAG_SEL);
-		} else if( urgent & mask ) {
-			attrset(TAG_URGENT);
-		} else if( occupied & mask ) {
-			attrset(TAG_OCCUPIED);
 		} else {
 			attrset(TAG_NORMAL);
 		}
@@ -209,8 +202,6 @@ draw_border(struct client *c) {
 	if( !show_border() || c == NULL ) {
 		return;
 	}
-	if (sel != c && c->urgent)
-		attrs = URGENT_ATTR;
 	if (sel == c || state.runinall)
 		attrs = COLOR(BLUE) | A_NORMAL;
 

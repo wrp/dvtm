@@ -266,23 +266,15 @@ int ESCDELAY;
 #define COLOR(c)        COLOR_PAIR(colors[c].pair)
 /* curses attributes for normal (not selected) windows */
 #define NORMAL_ATTR     (COLOR(DEFAULT) | A_NORMAL)
-/* curses attributes for a window with pending urgent flag */
-#define URGENT_ATTR     NORMAL_ATTR
-/* curses attributes for the status bar */
-#define BAR_ATTR        (COLOR(BLUE) | A_NORMAL)
 /* characters for beginning and end of status bar message */
 #define BAR_BEGIN       '['
 #define BAR_END         ']'
-/* number of clients in master area */
-#define NMASTER 1
 /* scroll back buffer size in lines */
 #define SCROLL_HISTORY 500
 #define TAG_COUNT    8
 #define TAG_SYMBOL   "[%d]" /* format string for the tag in the status bar */
 #define TAG_SEL      (COLOR(BLUE) | A_BOLD)       /* attributes for the currently selected tags */
 #define TAG_NORMAL   (COLOR(DEFAULT) | A_NORMAL)  /* attributes for unselected empty tags */
-#define TAG_OCCUPIED (COLOR(RED) | A_NORMAL)      /* attributes for unselected nonempty tags */
-#define TAG_URGENT (COLOR(RED) | A_NORMAL | A_BLINK) /* attributes for unselected tags with urgent windows */
 
 /* commands for use by keybindings */
 command bind;
