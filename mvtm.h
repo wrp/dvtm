@@ -29,7 +29,6 @@
 #include "vt.h"
 
 struct screen {
-	unsigned int nmaster;
 	int history;
 	int w;
 	int h;
@@ -302,7 +301,6 @@ command focusprev;
 command focusprevnm;
 command focusright;
 command focusup;
-command incnmaster;
 command killclient;
 command paste;
 command quit;

@@ -95,7 +95,7 @@ char *title;
 
 struct action *actions = NULL; /* actions are executed when mvtm is started */
 
-struct screen screen = { .nmaster = NMASTER, .history = SCROLL_HISTORY };
+struct screen screen = { .history = SCROLL_HISTORY };
 
 struct client *sel = NULL;
 struct client *lastsel = NULL;
@@ -1318,10 +1318,6 @@ create(const char * const args[]) {
 	focus(c);
 	arrange();
 
-	if( args && args[2] && ! strcmp(args[2], "master") ) {
-		const char * const args[2] = { "+1", NULL };
-		incnmaster(args);
-	}
 	return 0;
 }
 
@@ -1683,25 +1679,6 @@ int
 send(const char * const args[]) {
 	if (sel && args && args[0])
 		vt_write(sel->term, args[0], strlen(args[0]));
-	return 0;
-}
-
-int
-incnmaster(const char * const args[]) {
-	int delta;
-
-	/* arg handling, manipulate nmaster */
-	if (args[0] == NULL) {
-		screen.nmaster = NMASTER;
-	} else if (sscanf(args[0], "%d", &delta) == 1) {
-		if (args[0][0] == '+' || args[0][0] == '-')
-			screen.nmaster += delta;
-		else
-			screen.nmaster = delta;
-		if (screen.nmaster < 1)
-			screen.nmaster = 1;
-	}
-	arrange();
 	return 0;
 }
 
