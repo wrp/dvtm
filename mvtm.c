@@ -1118,7 +1118,7 @@ push_client_to_view(struct view *v, struct client *c)
 {
 	struct window *w;
 	add_client_to_view(v, c);
-	if( ( w = find_empty_window(state.current_view->layout)) == NULL ) {
+	if( (w = find_empty_window(state.current_view->layout)) == NULL ) {
 		w = split_current_window();
 	}
 	w->c = c;
