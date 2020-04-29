@@ -1500,13 +1500,6 @@ focusprevnm(const char * const args[]) {
 	return 0;
 }
 
-int
-focuslast(const char * const args[]) {
-	if (lastsel)
-		focus(lastsel);
-	return 0;
-}
-
 
 int
 change_kill_signal(const char *const args[])
