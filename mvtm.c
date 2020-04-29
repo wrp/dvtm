@@ -1450,19 +1450,6 @@ focusid(const char * const args[]) {
 }
 
 int
-focusnext(const char * const args[]) {
-	struct client *c;
-	if (!sel)
-		return 0;
-	for (c = sel->next; c && !isvisible(c); c = c->next);
-	if (!c)
-		for (c = clients; c && !isvisible(c); c = c->next);
-	if (c)
-		focus(c);
-	return 0;
-}
-
-int
 focusnextnm(const char * const args[]) {
 	if (!sel)
 		return 0;
