@@ -629,16 +629,6 @@ untag(const char * const args[]) {
 }
 
 int
-tag(const char * const args[]) {
-	if( sel != NULL ) {
-		int t = state.buf.count % 8;
-		sel->tags |= bitoftag(t);
-		tagschanged();
-	}
-	return 0;
-}
-
-int
 toggletag(const char * const args[]) {
 	if (!sel)
 		return 0;

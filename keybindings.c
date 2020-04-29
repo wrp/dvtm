@@ -23,7 +23,6 @@ binding_description mod_bindings[] = {
 	{ "u",   "scrollback", "-.5" },
 	{ "n",   "scrollback", "+.5" },
 	{ "qq",  "quit" },
-	{ "t",  "tag" },
 	{ "T0",  "untag" },
 	{ NULL }
 };
@@ -47,7 +46,6 @@ static struct command_name names[] = {
 	entry(quit),
 	entry(redraw),
 	entry(scrollback),
-	entry(tag),
 	entry(toggle_borders),
 	entry(togglerunall),
 	entry(transition_no_send),
