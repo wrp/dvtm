@@ -234,18 +234,6 @@ draw_border(struct window *w) {
 		c->p.w > 32 ? " | " : "",
 		c->id, (long)c->pid);
 
-	if(c->tags) {
-		unsigned mask = 0x1;
-		int first = 1;
-		for( int i=0; i < TAG_COUNT; i++, mask <<= 1 ) {
-			if( (c->tags & mask) != 0) {
-				char b[32];
-				sprintf(b, "%s%d", first ? "" : ",", i + 1);
-				strcat(border_title, b);
-				first = 0;
-			}
-		}
-	}
 
 	mvwprintw(c->window, 0, 2, "[%s]", border_title);
 	if( msg != NULL ) {
@@ -562,15 +550,6 @@ tagschanged() {
 }
 
 
-int
-untag(const char * const args[]) {
-	struct client *f = state.current_view->vfocus->c;
-	if( f ) {
-		f->tags = 1;
-		tagschanged();
-	}
-	return 0;
-}
 
 void
 keypress(int code) {
@@ -1113,7 +1092,6 @@ create(const char * const args[]) {
 	struct client *c = calloc(1, sizeof *c);
 	if (!c)
 		return 1;
-	c->tags = tagset[seltags];
 	c->id = ++id;
 	snprintf(buf, sizeof buf, "%d", c->id);
 

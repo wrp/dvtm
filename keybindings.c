@@ -22,7 +22,6 @@ binding_description mod_bindings[] = {
 	{ "u",   "scrollback", "-.5" },
 	{ "n",   "scrollback", "+.5" },
 	{ "qq",  "quit" },
-	{ "T0",  "untag" },
 	{ NULL }
 };
 /* Bindings that take effect in keypress mode */
@@ -48,7 +47,6 @@ static struct command_name names[] = {
 	entry(toggle_borders),
 	entry(transition_no_send),
 	entry(transition_with_send),
-	entry(untag),
 	entry(split),
 	{NULL},
 };

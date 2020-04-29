@@ -144,7 +144,6 @@ struct client {
 	bool has_title_line;
 	bool urgent;
 	volatile sig_atomic_t died;
-	unsigned int tags;
 	struct window *win;
 };
 
@@ -283,7 +282,6 @@ command scrollback;
 command send;
 command startup;
 command toggleview;
-command untag;
 command viewprevtag;
 command split;
 command toggle_mode;
