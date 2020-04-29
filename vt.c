@@ -373,11 +373,14 @@ static void buffer_resize(Buffer *b, int rows, int cols)
 		}
 
 		lines = realloc(lines, sizeof(Row) * rows);
+		assert( lines != NULL );
 	}
 
 	if (b->maxcols < cols) {
 		for (int row = 0; row < b->rows; row++) {
 			lines[row].cells = realloc(lines[row].cells, sizeof(Cell) * cols);
+			assert( lines[row].cells != NULL );
+
 			if (b->cols < cols)
 				row_set(lines + row, b->cols, cols - b->cols, NULL);
 			lines[row].dirty = true;
@@ -385,10 +388,13 @@ static void buffer_resize(Buffer *b, int rows, int cols)
 		Row *sbuf = b->scroll_buf;
 		for (int row = 0; row < b->scroll_size; row++) {
 			sbuf[row].cells = realloc(sbuf[row].cells, sizeof(Cell) * cols);
+			assert( sbuf[row].cells != NULL );
+
 			if (b->cols < cols)
 				row_set(sbuf + row, b->cols, cols - b->cols, NULL);
 		}
 		b->tabs = realloc(b->tabs, sizeof(*b->tabs) * cols);
+		assert( b->tabs != NULL );
 		for (int col = b->cols; col < cols; col++)
 			b->tabs[col] = !(col & 7);
 		b->maxcols = cols;
