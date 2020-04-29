@@ -108,9 +108,23 @@ error(int include_errstr, const char *errstr, ...) {
 	exit(EXIT_FAILURE);
 }
 
+/* return non-zero if c is in the current view
+ * this is not quite accurate: we should confirm that
+ * c is in an active window in a layout.   But for now
+ this is adequate.
+*/
 bool
 isvisible(struct client *c) {
-	return c->tags & tagset[seltags];
+	struct view * v = state.current_view;
+	struct client **cp;
+	assert( v != NULL );
+
+	for( cp = v->vclients; *cp != NULL; cp += 1 ) {
+		if( *cp == c ) {
+			return 1;
+		}
+	}
+	return 0;
 }
 
 bool
