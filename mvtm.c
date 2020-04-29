@@ -318,22 +318,6 @@ attach(struct client *c) {
 }
 
 void
-attachafter(struct client *c, struct client *a) { /* attach c after a */
-	if (c == a)
-		return;
-	if (!a)
-		for (a = clients; a && a->next; a = a->next);
-
-	if (a) {
-		if (a->next)
-			a->next->prev = c;
-		c->next = a->next;
-		c->prev = a;
-		a->next = c;
-	}
-}
-
-void
 detach(struct client *c) {
 	struct client *d;
 	if (c->prev)
