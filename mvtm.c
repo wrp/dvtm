@@ -1388,20 +1388,6 @@ focusn(const char * const args[])
 }
 
 int
-focusnextnm(const char * const args[]) {
-	if (!sel)
-		return 0;
-	struct client *c = sel;
-	do {
-		c = nextvisible(c->next);
-		if (!c)
-			c = nextvisible(clients);
-	} while (c != sel);
-	focus(c);
-	return 0;
-}
-
-int
 change_kill_signal(const char *const args[])
 {
 	state.signal = state.buf.count ? state.buf.count : SIGHUP;

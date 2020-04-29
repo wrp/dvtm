@@ -284,7 +284,6 @@ command create;
 command digit;
 command focusn;
 command focusnext;
-command focusnextnm;
 command focusprevnm;
 command killclient;
 command paste;
