@@ -1715,12 +1715,14 @@ cleanup_dead_clients(struct client *c)
 }
 
 void
-check_client_fds(fd_set *rd, int *nfds, struct client *c)
+check_client_fds(fd_set *rd, int *nfds)
 {
-	while(c != NULL) {
+	struct client *c;
+
+	for_each_client(1);
+	while( (c = for_each_client(0)) != NULL ) {
 		int pty = c->editor ? vt_pty_get(c->editor) : vt_pty_get(c->app);
 		set_fd_mask(pty, rd, nfds);
-		c = c->next;
 	}
 }
 
@@ -1786,7 +1788,7 @@ main(int argc, char *argv[])
 		set_fd_mask(cmdfifo.fd, &rd, &nfds);
 		set_fd_mask(bar.fd, &rd, &nfds);
 
-		check_client_fds(&rd, &nfds, clients);
+		check_client_fds(&rd, &nfds);
 
 		doupdate();
 		r = select(nfds + 1, &rd, NULL, NULL, NULL);
