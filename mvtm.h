@@ -297,7 +297,7 @@ command toggletag;
 command toggleview;
 command untag;
 command viewprevtag;
-command vsplit;
+command split;
 command toggle_mode;
 command transition_no_send;
 command transition_with_send;

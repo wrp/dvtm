@@ -11,8 +11,8 @@ binding_description mod_bindings[] = {
 	{ "x0",  "toggle_borders" },
 	{ "qq",  "quit" },
 	{ "B",   "copymode", "mvtm-pager", "bindings" },
-	{ "c",   "create" },
-	{ "|",   "vsplit" },
+	{ "c",   "split" },
+	{ "v",   "split", "v" },
 	{ "f",   "focusn" },
 	{ "hup", "change_kill_signal" },
 	{ "a",   "togglerunall" },
@@ -51,7 +51,7 @@ static struct command_name names[] = {
 	entry(transition_no_send),
 	entry(transition_with_send),
 	entry(untag),
-	entry(vsplit),
+	entry(split),
 	{NULL},
 };
 #undef entry

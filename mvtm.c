@@ -1126,23 +1126,23 @@ push_client_to_view(struct view *v, struct client *c)
 }
 
 int
-vsplit(const char * const args[])
+split(const char * const args[])
 {
 	struct layout *lay = get_current_layout();
 	struct window *w = state.current_view->vfocus;
-	switch( lay->type ) {
-	case column_layout:
-		lay = w->layout = new_layout(w->c);
-		state.current_view->vfocus = lay->windows;
-		w->c = NULL;
-		/* Fall Thru */
-	case undetermined:
-		lay->type = row_layout; /* Fall thru */
-	case row_layout:
-		;
+	typeof(lay->type) t = column_layout;
+	if( lay->type != undetermined ) {
+		if( args[0] && args[0][0] == 'v' ) {
+			t = row_layout;
+		}
+		if( lay->type != t ) {
+			lay = w->layout = new_layout(w->c);
+			state.current_view->vfocus = lay->windows;
+			w->c = NULL;
+		}
 	}
-	create(args);
-
+	lay->type = t;
+	create(NULL);
 	return 1;
 }
 
