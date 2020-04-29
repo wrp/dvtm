@@ -64,7 +64,6 @@ static void reset_entry(struct entry_buf *);
 
 unsigned available_width;  /* width of total available screen real estate */
 unsigned available_height; /* height of total available screen real estate */
-struct client *clients = NULL;
 char *title;
 
 struct action *actions = NULL; /* actions are executed when mvtm is started */
@@ -321,28 +320,6 @@ arrange(void) {
 	focus(NULL);
 	wnoutrefresh(stdscr);
 	draw_all();
-}
-
-void
-attach(struct client *c) {
-	if (clients)
-		clients->prev = c;
-	c->next = clients;
-	c->prev = NULL;
-	clients = c;
-}
-
-void
-detach(struct client *c) {
-	struct client *d;
-	if (c->prev)
-		c->prev->next = c->next;
-	if (c->next) {
-		c->next->prev = c->prev;
-	}
-	if (c == clients)
-		clients = c->next;
-	c->next = c->prev = NULL;
 }
 
 static void
@@ -1220,7 +1197,6 @@ create(const char * const args[]) {
 	c->x = 0;
 	c->y = 0;
 	debug("client with pid %d forked\n", c->pid);
-	attach(c);
 	push_client_to_view(state.current_view, c);
 	focus(c);
 	arrange();
