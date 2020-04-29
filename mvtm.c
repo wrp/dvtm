@@ -961,14 +961,6 @@ cleanup(void) {
 		unlink(cmdfifo.file);
 }
 
-char *getcwd_by_pid(struct client *c) {
-	if (!c)
-		return NULL;
-	char buf[32];
-	snprintf(buf, sizeof buf, "/proc/%d/cwd", c->pid);
-	return realpath(buf, NULL);
-}
-
 int
 bind(const char * const args[])
 {
@@ -1157,7 +1149,7 @@ vsplit(const char * const args[])
 int
 create(const char * const args[]) {
 	const char *pargs[4] = { shell, NULL };
-	char buf[8], *cwd = NULL;
+	char buf[8];
 	const char *env[] = {
 		"MVTM_WINDOW_ID", buf,
 		NULL
@@ -1199,12 +1191,7 @@ create(const char * const args[]) {
 		sanitize_string(c->cmd, c->title, sizeof c->title);
 	}
 
-	if (args && args[2])
-		cwd = !strcmp(args[2], "$CWD") ? getcwd_by_pid(sel) : (char*)args[2];
-
-	c->pid = vt_forkpty(c->term, shell, pargs, cwd, env, NULL, NULL);
-	if (args && args[2] && !strcmp(args[2], "$CWD"))
-		free(cwd);
+	c->pid = vt_forkpty(c->term, shell, pargs, NULL, env, NULL, NULL);
 	vt_data_set(c->term, c);
 	vt_title_handler_set(c->term, term_title_handler);
 	vt_urgent_handler_set(c->term, term_urgent_handler);
