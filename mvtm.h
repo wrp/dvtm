@@ -307,7 +307,6 @@ command togglerunall;
 command toggletag;
 command toggleview;
 command untag;
-command view;
 command viewprevtag;
 command vsplit;
 command toggle_mode;

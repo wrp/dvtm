@@ -651,18 +651,6 @@ toggletag(const char * const args[]) {
 	return 0;
 }
 
-int
-view(const char * const args[]) {
-	int tag = state.buf.count;
-	unsigned int newtagset = bitoftag(tag);
-	if (tagset[seltags] != newtagset && newtagset) {
-		seltags ^= 1; /* toggle sel tagset */
-		tagset[seltags] = newtagset;
-		tagschanged();
-	}
-	return 0;
-}
-
 void
 keypress(int code) {
 	int key = -1;
