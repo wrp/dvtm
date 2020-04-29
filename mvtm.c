@@ -208,6 +208,7 @@ draw_border(struct window *w) {
 	if( !show_border() || c == NULL ) {
 		return;
 	}
+	assert(sel == state.current_view->vfocus->c);
 	if (sel == c )
 		attrs = COLOR(BLUE) | A_NORMAL;
 
@@ -297,8 +298,10 @@ draw_all(void)
 	 * this has the effect that the cursor position is
 	 * accurate
 	 */
-	if (sel)
+	if (sel) {
+		assert(sel == state.current_view->vfocus->c);
 		draw(sel);
+	}
 }
 
 void
@@ -319,6 +322,7 @@ static void
 set_term_title(char *new_title) {
 	char *term, *t = title;
 
+	assert(sel == state.current_view->vfocus->c);
 	assert(new_title == sel->title);
 	if( !t && *new_title ) {
 		t = new_title;
@@ -340,6 +344,7 @@ focus(struct client *c) {
 		return;
 	lastsel = sel;
 	sel = c;
+	state.current_view->vfocus = c->win;
 	if (lastsel) {
 		lastsel->urgent = false;
 		draw_border(lastsel->win);
@@ -353,7 +358,6 @@ focus(struct client *c) {
 		wnoutrefresh(c->window);
 	}
 	curs_set(c && vt_cursor_visible(c->term));
-	state.current_view->vfocus = c->win;
 }
 
 void
@@ -395,6 +399,7 @@ void
 term_title_handler(Vt *term, const char *title) {
 	struct client *c = (struct client *)vt_data_get(term);
 	sanitize_string(title, c->title, sizeof c->title);
+	assert(sel == state.current_view->vfocus->c);
 	if( sel == c ) {
 		set_term_title(c->title);
 	}
@@ -409,6 +414,7 @@ term_urgent_handler(Vt *term) {
 	printf("\a");
 	fflush(stdout);
 	drawbar();
+	assert(sel == state.current_view->vfocus->c);
 	if( sel != c && isvisible(c) )
 		draw_border(c->win);
 }
@@ -566,6 +572,7 @@ tagschanged() {
 
 int
 untag(const char * const args[]) {
+	assert(sel == state.current_view->vfocus->c);
 	if( sel ) {
 		sel->tags = 1;
 		tagschanged();
@@ -575,6 +582,7 @@ untag(const char * const args[]) {
 
 int
 toggletag(const char * const args[]) {
+	assert(sel == state.current_view->vfocus->c);
 	if (!sel)
 		return 0;
 	int tag = args[0] ? args[0][0] - '0' : 0;
@@ -605,6 +613,7 @@ keypress(int code) {
 		nodelay(stdscr, FALSE);
 	}
 
+	assert(sel == state.current_view->vfocus->c);
 	struct client *c = sel;
 	if (is_content_visible(c)) {
 		c->urgent = false;
@@ -1234,6 +1243,7 @@ copymode(const char * const args[])
 		goto end;
 
 	bool colored = strstr(args[0], "pager") != NULL;
+	assert(sel == state.current_view->vfocus->c);
 
 	if (!(sel->editor = vt_create(sel->p.h - sel->has_title_line, sel->p.w, 0)))
 		goto end;
@@ -1295,6 +1305,7 @@ select_client(const struct view *v)
 {
 	struct client *c = sel;
 
+	assert(sel == state.current_view->vfocus->c);
 	if( state.buf.count != 0 ) {
 		struct client *t;
 		if( v == NULL ) {
@@ -1339,6 +1350,7 @@ int
 signalclient(const char * const args[])
 {
 	int signal = state.buf.count ? state.buf.count : SIGHUP;
+	assert(sel == state.current_view->vfocus->c);
 	if( sel ) {
 		kill( -sel->pid, signal);
 	}
@@ -1366,6 +1378,7 @@ trim_whitespace(struct data_buffer *r)
 
 int
 paste(const char * const args[]) {
+	assert(sel == state.current_view->vfocus->c);
 	if (sel && copyreg.data) {
 		trim_whitespace(&copyreg);
 		vt_write(sel->term, copyreg.data, copyreg.len);
