@@ -16,6 +16,7 @@
  * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 #include "config.h"
+#include <assert.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
@@ -332,6 +333,7 @@ static void buffer_scroll(Buffer *b, int s)
 
 	if (s > 0 && b->scroll_size) {
 		for (int i = 0; i < s; i++) {
+			assert( b->scroll_top != NULL );
 			Row tmp = b->scroll_top[i];
 			b->scroll_top[i] = b->scroll_buf[b->scroll_index];
 			b->scroll_buf[b->scroll_index] = tmp;
