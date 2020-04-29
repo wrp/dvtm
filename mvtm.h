@@ -316,7 +316,6 @@ command untag;
 command view;
 command viewprevtag;
 command vsplit;
-command zoom;
 command toggle_mode;
 command transition_no_send;
 command transition_with_send;

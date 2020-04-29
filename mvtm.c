@@ -1601,20 +1601,6 @@ togglerunall(const char * const args[]) {
 	return 0;
 }
 
-int
-zoom(const char * const args[]) {
-	struct client *c = select_client(0);
-
-	if( c != NULL ) {
-		detach(c);
-		attach(c);
-		focus(c);
-		arrange();
-	}
-	return 0;
-}
-
-
 struct command *
 get_cmd_by_name(const char *name) {
 	for (unsigned int i = 0; i < LENGTH(commands); i++) {

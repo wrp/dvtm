@@ -17,7 +17,6 @@ binding_description mod_bindings[] = {
 	{ "k",   "focusprev" },
 	{ "f",   "focusn" },
 	{ "hup", "change_kill_signal" },
-	{ "m",   "zoom" },
 	{ "\t",  "focuslast" },
 	{ "a",   "togglerunall" },
 	{ "r",   "redraw" },
@@ -65,7 +64,6 @@ static struct command_name names[] = {
 	entry(view),
 	entry(vsplit),
 	entry(viewprevtag),
-	entry(zoom),
 	{NULL},
 };
 #undef entry
