@@ -267,21 +267,24 @@ draw(struct client *c) {
 	wnoutrefresh(c->window);
 }
 
-void
-draw_all(void) {
-	drawbar();
-	if (!nextvisible(clients)) {
-		sel = NULL;
-		curs_set(0);
-		erase();
-		drawbar();
-		doupdate();
-		return;
+static void
+draw_layout(struct layout *L)
+{
+	struct window *w, *e;
+	if( L != NULL ) {
+		for( w = L->windows; w < L->windows + L->count; w++ ) {
+			draw(w->c);
+			draw_layout(w->layout);
+		}
 	}
+}
 
-	for (struct client *c = nextvisible(clients); c; c = nextvisible(c->next)) {
-		if (c != sel)
-			draw(c);
+void
+draw_all(void)
+{
+	drawbar();
+	if( state.current_view ) {
+		draw_layout(state.current_view->layout);
 	}
 	/* as a last step the selected window is redrawn,
 	 * this has the effect that the cursor position is
