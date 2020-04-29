@@ -1464,16 +1464,6 @@ focusnextnm(const char * const args[]) {
 }
 
 int
-focusprevnm(const char * const args[]) {
-	if (!sel)
-		return 0;
-	struct client *c = sel;
-	focus(c);
-	return 0;
-}
-
-
-int
 change_kill_signal(const char *const args[])
 {
 	state.signal = state.buf.count ? state.buf.count : SIGHUP;
