@@ -1417,6 +1417,7 @@ scrollback(const char * const args[]) {
 		pages *= state.buf.count;
 	}
 	vt_scroll(sel->term,  pages * sel->p.h);
+	assert(sel == state.current_view->vfocus->c);
 	draw(sel);
 	curs_set(vt_cursor_visible(sel->term));
 	return 0;
@@ -1424,6 +1425,7 @@ scrollback(const char * const args[]) {
 
 int
 send(const char * const args[]) {
+	assert(sel == state.current_view->vfocus->c);
 	if (sel && args && args[0])
 		vt_write(sel->term, args[0], strlen(args[0]));
 	return 0;
@@ -1683,6 +1685,7 @@ handle_input(struct state *s)
 	/* TODO: consider just using bar.text for the buffer */
 	snprintf(bar.text, sizeof bar.text, "%s", s->buf.data);
 	drawbar();
+	assert(sel == state.current_view->vfocus->c);
 	draw(sel);
 }
 
@@ -1759,12 +1762,14 @@ main(int argc, char *argv[])
 				}
 			}
 
+			assert(sel == state.current_view->vfocus->c);
 			if (c != sel && is_content_visible(c)) {
 				draw_content(c);
 				wnoutrefresh(c->window);
 			}
 		}
 
+		assert(sel == state.current_view->vfocus->c);
 		if (is_content_visible(sel)) {
 			draw_content(sel);
 			curs_set(vt_cursor_visible(sel->term));
