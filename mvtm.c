@@ -1446,7 +1446,8 @@ quit(const char * const args[]) {
 
 int
 redraw(const char * const args[]) {
-	for (struct client *c = clients; c; c = c->next) {
+	struct client *c;
+	while( (c = for_each_client()) != NULL ) {
 		vt_dirty(c->term);
 		wclear(c->window);
 		wnoutrefresh(c->window);
