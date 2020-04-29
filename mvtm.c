@@ -652,17 +652,6 @@ toggletag(const char * const args[]) {
 }
 
 int
-toggleview(const char * const args[]) {
-	int tag = args[0] ? args[0][0] - '0' : 0;
-	unsigned int newtagset = tagset[seltags] ^ (bitoftag(tag));
-	if (newtagset) {
-		tagset[seltags] = newtagset;
-		tagschanged();
-	}
-	return 0;
-}
-
-int
 view(const char * const args[]) {
 	int tag = state.buf.count;
 	unsigned int newtagset = bitoftag(tag);
