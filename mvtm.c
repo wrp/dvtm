@@ -1660,10 +1660,7 @@ push_action(const struct action *act)
 {
 	struct action *new;
 
-	new = malloc( sizeof *new );
-	if( new == NULL ) {
-		error(1, "malloc");
-	}
+	new = xcalloc(1, sizeof *new);
 	if( actions == NULL ) {
 		actions = new;
 	} else {
@@ -1673,7 +1670,8 @@ push_action(const struct action *act)
 		}
 		a->next = new;
 	}
-	memcpy(new, act, sizeof *new );
+	memcpy(new, act, sizeof *new);
+	new->next = NULL;
 }
 
 void
