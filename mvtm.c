@@ -513,22 +513,21 @@ sigchld_handler(int sig) {
 }
 
 static struct client *
-for_each_client() {
-	static struct client **cp = NULL;
+for_each_client(int reset) {
 	static struct view *v = NULL;
-	if( v == NULL ) {
-		v = state.views;
-	}
-	for( ; v < state.current_view + state.viewcount; v++ ) {
-		if( cp == NULL ) {
-			cp = v->vclients;
-		}
+	static struct client **cp = NULL;
+	while( !reset ) {
 		while( *cp ) {
 			return *cp++;
 		}
+		v += 1;
+		if( v == state.views + state.viewcount ) {
+			break;
+		}
+		cp = v->vclients;
 	}
-	assert( cp == NULL );
-	v = NULL;
+	v = state.views;
+	cp = v->vclients;
 	return NULL;
 }
 
@@ -548,7 +547,8 @@ handle_sigchld() {
 			break;
 		}
 
-		while( (c = for_each_client()) != NULL ) {
+		for_each_client(1);
+		while( (c = for_each_client(0)) != NULL ) {
 			if (c->pid == pid) {
 				c->died = true;
 				break;
@@ -1447,7 +1447,8 @@ quit(const char * const args[]) {
 int
 redraw(const char * const args[]) {
 	struct client *c;
-	while( (c = for_each_client()) != NULL ) {
+	for_each_client(1);
+	while( (c = for_each_client(0)) != NULL ) {
 		vt_dirty(c->term);
 		wclear(c->window);
 		wnoutrefresh(c->window);
