@@ -937,6 +937,7 @@ setup(void) {
 void
 destroy(struct client *c) {
 	return;
+#if 0
 	if (sel == c)
 		focusnextnm(NULL);
 	detach(c);
@@ -959,6 +960,7 @@ destroy(struct client *c) {
 	}
 	free(c);
 	arrange();
+#endif
 }
 
 void
