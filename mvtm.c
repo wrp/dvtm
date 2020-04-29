@@ -498,13 +498,33 @@ sigchld_handler(int sig) {
 	write(sigchld_pipe[1], "\0", 1);
 }
 
+static struct client *
+for_each_client() {
+	static struct client **cp = NULL;
+	static struct view *v = NULL;
+	if( v == NULL ) {
+		v = state.views;
+	}
+	for( ; v < state.current_view + state.viewcount; v++ ) {
+		if( cp == NULL ) {
+			cp = v->vclients;
+		}
+		while( *cp ) {
+			return *cp++;
+		}
+	}
+	assert( cp == NULL );
+	v = NULL;
+	return NULL;
+}
+
 void
 handle_sigchld() {
-	int errsv = errno;
 	int status;
 	pid_t pid;
 
 	while ((pid = waitpid(-1, &status, WNOHANG)) != 0) {
+		struct client *c;
 		if (pid == -1) {
 			if (errno == ECHILD) {
 				/* no more child processes */
@@ -514,9 +534,7 @@ handle_sigchld() {
 			break;
 		}
 
-		debug("child with pid %d died\n", pid);
-
-		for (struct client *c = clients; c; c = c->next) {
+		while( (c = for_each_client()) != NULL ) {
 			if (c->pid == pid) {
 				c->died = true;
 				break;
@@ -527,8 +545,6 @@ handle_sigchld() {
 			}
 		}
 	}
-
-	errno = errsv;
 }
 
 void
@@ -839,7 +855,7 @@ create_views(void)
 {
 	struct view *v;
 
-	state.views = v = xcalloc(1, sizeof *v);
+	state.views = v = xcalloc(state.viewcount = 1, sizeof *v);
 	v->layout = new_layout(NULL);
 	if( v->layout == NULL) {
 		error(0, "out of memory");

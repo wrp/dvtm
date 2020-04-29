@@ -92,6 +92,7 @@ struct state {
 	int runinall;
 	int hide_borders;
 	struct view *views;
+	unsigned viewcount;
 	struct view *current_view;
 };
 
