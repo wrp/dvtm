@@ -645,18 +645,15 @@ keypress(int code) {
 		nodelay(stdscr, FALSE);
 	}
 
-	for (struct client *c = state.runinall ? nextvisible(clients) : sel; c; c = nextvisible(c->next)) {
-		if (is_content_visible(c)) {
-			c->urgent = false;
-			if (code == '\e')
-				vt_write(c->term, buf, len);
-			else
-				vt_keypress(c->term, code);
-			if (key != -1)
-				vt_keypress(c->term, key);
-		}
-		if (!state.runinall)
-			break;
+	struct client *c = sel;
+	if (is_content_visible(c)) {
+		c->urgent = false;
+		if (code == '\e')
+			vt_write(c->term, buf, len);
+		else
+			vt_keypress(c->term, code);
+		if (key != -1)
+			vt_keypress(c->term, key);
 	}
 }
 
