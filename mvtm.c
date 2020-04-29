@@ -150,7 +150,7 @@ drawbar(void) {
 		printw(TAG_SYMBOL, i + 1);
 	}
 
-	attrset(state.runinall ? TAG_SEL : TAG_NORMAL);
+	attrset(TAG_NORMAL);
 
 	if( state.mode == command_mode ) {
 		attrset(COLOR(RED) | A_REVERSE);
@@ -202,7 +202,7 @@ draw_border(struct window *w) {
 	if( !show_border() || c == NULL ) {
 		return;
 	}
-	if (sel == c || state.runinall)
+	if (sel == c )
 		attrs = COLOR(BLUE) | A_NORMAL;
 
 	if( sel == c && state.mode == command_mode ) {
@@ -1461,12 +1461,6 @@ send(const char * const args[]) {
 	return 0;
 }
 
-int
-togglerunall(const char * const args[]) {
-	state.runinall = !state.runinall;
-	draw_all();
-	return 0;
-}
 
 struct command *
 get_cmd_by_name(const char *name) {
