@@ -30,29 +30,6 @@
   Consider name change: 'mtm'
   Make tagset nameable.  As soon as we do that, we basically have
   named tabs.
-
-
- A window data structure should not contain any layout info.
- layouts can look like:  wxh@x,y (eg 100x80@0,0 as above,
- or .2x.4@.3,.5 to describe a window with 20% of the lines spanning
- 40% of the width, positioned .3 down the screen .5 to the right)
- Each tag stack (9 total, 1 for the "default" and 1 for each of the
- 8 tags) will contain current layout including window id:
- eg "2:nxm@x,y;1:nxm@x,y" where n,m,x, and y are absolute values.
- If we get winched, recalculate (so we store the current total sizes
- so we have access to them to recalculate).  Relative sizes
- can be sent on the command url and converted to absolute values
- on the fly.  Windows can overlap!  Seems like a novelty and a
- terrible idea, but I'm pretty sure ncurses allows overlap so
- that layouts like: "1:100x140@0,0;2:40x70@10,20" actaully
- make sense, in which window 1 is partially occluded.  We'll
- need a key binding for a function that resloves (eg, falling
- back to old style layout enforcement).  Currently, I like
- the idea that if a layout only defines placement for
- N windows and the current tag has M > N windows, we only
- display N.  Makes the implementation simpler.
-
-
  */
 #include "config.h"
 #include "mvtm.h"
