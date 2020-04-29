@@ -204,6 +204,10 @@ draw_border(struct window *w) {
 	int x, y, attrs = NORMAL_ATTR;
 	char border_title[128];
 	char *msg = NULL;
+
+	if( c == NULL && w->layout && w->layout->windows ) {
+		c = w->layout->windows[0].c;
+	}
 	char *title = c->title;
 
 	if( !show_border() || c == NULL ) {
