@@ -73,7 +73,7 @@ struct layout {
 	size_t count;    /* Number of windows */
 };
 struct view {
-	struct client **clients; /* NULL terminated array */
+	struct client **vclients; /* NULL terminated array */
 	unsigned capacity;
 	struct layout *layout;
 	struct window *vfocus;

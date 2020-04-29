@@ -372,8 +372,8 @@ find_window(struct layout *lay, struct client *c)
 
 void
 focus(struct client *c) {
-	if( c == NULL && state.current_view && state.current_view->clients) {
-		c = state.current_view->clients[0];
+	if( c == NULL && state.current_view && state.current_view->vclients) {
+		c = state.current_view->vclients[0];
 	}
 	if (sel == c)
 		return;
@@ -843,7 +843,7 @@ create_views(void)
 	if( v->layout == NULL) {
 		error(0, "out of memory");
 	}
-	v->clients = xcalloc(v->capacity = 32, sizeof *v->clients);
+	v->vclients = xcalloc(v->capacity = 32, sizeof *v->vclients);
 	v->vfocus = v->layout->windows;
 	state.current_view = v;
 }
@@ -1001,7 +1001,7 @@ static int
 add_client_to_view(struct view *v, struct client *c)
 {
 	assert( v != NULL );
-	struct client **cl = v->clients;
+	struct client **cl = v->vclients;
 	int found = 0;
 
 	for( ; *cl != NULL; cl++ ) {
@@ -1012,13 +1012,13 @@ add_client_to_view(struct view *v, struct client *c)
 	}
 	if( ! found ) {
 		assert( *cl == NULL );
-		assert( cl - v->clients < v->capacity );
-		if( cl - v->clients == v->capacity - 1 ) {
-			struct client **t = realloc( v->clients, (v->capacity + 32) * sizeof *t);
+		assert( cl - v->vclients < v->capacity );
+		if( cl - v->vclients == v->capacity - 1 ) {
+			struct client **t = realloc( v->vclients, (v->capacity + 32) * sizeof *t);
 			if( t == NULL ) {
 				return 0;
 			}
-			v->clients = t;
+			v->vclients = t;
 			v->capacity += 32;
 		}
 		cl[0] = c;
