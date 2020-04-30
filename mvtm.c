@@ -1356,9 +1356,9 @@ int
 signalclient(const char * const args[])
 {
 	int signal = state.buf.count ? state.buf.count : SIGHUP;
-	assert(sel == state.current_view->vfocus->c);
-	if( sel ) {
-		kill( -sel->pid, signal);
+	struct client *c = state.current_view->vfocus->c;
+	if( c ) {
+		kill( -c->pid, signal);
 	}
 	return 0;
 }
