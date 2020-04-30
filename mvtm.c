@@ -1278,12 +1278,22 @@ select_client(const struct view *v)
 }
 
 int
-focusn(const char * const args[])
+focus_transition(const char * const args[])
 {
 	struct client *c = select_client(state.current_view);
 	if( c != NULL ) {
 		focus(c);
 		toggle_mode(NULL);
+	}
+	return 0;
+}
+
+int
+focusn(const char * const args[])
+{
+	struct client *c = select_client(state.current_view);
+	if( c != NULL ) {
+		focus(c);
 	}
 	return 0;
 }
@@ -1633,7 +1643,6 @@ handle_input(struct state *s)
 	}
 	/* TODO: consider just using bar.text for the buffer */
 	snprintf(bar.text, sizeof bar.text, "%s", s->buf.data);
-	assert(sel == state.current_view->vfocus->c);
 	draw(sel);
 }
 

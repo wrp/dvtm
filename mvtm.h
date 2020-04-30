@@ -272,6 +272,7 @@ command copymode;
 command create;
 command digit;
 command focusn;
+command focus_transition;
 command focusnext;
 command killclient;
 command paste;
