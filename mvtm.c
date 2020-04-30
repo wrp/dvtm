@@ -283,14 +283,6 @@ draw_all(void)
 	if( state.current_view ) {
 		draw_layout(state.current_view->layout);
 	}
-	/* as a last step the selected window is redrawn,
-	 * this has the effect that the cursor position is
-	 * accurate
-	 */
-	if (sel) {
-		assert(sel == state.current_view->vfocus->c);
-		draw(sel);
-	}
 }
 
 void
