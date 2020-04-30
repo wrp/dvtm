@@ -73,6 +73,9 @@ struct layout {
 	size_t count;    /* Number of windows */
 };
 struct view {
+	/* TODO: move vclients to struct state.  Or, rather,
+	keep a global pool in struct state, and have the values
+	here reference them */
 	struct client **vclients; /* NULL terminated array */
 	unsigned capacity;
 	struct layout *layout;

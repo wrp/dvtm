@@ -65,7 +65,6 @@ struct action *actions = NULL; /* actions are executed when mvtm is started */
 struct screen screen = { .history = SCROLL_HISTORY };
 
 struct client *sel = NULL;
-struct client *lastsel = NULL;
 unsigned int seltags;
 unsigned int tagset[2] = { 1, 1 };
 struct statusbar bar = { .fd = -1, .h = 1 };
@@ -322,17 +321,10 @@ focus(struct client *c) {
 	if( c == NULL && state.current_view && state.current_view->vfocus) {
 		c = state.current_view->vfocus->c;
 	}
-	if (sel == c)
+	if (sel == c || c == NULL)
 		return;
-	lastsel = sel;
 	sel = c;
 	state.current_view->vfocus = c->win;
-	if (lastsel) {
-		lastsel->urgent = false;
-		draw_border(lastsel->win);
-		wnoutrefresh(lastsel->window);
-	}
-
 	if (c) {
 		set_term_title(c->title);
 		c->urgent = false;
@@ -849,31 +841,36 @@ setup(void) {
 
 void
 destroy(struct client *c) {
-	return;
-#if 0
-	if (sel == c)
-		focusnextnm(NULL);
-	detach(c);
-	if (sel == c) {
-		struct client *next = nextvisible(clients);
-		if (next) {
-			focus(next);
-		} else {
-			sel = NULL;
-		}
+	int client_count = 0;
+	struct view *v = state.current_view;
+
+	if( state.current_view->vfocus->c == c ) {
+		state.current_view->vfocus = NULL;
 	}
-	if (lastsel == c)
-		lastsel = NULL;
 	werase(c->window);
 	wnoutrefresh(c->window);
 	vt_destroy(c->term);
 	delwin(c->window);
-	if( !clients ) {
+	for( struct client **cp = v->vclients; *cp; cp++ ) {
+		if( *cp == c ) {
+			*cp = NULL;
+		} else if( *cp != NULL ) {
+		/* temporary hack: reset the focus to the first client we find.
+		Until we have a resonable way to navigate windows */
+			if( state.current_view->vfocus == NULL ) {
+				state.current_view->vfocus = (*cp)->win;
+			}
+			client_count += 1;
+		}
+	}
+	if( client_count == 0 ) {
 		stop_requested = 1;
+	}
+	if( c->win ) {
+		c->win->c = NULL;
 	}
 	free(c);
 	arrange();
-#endif
 }
 
 void
@@ -1765,14 +1762,12 @@ main(int argc, char *argv[])
 				}
 			}
 
-			assert(sel == state.current_view->vfocus->c);
 			if (c != sel && is_content_visible(c)) {
 				draw_content(c);
 				wnoutrefresh(c->window);
 			}
 		}
 
-		assert(sel == state.current_view->vfocus->c);
 		if (is_content_visible(sel)) {
 			draw_content(sel);
 			curs_set(vt_cursor_visible(sel->term));
