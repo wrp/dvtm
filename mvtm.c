@@ -1233,47 +1233,49 @@ get_bindings(char **b)
 int
 copymode(const char * const args[])
 {
-	if (!args || !args[0] || !sel || sel->editor)
+	struct client *f = state.current_view->vfocus->c;
+
+	if (!args || !args[0] || !f || f->editor)
 		goto end;
 
 	bool colored = strstr(args[0], "pager") != NULL;
-	assert(sel == state.current_view->vfocus->c);
+	assert(f == state.current_view->vfocus->c);
 
-	if (!(sel->editor = vt_create(sel->p.h - sel->has_title_line, sel->p.w, 0)))
+	if (!(f->editor = vt_create(f->p.h - f->has_title_line, f->p.w, 0)))
 		goto end;
 
-	int *to = &sel->editor_fds[0];
-	int *from = strstr(args[0], "editor") ? &sel->editor_fds[1] : NULL;
-	sel->editor_fds[0] = sel->editor_fds[1] = -1;
+	int *to = &f->editor_fds[0];
+	int *from = strstr(args[0], "editor") ? &f->editor_fds[1] : NULL;
+	f->editor_fds[0] = f->editor_fds[1] = -1;
 
 	const char *argv[3] = { args[0], NULL, NULL };
 	char argline[32];
-	int line = vt_content_start(sel->app);
+	int line = vt_content_start(f->app);
 	snprintf(argline, sizeof(argline), "+%d", line);
 	argv[1] = argline;
 
-	if (vt_forkpty(sel->editor, args[0], argv, NULL, NULL, to, from) < 0) {
-		vt_destroy(sel->editor);
-		sel->editor = NULL;
+	if (vt_forkpty(f->editor, args[0], argv, NULL, NULL, to, from) < 0) {
+		vt_destroy(f->editor);
+		f->editor = NULL;
 		goto end;;
 	}
 
-	sel->term = sel->editor;
+	f->term = f->editor;
 
-	if (sel->editor_fds[0] != -1) {
+	if (f->editor_fds[0] != -1) {
 		char *buf = NULL;
 		size_t len;
 
-		sanitize_string(args[0], sel->editor_title, sizeof sel->editor_title);
+		sanitize_string(args[0], f->editor_title, sizeof f->editor_title);
 
 		if( args[1] && !strcmp(args[1], "bindings") ) {
 			len = get_bindings(&buf);
 		} else {
-			len = vt_content_get(sel->app, &buf, colored);
+			len = vt_content_get(f->app, &buf, colored);
 		}
 		char *cur = buf;
 		while (len > 0) {
-			ssize_t res = write(sel->editor_fds[0], cur, len);
+			ssize_t res = write(f->editor_fds[0], cur, len);
 			if (res < 0) {
 				if (errno == EAGAIN || errno == EINTR)
 					continue;
@@ -1283,13 +1285,13 @@ copymode(const char * const args[])
 			len -= res;
 		}
 		free(buf);
-		close(sel->editor_fds[0]);
-		sel->editor_fds[0] = -1;
+		close(f->editor_fds[0]);
+		f->editor_fds[0] = -1;
 	}
 
 end:
 	assert(state.mode == command_mode);
-	draw_border(sel->win);
+	draw_border(f->win);
 	toggle_mode(NULL);
 	return 0;
 }
