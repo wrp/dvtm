@@ -982,7 +982,6 @@ split_window(struct window *target)
 {
 	struct window *w;
 	struct window *ret = NULL;
-	struct circular_queue *cq, *n;
 	double factor;
 	double offset = 0.0;
 	struct layout *lay = target->layout ? target->layout : target->enclosing_layout;
