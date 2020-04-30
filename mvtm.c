@@ -30,6 +30,11 @@
   Consider name change: 'mtm'
   Make tagset nameable.  As soon as we do that, we basically have
   named tabs.
+
+  Make cleanup slower.  That is, when a client dies, do not automatically
+  reap the enclosing window.  This way, any error messages will stay
+  visible.  Instead, consider a command to send signal and close window,
+  another to just close the window (after the client is dead)
  */
 #include "config.h"
 #include "mvtm.h"
