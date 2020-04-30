@@ -1642,7 +1642,6 @@ handle_input(struct state *s)
 	}
 	/* TODO: consider just using bar.text for the buffer */
 	snprintf(bar.text, sizeof bar.text, "%s", s->buf.data);
-	drawbar();
 	assert(sel == state.current_view->vfocus->c);
 	draw(sel);
 }
