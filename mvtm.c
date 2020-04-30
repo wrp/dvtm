@@ -738,24 +738,25 @@ struct layout *
 new_layout(struct window *w)
 {
 	struct layout *ret;
-	struct client *c = NULL;
-	if( w != NULL ) {
-		c = w->c;
-		assert( c->win == w );
-	}
 
 	ret = calloc(1, sizeof *ret);
 	if( ret != NULL ) {
+		struct client *c = NULL;
+
+		if( w != NULL ) {
+			c = w->c;
+			assert( c == NULL || c->win == w );
+		}
 		ret->windows = calloc(ret->capacity = 32, sizeof *ret->windows);
 		if( ret->windows == NULL ) {
 			free(ret);
 			ret = NULL;
 		} else {
 			ret->count = 1;
-			ret->windows->layout = w ? w->layout : NULL;
-			ret->windows[0].p = (struct position){.y = 0, .x = 0, .h = 1.0, .w = 1.0};
-			ret->windows[0].enclosing_layout = ret;
-			ret->windows[0].c = c;
+			ret->windows->layout = NULL;
+			ret->windows->c = c;
+			ret->windows->p = (struct position){.y = 0, .x = 0, .h = 1.0, .w = 1.0};
+			ret->windows->enclosing_layout = ret;
 			if( c ) {
 				c->win = ret->windows;
 			}
