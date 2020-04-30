@@ -963,6 +963,7 @@ add_client_to_view(struct view *v, struct client *c)
 				return 0;
 			}
 			v->vclients = t;
+			cl = t + v->capacity - 1;
 			v->capacity += 32;
 		}
 		cl[0] = c;
