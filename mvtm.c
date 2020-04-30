@@ -226,10 +226,13 @@ draw_border(struct window *w) {
 	getyx(c->window, y, x);
 	mvwhline(c->window, 0, 0, ACS_HLINE, c->p.w);
 
-	snprintf(border_title, MIN(c->p.w, sizeof border_title), "%s%s#%d (%ld)",
+	snprintf(border_title, MIN(c->p.w, sizeof border_title),
+		"%s%s#%d (%ld)",
 		c->p.w > 32 ? title : "",
 		c->p.w > 32 ? " | " : "",
-		c->id, (long)c->pid);
+		c->id,
+		(long)c->pid
+	);
 
 
 	mvwprintw(c->window, 0, 2, "[%s]", border_title);
