@@ -1098,6 +1098,7 @@ split(const char * const args[])
 	if( args[0] && args[0][0] == 'v' ) {
 		t = row_layout;
 	}
+	state.current_view->vfocus = w;
 	if( lay->type != undetermined ) {
 		if( lay->type != t ) {
 			lay = w->layout = new_layout(w);
