@@ -562,9 +562,7 @@ keypress(int code) {
 		}
 		nodelay(stdscr, FALSE);
 	}
-
-	assert(sel == state.current_view->vfocus->c);
-	struct client *c = sel;
+	struct client *c = state.current_view->vfocus->c;
 	if (is_content_visible(c)) {
 		c->urgent = false;
 		if (code == '\e')
