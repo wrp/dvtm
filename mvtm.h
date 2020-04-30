@@ -119,13 +119,10 @@ struct state {
    while *state.current_view->layout.windows->layout is a column layout with 3 windows
    described by ".2x1@0,0 .5x1@.2,0 .3x1@.7,0"
 
-   There are some issues.  I had thought that the circular queue layout.windows
-   could be used to inidcate focus by having the "first" element of the queue
-   be the window with focus, but I'm not sure how the recursion should work.
-   If the user changes focus, do we change it recursively in all the layouts?
-   I like the flexibility, since we could easily do things like "z" to zoom
-   the current window to full screen, and "2z" to zoom the encolsing layout
-   to full screen.  More consideration is needed.
+   Much of this info is redundant.  A layout can be fully described
+   by a sequence of floats.  In above case, the top level is a row layout
+   row:.5,.5.  The first component window contains col:.5,.5 and the second
+   window contains col:.2,.5,.7
 
 */
 
