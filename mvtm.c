@@ -734,9 +734,14 @@ scan_fmt(const char *d, struct window *w)
 }
 
 struct layout *
-new_layout(struct client *c)
+new_layout(struct window *w)
 {
 	struct layout *ret;
+	struct client *c = NULL;
+	if( w != NULL ) {
+		c = w->c;
+		assert( c->win == w );
+	}
 
 	ret = calloc(1, sizeof *ret);
 	if( ret != NULL ) {
@@ -746,9 +751,13 @@ new_layout(struct client *c)
 			ret = NULL;
 		} else {
 			ret->count = 1;
+			ret->windows->layout = w ? w->layout : NULL;
 			ret->windows[0].p = (struct position){.y = 0, .x = 0, .h = 1.0, .w = 1.0};
 			ret->windows[0].enclosing_layout = ret;
 			ret->windows[0].c = c;
+			if( c ) {
+				c->win = ret->windows;
+			}
 		}
 	}
 	return ret;
@@ -964,53 +973,71 @@ add_client_to_view(struct view *v, struct client *c)
 static struct layout *
 get_current_layout(void)
 {
-	return state.current_view->vfocus->enclosing_layout;
+	struct window *w = state.current_view->vfocus;
+	return w->layout ? w->layout : w->enclosing_layout;
 }
 
 static struct window *
 split_window(struct window *target)
 {
 	struct window *w;
+	struct window *ret = NULL;
 	struct circular_queue *cq, *n;
 	double factor;
-	struct layout *lay = target->enclosing_layout;
+	double offset = 0.0;
+	struct layout *lay = target->layout ? target->layout : target->enclosing_layout;
 	unsigned count = lay->count;
 	if( lay->type == undetermined ) {
 		assert( count == 1 );
 		lay->type = column_layout;
 	}
-	factor = (double)count / ( count + 1 );
-	for( w = lay->windows; w < lay->windows + count; w++ ) {
-		switch(lay->type) {
-		case undetermined: assert(0); break;
-		case row_layout:
-			assert( w->p.y == 0 );
-			assert( w->p.h == 1.0 );
-			w->p.x *= factor;
-			w->p.w *= factor;
-			break;
-		case column_layout:
-			assert( w->p.x == 0 );
-			assert( w->p.w == 1.0 );
-			w->p.y *= factor;
-			w->p.h *= factor;
+	if( count >= lay->capacity ) {
+		int offset = -1;
+		struct window *f = state.current_view->vfocus;
+		if( f > lay->windows && f < lay->windows + lay->count ) {
+			offset = f - lay->windows;
 		}
-	}
-	if( w != NULL && count >= lay->capacity ) {
 		struct window *tmp = realloc(lay->windows, sizeof *tmp * (lay->capacity += 32));
 		if(tmp == NULL) {
 			return NULL;
 		}
 		lay->windows = tmp;
+		if( offset != -1 ) {
+			state.current_view->vfocus = tmp + offset;
+		}
+	}
+	factor = (double)count / ( count + 1 );
+	lay->count += 1;
+	for( w = lay->windows; w < lay->windows + lay->count; w++ ) {
+		assert(w->enclosing_layout = lay);
+		switch(lay->type) {
+		case undetermined: assert(0); break;
+		case row_layout:
+			assert( w->p.y == 0 );
+			assert( w->p.h == 1.0 );
+			w->p.x = w->p.x * factor + offset;
+			w->p.w *= factor;
+			break;
+		case column_layout:
+			assert( w->p.x == 0 );
+			assert( w->p.w == 1.0 );
+			w->p.y = w->p.y * factor + offset;
+			w->p.h *= factor;
+		}
+		if( w == target ) {
+			ret = ++w;
+			offset = 1.0 - factor;
+		}
 	}
 	if(lay->type == row_layout) {
-		lay->windows[count].p = (struct position){.y = 0, .x = factor, .h = 1.0, .w = 1.0 - factor};
+		ret->p = (struct position){.y = 0, .x = factor, .h = 1.0, .w = 1.0 - factor};
 	} else {
 		assert(lay->type == column_layout);
-		lay->windows[count].p = (struct position){.y = factor, .x = 0, .h = 1.0 - factor, .w = 1.0};
+		ret->p = (struct position){.y = factor, .x = 0, .h = 1.0 - factor, .w = 1.0};
 	}
-	lay->windows[count].enclosing_layout = lay;
-	return lay->windows + lay->count++;
+	ret->enclosing_layout = lay;
+	ret->layout = NULL;
+	return ret;
 }
 
 
@@ -1057,7 +1084,7 @@ split(const char * const args[])
 			t = row_layout;
 		}
 		if( lay->type != t ) {
-			lay = w->layout = new_layout(w->c);
+			lay = w->layout = new_layout(w);
 			state.current_view->vfocus = lay->windows;
 			w->c = NULL;
 		}
@@ -1254,7 +1281,7 @@ select_client(const struct view *v)
 {
 	struct client *c = sel;
 
-	assert(sel == state.current_view->vfocus->c);
+	/* assert(sel == state.current_view->vfocus->c); */
 	if( state.buf.count != 0 ) {
 		struct client *t;
 		if( v == NULL ) {
