@@ -212,6 +212,9 @@ draw_border(struct window *w) {
 	} else if( f == c && c->term == c->editor ) {
 		attrs = COLOR(CYAN) | A_NORMAL;
 	}
+	if( c->urgent ) {
+		attrs |= A_BLINK;
+	}
 	if( state.mode == command_mode ) {
 		msg = " COMMAND MODE ";
 	} else if( c->term == c->editor ) {
