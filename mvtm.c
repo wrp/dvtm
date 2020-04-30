@@ -48,6 +48,7 @@ struct color colors[] = {
 
 static unsigned char modifier_key = CTRL('g');
 static void render_layout(struct layout *, unsigned, unsigned, unsigned, unsigned);
+static struct client * select_client(const struct view *);
 
 const struct color_rule colorrules[] = {
 	{ "", A_NORMAL, &colors[DEFAULT] },
@@ -971,9 +972,11 @@ add_client_to_view(struct view *v, struct client *c)
 }
 
 static struct layout *
-get_current_layout(void)
+get_layout(struct window *w)
 {
-	struct window *w = state.current_view->vfocus;
+	if( w == NULL ) {
+		w = state.current_view->vfocus;
+	}
 	return w->layout ? w->layout : w->enclosing_layout;
 }
 
@@ -1075,8 +1078,15 @@ push_client_to_view(struct view *v, struct client *c)
 int
 split(const char * const args[])
 {
-	struct layout *lay = get_current_layout();
-	struct window *w = state.current_view->vfocus;
+	/* TODO: we should be selecting windows, not clients.
+	   That is, we should hoist c->id to w->id
+	*/
+	struct client *c = select_client(state.current_view);
+	if( c == NULL ) {
+		return -1;
+	}
+	struct window *w = c->win;
+	struct layout *lay = get_layout(w);
 	typeof(lay->type) t = column_layout;
 	if( lay->type != undetermined ) {
 		if( args[0] && args[0][0] == 'v' ) {
@@ -1090,7 +1100,7 @@ split(const char * const args[])
 	}
 	lay->type = t;
 	create(NULL);
-	return 1;
+	return 0;
 }
 
 int
