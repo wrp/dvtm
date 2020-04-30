@@ -1290,7 +1290,7 @@ select_client(const struct view *v)
 {
 	struct client *c = sel;
 
-	/* assert(sel == state.current_view->vfocus->c); */
+	c = state.current_view->vfocus->c;
 	if( state.buf.count != 0 ) {
 		struct client *t;
 		if( v == NULL ) {
