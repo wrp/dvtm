@@ -1031,13 +1031,20 @@ split_window(struct window *target)
 		if( w == target ) {
 			ret = ++w;
 			offset = 1.0 - factor;
+			/* Note moving windows like this makes it difficult to store
+			focus in the global state as a pointer to the window.  Need
+			to either make windows a list, or .... ? */
+			memmove(w + 1, w, sizeof *w * ( lay->count - 1 - (w - lay->windows)));
 		}
 	}
-	if(lay->type == row_layout) {
-		ret->p = (struct position){.y = 0, .x = factor, .h = 1.0, .w = 1.0 - factor};
+	assert( offset > 0 );
+	if( lay->type == row_layout ) {
+		ret->p = (struct position){.y = 0, .h = 1.0, .w = 1.0 - factor};
+		ret->p.x = offset * (ret - lay->windows);
 	} else {
+		ret->p = (struct position){.x = 0, .h = 1.0 - factor, .w = 1.0};
 		assert(lay->type == column_layout);
-		ret->p = (struct position){.y = factor, .x = 0, .h = 1.0 - factor, .w = 1.0};
+		ret->p.y = offset * (ret - lay->windows);
 	}
 	ret->enclosing_layout = lay;
 	ret->layout = NULL;
