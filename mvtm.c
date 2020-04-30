@@ -313,7 +313,6 @@ set_term_title(char *new_title) {
 	char *term, *t = title;
 	struct client *f = state.current_view->vfocus->c;
 
-	assert(new_title == f->title);
 	if( !t && *new_title ) {
 		t = new_title;
 	}
