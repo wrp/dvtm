@@ -1097,10 +1097,10 @@ split(const char * const args[])
 	struct window *w = c->win;
 	struct layout *lay = get_layout(w);
 	typeof(lay->type) t = column_layout;
+	if( args[0] && args[0][0] == 'v' ) {
+		t = row_layout;
+	}
 	if( lay->type != undetermined ) {
-		if( args[0] && args[0][0] == 'v' ) {
-			t = row_layout;
-		}
 		if( lay->type != t ) {
 			lay = w->layout = new_layout(w);
 			state.current_view->vfocus = lay->windows;
