@@ -61,6 +61,7 @@ struct window {
 	struct client *c;
 	struct layout *layout;
 	struct layout *enclosing_layout;
+	struct window *next;
 };
 /*
  * A layout is a set of windows, each having either the same height
@@ -68,9 +69,8 @@ struct window {
 */
 struct layout {
 	enum { undetermined, column_layout, row_layout } type;
-	struct window *windows;
-	size_t capacity; /* Space allocated for windows */
-	size_t count;    /* Number of windows */
+	struct window *lwindows;
+	size_t count;
 };
 struct view {
 	/* TODO: move vclients to struct state.  Or, rather,

@@ -194,8 +194,8 @@ draw_border(struct window *w) {
 	char border_title[128];
 	char *msg = NULL;
 
-	if( c == NULL && w->layout && w->layout->windows ) {
-		c = w->layout->windows[0].c;
+	if( c == NULL && w->layout && w->layout->lwindows ) {
+		c = w->layout->lwindows->c;
 	}
 	char *title = c->title;
 
@@ -266,9 +266,9 @@ draw(struct client *c) {
 static void
 draw_layout(struct layout *L)
 {
-	struct window *w, *e;
+	struct window *w;
 	if( L != NULL ) {
-		for( w = L->windows; w < L->windows + L->count; w++ ) {
+		for( w = L->lwindows; w; w = w->next ) {
 			draw(w->c);
 			draw_layout(w->layout);
 		}
@@ -718,6 +718,23 @@ scan_fmt(const char *d, struct window *w)
 	return end;
 }
 
+struct window *
+new_window(struct layout *parent, struct client *c)
+{
+	struct window *w = calloc(1, sizeof *w);
+	assert( parent != NULL );
+	if( w != NULL ) {
+		w->p = (struct position){.y = 0, .x = 0, .h = 1.0, .w = 1.0};
+		w->c = c;
+		w->enclosing_layout = parent;
+		if( c != NULL ) {
+			c->win = w;
+		}
+		parent->count += 1;
+	}
+	return w;
+}
+
 struct layout *
 new_layout(struct window *w)
 {
@@ -726,24 +743,13 @@ new_layout(struct window *w)
 	ret = calloc(1, sizeof *ret);
 	if( ret != NULL ) {
 		struct client *c = NULL;
-
 		if( w != NULL ) {
 			c = w->c;
 			assert( c == NULL || c->win == w );
 		}
-		ret->windows = calloc(ret->capacity = 32, sizeof *ret->windows);
-		if( ret->windows == NULL ) {
+		if( (ret->lwindows = new_window(ret, c)) == NULL ) {
 			free(ret);
 			ret = NULL;
-		} else {
-			ret->count = 1;
-			ret->windows->layout = NULL;
-			ret->windows->c = c;
-			ret->windows->p = (struct position){.y = 0, .x = 0, .h = 1.0, .w = 1.0};
-			ret->windows->enclosing_layout = ret;
-			if( c ) {
-				c->win = ret->windows;
-			}
 		}
 	}
 	return ret;
@@ -771,7 +777,7 @@ create_views(void)
 		error(0, "out of memory");
 	}
 	v->vclients = xcalloc(v->capacity = 32, sizeof *v->vclients);
-	v->vfocus = v->layout->windows;
+	v->vfocus = v->layout->lwindows;
 	state.current_view = v;
 }
 
@@ -975,33 +981,24 @@ static struct window *
 split_window(struct window *target)
 {
 	struct window *w;
-	struct window *ret = NULL;
 	double factor;
 	double offset = 0.0;
 	struct layout *lay = target->layout ? target->layout : target->enclosing_layout;
 	unsigned count = lay->count;
+	struct window *ret = new_window(lay, NULL); /* increments lay->count */
+	unsigned index = 0;
+
+	if( ret == NULL ) {
+		return NULL;
+	}
 	if( lay->type == undetermined ) {
 		assert( count == 1 );
 		lay->type = column_layout;
 	}
-	if( count >= lay->capacity ) {
-		int offset = -1;
-		struct window *f = state.current_view->vfocus;
-		if( f > lay->windows && f < lay->windows + lay->count ) {
-			offset = f - lay->windows;
-		}
-		struct window *tmp = realloc(lay->windows, sizeof *tmp * (lay->capacity += 32));
-		if(tmp == NULL) {
-			return NULL;
-		}
-		lay->windows = tmp;
-		if( offset != -1 ) {
-			state.current_view->vfocus = tmp + offset;
-		}
-	}
+	assert( count > 0 );
 	factor = (double)count / ( count + 1 );
-	lay->count += 1;
-	for( w = lay->windows; w < lay->windows + lay->count; w++ ) {
+	assert( factor >= .5 );
+	for( w = lay->lwindows; w; w = w->next ) {
 		assert(w->enclosing_layout = lay);
 		switch(lay->type) {
 		case undetermined: assert(0); break;
@@ -1017,23 +1014,22 @@ split_window(struct window *target)
 			w->p.y = w->p.y * factor + offset;
 			w->p.h *= factor;
 		}
+		index += offset == 0.0;
 		if( w == target ) {
-			ret = ++w;
+			ret->next = w->next;
+			w->next = ret;
 			offset = 1.0 - factor;
-			/* Note moving windows like this makes it difficult to store
-			focus in the global state as a pointer to the window.  Need
-			to either make windows a list, or .... ? */
-			memmove(w + 1, w, sizeof *w * ( lay->count - 1 - (w - lay->windows)));
+			w = ret;
 		}
 	}
-	assert( offset > 0 );
+	assert( offset > 0 );  /* target must be in the list */
 	if( lay->type == row_layout ) {
 		ret->p = (struct position){.y = 0, .h = 1.0, .w = 1.0 - factor};
-		ret->p.x = offset * (ret - lay->windows);
+		ret->p.x = offset * index;
 	} else {
 		ret->p = (struct position){.x = 0, .h = 1.0 - factor, .w = 1.0};
 		assert(lay->type == column_layout);
-		ret->p.y = offset * (ret - lay->windows);
+		ret->p.y = offset * index;
 	}
 	ret->enclosing_layout = lay;
 	ret->layout = NULL;
@@ -1044,11 +1040,11 @@ split_window(struct window *target)
 struct window *
 find_empty_window(struct layout *layout)
 {
-	if( layout == NULL || layout->windows == NULL ) {
+	if( layout == NULL || layout->lwindows == NULL ) {
 		return NULL;
 	}
-	struct window *w = layout->windows;
-	for( ; w < layout->windows + layout->count; w++ ) {
+	struct window *w = layout->lwindows;
+	for( ; w; w = w->next ) {
 		struct window *t;
 		if( w->c == NULL && w->layout == NULL ) {
 			return w;
@@ -1093,7 +1089,7 @@ split(const char * const args[])
 	if( lay->type != undetermined ) {
 		if( lay->type != t ) {
 			lay = w->layout = new_layout(w);
-			state.current_view->vfocus = lay->windows;
+			state.current_view->vfocus = lay->lwindows;
 			w->c = NULL;
 		}
 	}
@@ -1785,9 +1781,8 @@ render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w
 	if( lay == NULL ) {
 		return;
 	}
-	struct window *win = lay->windows;
-	struct window *end = win + lay->count;
-	for( ; win < end; win++ ) {
+	struct window *win = lay->lwindows;
+	for( ; win; win = win->next ) {
 		struct position *p = &win->p;
 		unsigned ny = y + p->y * h;
 		unsigned nx = x + p->x * w;
