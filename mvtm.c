@@ -711,6 +711,19 @@ init_state(struct state *s)
 	create_views();
 }
 
+static void
+handle(int s, void(*h)(int))
+{
+	struct sigaction sa;
+	memset(&sa, 0, sizeof sa);
+	sa.sa_flags = 0;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_handler = h;
+	if( sigaction(s, &sa, NULL) == -1 ) {
+		error(1, "sigaction");
+	}
+}
+
 void
 setup(void) {
 	build_bindings();
@@ -738,22 +751,12 @@ setup(void) {
 	if( pipe(signal_pipe) < 0 ) {
 		error(1, "pipe");
 	}
-	for( int j = 0; j < 2; j += 1 ) {
-		set_non_blocking(signal_pipe[j]);
-	}
-
-	struct sigaction sa;
-	memset(&sa, 0, sizeof sa);
-	sa.sa_flags = 0;
-	sigemptyset(&sa.sa_mask);
-	sa.sa_handler = signal_handler;
-	sigaction(SIGWINCH, &sa, NULL);
-	sa.sa_handler = signal_handler;
-	sigaction(SIGCHLD, &sa, NULL);
-	sa.sa_handler = signal_handler;
-	sigaction(SIGTERM, &sa, NULL);
-	sa.sa_handler = SIG_IGN;
-	sigaction(SIGPIPE, &sa, NULL);
+	set_non_blocking(signal_pipe[0]);
+	set_non_blocking(signal_pipe[1]);
+	handle(SIGWINCH, signal_handler);
+	handle(SIGCHLD, signal_handler);
+	handle(SIGTERM, signal_handler);
+	handle(SIGPIPE, SIG_IGN);
 }
 
 void
