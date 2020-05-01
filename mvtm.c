@@ -1309,18 +1309,19 @@ redraw(const char * const args[]) {
 }
 
 int
-scrollback(const char * const args[]) {
+scrollback(const char * const args[])
+{
 	double pages = args[0] ? strtod(args[0], NULL) : -0.5;
-	if( !sel || !is_content_visible(sel) ) {
-		return 0;
+	struct client *f = state.current_view->vfocus->c;
+	if( f == NULL || !is_content_visible(f) ) {
+		return -1;
 	}
 	if( state.buf.count ) {
 		pages *= state.buf.count;
 	}
-	vt_scroll(sel->term,  pages * sel->p.h);
-	assert(sel == state.current_view->vfocus->c);
-	draw(sel);
-	curs_set(vt_cursor_visible(sel->term));
+	vt_scroll(f->term,  pages * f->p.h);
+	draw(f);
+	curs_set(vt_cursor_visible(f->term));
 	return 0;
 }
 
