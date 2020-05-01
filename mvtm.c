@@ -1277,11 +1277,12 @@ trim_whitespace(struct data_buffer *r)
 }
 
 int
-paste(const char * const args[]) {
-	assert(sel == state.current_view->vfocus->c);
-	if (sel && copyreg.data) {
+paste(const char * const args[])
+{
+	struct client *f = state.current_view->vfocus->c;
+	if( f && copyreg.data ) {
 		trim_whitespace(&copyreg);
-		vt_write(sel->term, copyreg.data, copyreg.len);
+		vt_write(f->term, copyreg.data, copyreg.len);
 	}
 	assert(state.mode == command_mode);
 	toggle_mode(NULL);
