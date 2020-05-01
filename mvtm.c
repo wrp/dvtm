@@ -212,8 +212,7 @@ draw_border(struct window *w) {
 
 	wattrset(c->window, attrs);
 	getyx(c->window, y, x);
-	mvwhline(c->window, 0, 0, ACS_HLINE, c->p.w);
-
+	mvwhline(c->window, c->p.h-1, 0, ACS_HLINE, c->p.w);
 	snprintf(border_title, MIN(c->p.w, sizeof border_title),
 		"%s%s#%d (%ld)",
 		c->p.w > 32 ? title : "",
@@ -221,13 +220,11 @@ draw_border(struct window *w) {
 		c->id,
 		(long)c->pid
 	);
-
-
-	mvwprintw(c->window, 0, 2, "[%s]", border_title);
+	mvwprintw(c->window, c->p.h-1, 2, "[%s]", border_title);
 	if( msg != NULL ) {
 		int start = strlen(border_title) + 4 + 2;
 		if( c->p.w > start + strlen(msg) + 2 ) {
-			mvwprintw(c->window, 0, start, "%s", msg);
+			mvwprintw(c->window, c->p.h-1, start, "%s", msg);
 		}
 	}
 	wmove(c->window, y, x);
@@ -235,7 +232,7 @@ draw_border(struct window *w) {
 
 void
 draw_content(struct client *c) {
-	vt_draw(c->term, c->window, 1, 0);
+	vt_draw(c->term, c->window, 0, 0);
 }
 
 void
@@ -1750,7 +1747,7 @@ main(int argc, char *argv[])
 static void
 render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w)
 {
-	if( lay == NULL ) {
+	if( lay == NULL || w == 0 || h == 0 ) {
 		return;
 	}
 	struct window *win = lay->lwindows;
@@ -1764,7 +1761,7 @@ render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w
 		if( win->c ) {
 			if( nx > 0 && nx < screen.w ) {
 				mvvline(ny, nx, ACS_VLINE, nh);
-				mvaddch(ny, nx, ACS_TTEE);
+				mvaddch(ny + nh - 1, nx, ACS_BTEE);
 				nx += 1;
 				nw -= 1;
 			}
