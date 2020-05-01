@@ -105,23 +105,32 @@ error(int include_errstr, const char *errstr, ...) {
 	exit(EXIT_FAILURE);
 }
 
-/* return non-zero if c is in the current view
- * this is not quite accurate: we should confirm that
- * c is in an active window in a layout.   But for now
- this is adequate.
-*/
-bool
-isvisible(struct client *c) {
-	struct view * v = state.current_view;
-	struct client **cp;
-	assert( v != NULL );
-
-	for( cp = v->vclients; *cp != NULL; cp += 1 ) {
-		if( *cp == c ) {
-			return 1;
+/* Return the window associated with a given client, or NULL */
+static struct window *
+find_window(struct client *c, struct layout *lay)
+{
+	assert( lay != NULL );
+	for( struct window *w = lay->lwindows; w; w = w->next ) {
+		if( w->layout ) {
+			struct window *t;
+			if( (t = find_window(c, w->layout)) != NULL ) {
+				return t;
+			}
+		} else if( w->c == c ) {
+			return w;
 		}
 	}
-	return 0;
+	return NULL;
+}
+
+/* return non-zero if c is in a window of the current view */
+bool
+isvisible(struct client *c)
+{
+	struct view * v = state.current_view;
+	assert( v != NULL );
+
+	return find_window(c, v->layout) != NULL;
 }
 
 bool
@@ -374,20 +383,13 @@ sigchld_handler(int sig) {
 
 static struct client *
 for_each_client(int reset) {
-	static struct view *v = NULL;
-	static struct client **cp = NULL;
-	while( !reset ) {
-		while( *cp ) {
-			return *cp++;
-		}
-		v += 1;
-		if( v == state.views + state.viewcount ) {
-			break;
-		}
-		cp = v->vclients;
+	static struct client *c = NULL;
+	while( !reset && c != NULL ) {
+		struct client *p = c;
+		c = c->next;
+		return p;
 	}
-	v = state.views;
-	cp = v->vclients;
+	c = state.clients;
 	return NULL;
 }
 
@@ -717,7 +719,6 @@ create_views(void)
 	if( v->layout == NULL) {
 		error(0, "out of memory");
 	}
-	v->vclients = xcalloc(v->capacity = 32, sizeof *v->vclients);
 	v->vfocus = v->layout->lwindows;
 	state.current_view = v;
 }
@@ -782,7 +783,6 @@ setup(void) {
 
 void
 destroy(struct client *c) {
-	int client_count = 0;
 	struct view *v = state.current_view;
 
 	if( state.current_view->vfocus->c == c ) {
@@ -792,19 +792,18 @@ destroy(struct client *c) {
 	wnoutrefresh(c->window);
 	vt_destroy(c->term);
 	delwin(c->window);
-	for( struct client **cp = v->vclients; *cp; cp++ ) {
-		if( *cp == c ) {
-			*cp = NULL;
-		} else if( *cp != NULL ) {
-		/* temporary hack: reset the focus to the first client we find.
-		Until we have a resonable way to navigate windows */
-			if( state.current_view->vfocus == NULL ) {
-				state.current_view->vfocus = (*cp)->win;
-			}
-			client_count += 1;
+	if(state.clients == c) {
+		state.clients = c->next;
+	} else for( struct client *cp = state.clients; cp; cp = cp->next ) {
+		if( cp->next == c ) {
+			cp->next = c->next;
 		}
 	}
-	if( client_count == 0 ) {
+	if(state.clients != NULL) {
+		if( state.current_view->vfocus == NULL ) {
+			state.current_view->vfocus = state.clients->win;
+		}
+	} else {
 		stop_requested = 1;
 	}
 	if( c->win ) {
@@ -871,38 +870,6 @@ toggle_borders(const char * const args[])
 	state.hide_borders = !state.hide_borders;
 	draw_all();
 	return 0;
-}
-
-static int
-add_client_to_view(struct view *v, struct client *c)
-{
-	assert( v != NULL );
-	struct client **cl = v->vclients;
-	int found = 0;
-
-	for( ; *cl != NULL; cl++ ) {
-		if( *cl == c ) {
-			found = 1;
-			break;
-		}
-	}
-	if( ! found ) {
-		assert( *cl == NULL );
-		assert( cl - v->vclients < v->capacity );
-		if( cl - v->vclients == v->capacity - 1 ) {
-			struct client **t = realloc( v->vclients, (v->capacity + 32) * sizeof *t);
-			if( t == NULL ) {
-				return 0;
-			}
-			v->vclients = t;
-			cl = t + v->capacity - 1;
-			v->capacity += 32;
-		}
-		cl[0] = c;
-		cl[1] = NULL;
-	}
-
-	return 1;
 }
 
 static struct layout *
@@ -979,7 +946,6 @@ static void
 push_client_to_view(struct view *v, struct client *c)
 {
 	struct window *w;
-	add_client_to_view(v, c);
 	if( (w = find_empty_window(state.current_view->layout)) == NULL ) {
 		w = split_window(state.current_view->vfocus);
 	}
@@ -1069,6 +1035,8 @@ create(const char * const args[]) {
 	c->p.y = 0;
 	debug("client with pid %d forked\n", c->pid);
 	push_client_to_view(state.current_view, c);
+	c->next = state.clients;
+	state.clients = c;
 	focus(c);
 	arrange();
 
@@ -1217,9 +1185,9 @@ select_client(const struct view *v)
 				}
 			}
 		} else {
-			for( struct client **cp = v->vclients; *cp; cp++ ) {
-				if( (*cp)->id == state.buf.count) {
-					c = *cp;
+			for( struct client *cp = state.clients; cp; cp = cp->next ) {
+				if( cp->id == state.buf.count) {
+					c = cp;
 					break;
 				}
 			}

@@ -73,11 +73,6 @@ struct layout {
 	size_t count;
 };
 struct view {
-	/* TODO: move vclients to struct state.  Or, rather,
-	keep a global pool in struct state, and have the values
-	here reference them */
-	struct client **vclients; /* NULL terminated array */
-	unsigned capacity;
 	struct layout *layout;
 	struct window *vfocus;
 	char name[32];
@@ -98,6 +93,7 @@ struct state {
 	unsigned viewcount;
 	struct view *current_view;
 	const char *shell;
+	struct client *clients;
 };
 
 /*
@@ -145,6 +141,7 @@ struct client {
 	bool urgent;
 	volatile sig_atomic_t died;
 	struct window *win;
+	struct client *next;
 };
 
 
@@ -152,7 +149,6 @@ struct client* nextvisible(struct client *c);
 void focus(struct client *c);
 extern struct screen screen;
 extern unsigned available_width, available_height;
-extern struct client *clients;
 extern char *title;
 
 struct color {
