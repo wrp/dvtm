@@ -1632,16 +1632,11 @@ render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w
 		int last = win->next == NULL;
 		struct position *p = &win->p;
 		unsigned count, nh, nw;
+		unsigned unit = row ? w : h;
 		assert( p->portion > 0.0 && p->portion <= 1.0 );
-		if(row) {
-			count = last ? w - consumed : p->portion * w;
-			nh = h;
-			nw = count;
-		} else {
-			count = last ? h - consumed : p->portion * h;
-			nw = w;
-			nh = count;
-		}
+		count = last ? unit - consumed : p->portion * unit;
+		nw = row ? count : w;
+		nh = col ? count : h;
 
 		if( win->c ) {
 			unsigned vline = x > 0 && x < screen.w;
