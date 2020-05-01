@@ -97,6 +97,7 @@ struct state {
 	struct view *views;
 	unsigned viewcount;
 	struct view *current_view;
+	const char *shell;
 };
 
 /*

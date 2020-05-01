@@ -74,7 +74,6 @@ unsigned int seltags;
 unsigned int tagset[2] = { 1, 1 };
 struct statusbar bar = { .fd = -1, .h = 1 };
 static unsigned id;
-const char *shell;
 struct data_buffer copyreg;
 volatile sig_atomic_t stop_requested = 0;
 int sigwinch_pipe[] = {-1, -1};
@@ -573,7 +572,7 @@ keypress(int code) {
 
 const char *
 getshell(void) {
-	const char *shell = getenv("SHELL");
+	const char *shell = state.shell = getenv("SHELL");
 
 	if( shell == NULL ) {
 		struct passwd *pw;
@@ -589,7 +588,7 @@ getshell(void) {
 		fprintf(stderr, "SHELL (%s) is invalid\n", shell);
 		exit(EXIT_FAILURE);
 	}
-	return shell;
+	return state.shell = shell;
 }
 
 bool
@@ -796,7 +795,7 @@ init_state(struct state *s)
 void
 setup(void) {
 	build_bindings();
-	shell = getshell();
+	getshell();
 	setlocale(LC_CTYPE, "");
 	setenv("MVTM", VERSION, 1);
 	initscr();
@@ -1115,7 +1114,7 @@ split(const char * const args[])
 
 int
 create(const char * const args[]) {
-	const char *pargs[4] = { shell, NULL };
+	const char *pargs[4] = { state.shell, NULL };
 	char buf[8];
 	const char *env[] = {
 		"MVTM_WINDOW_ID", buf,
@@ -1149,7 +1148,7 @@ create(const char * const args[]) {
 	if (args && args[0]) {
 		c->cmd = args[0];
 	} else {
-		c->cmd = shell;
+		c->cmd = state.shell;
 	}
 
 	if( args && args[1] ) {
@@ -1158,7 +1157,7 @@ create(const char * const args[]) {
 		sanitize_string(c->cmd, c->title, sizeof c->title);
 	}
 
-	c->pid = vt_forkpty(c->term, shell, pargs, NULL, env, NULL, NULL);
+	c->pid = vt_forkpty(c->term, state.shell, pargs, NULL, env, NULL, NULL);
 	vt_data_set(c->term, c);
 	vt_title_handler_set(c->term, term_title_handler);
 	vt_urgent_handler_set(c->term, term_urgent_handler);
