@@ -135,6 +135,7 @@ draw_border(struct window *w) {
 	int x, y, attrs = NORMAL_ATTR;
 	char border_title[128];
 	char *msg = NULL;
+	chtype fill = ACS_HLINE;
 
 	assert( c != NULL );
 
@@ -153,15 +154,16 @@ draw_border(struct window *w) {
 		attrs |= A_BLINK;
 	}
 	if( state.mode == command_mode ) {
-		msg = " COMMAND MODE ";
+		fill = ACS_BLOCK;
 	} else if( c->term == c->editor ) {
 		msg = " COPY MODE ";
 		title = c->editor_title;
+		fill = ACS_BLOCK;
 	}
 
 	wattrset(c->window, attrs);
 	getyx(c->window, y, x);
-	mvwhline(c->window, c->p.h-1, 0, ACS_HLINE, c->p.w);
+	mvwhline(c->window, c->p.h-1, 0, fill, c->p.w);
 	snprintf(border_title, MIN(c->p.w, sizeof border_title),
 		"%s%s#%d (%ld)",
 		c->p.w > 32 ? title : "",
