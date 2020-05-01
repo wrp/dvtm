@@ -1615,8 +1615,6 @@ render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w
 			move_client(win->c, x + vline, y);
 		} else if( win->layout ) {
 			render_layout(win->layout, y, x, nh, nw);
-		} else {
-			assert(0);
 		}
 		y += row ? 0 : count;
 		x += row ? count : 0;
