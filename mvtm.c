@@ -77,8 +77,7 @@ unsigned int seltags;
 static unsigned id;
 struct data_buffer copyreg;
 volatile sig_atomic_t stop_requested = 0;
-int sigwinch_pipe[] = {-1, -1};
-int sigchld_pipe[] = {-1, -1};
+int signal_pipe[] = {-1, -1};
 
 void
 eprint(const char *errstr, ...) {
@@ -366,12 +365,6 @@ resize_client(struct client *c, int w, int h) {
 	}
 }
 
-
-void
-sigchld_handler(int sig) {
-	write(sigchld_pipe[1], "\0", 1);
-}
-
 static struct client *
 for_each_client(int reset) {
 	static struct client *c = NULL;
@@ -415,13 +408,9 @@ handle_sigchld() {
 }
 
 void
-sigwinch_handler(int sig) {
-	write(sigwinch_pipe[1], "\0", 1);
-}
-
-void
-sigterm_handler(int sig) {
-	stop_requested = 1;
+signal_handler(int sig)
+{
+	write(signal_pipe[1], &sig, sizeof sig);
 }
 
 void
@@ -513,12 +502,13 @@ getshell(void) {
 	return state.shell = shell;
 }
 
-bool
-set_blocking(int fd, bool blocking) {
+static void
+set_non_blocking(int fd)
+{
 	int flags = fcntl(fd, F_GETFL, 0);
-	if (flags < 0) return false;
-	flags = blocking ? (flags & ~O_NONBLOCK) : (flags | O_NONBLOCK);
-	return !fcntl(fd, F_SETFL, flags);
+	if( flags < 0 || fcntl(fd, F_SETFL, flags | O_NONBLOCK) == -1 ) {
+		error(1, "fcntl");
+	}
 }
 
 void *
@@ -745,28 +735,22 @@ setup(void) {
 	}
 	resize_screen();
 
-	int *pipes[] = { sigwinch_pipe, sigchld_pipe };
-	for (int i = 0; i < 2; ++i) {
-		if( pipe(pipes[i]) < 0 ) {
-			error(1, "pipe");
-		}
-		for (int j = 0; j < 2; ++j) {
-			if (!set_blocking(pipes[i][j], false)) {
-				perror("fcntl()");
-				exit(EXIT_FAILURE);
-			}
-		}
+	if( pipe(signal_pipe) < 0 ) {
+		error(1, "pipe");
+	}
+	for( int j = 0; j < 2; j += 1 ) {
+		set_non_blocking(signal_pipe[j]);
 	}
 
 	struct sigaction sa;
 	memset(&sa, 0, sizeof sa);
 	sa.sa_flags = 0;
 	sigemptyset(&sa.sa_mask);
-	sa.sa_handler = sigwinch_handler;
+	sa.sa_handler = signal_handler;
 	sigaction(SIGWINCH, &sa, NULL);
-	sa.sa_handler = sigchld_handler;
+	sa.sa_handler = signal_handler;
 	sigaction(SIGCHLD, &sa, NULL);
-	sa.sa_handler = sigterm_handler;
+	sa.sa_handler = signal_handler;
 	sigaction(SIGTERM, &sa, NULL);
 	sa.sa_handler = SIG_IGN;
 	sigaction(SIGPIPE, &sa, NULL);
@@ -1529,8 +1513,7 @@ main(int argc, char *argv[])
 
 		FD_ZERO(&rd);
 		set_fd_mask(STDIN_FILENO, &rd, &nfds);
-		set_fd_mask(sigwinch_pipe[0], &rd, &nfds);
-		set_fd_mask(sigchld_pipe[0], &rd, &nfds);
+		set_fd_mask(signal_pipe[0], &rd, &nfds);
 
 		check_client_fds(&rd, &nfds);
 
@@ -1552,20 +1535,21 @@ main(int argc, char *argv[])
 				continue;
 		}
 
-		if( FD_ISSET(sigwinch_pipe[0], &rd) ) {
-			char buf[512];
-			if( read(sigwinch_pipe[0], &buf, sizeof(buf)) < 0 ) {
+		if( FD_ISSET(signal_pipe[0], &rd) ) {
+			int s;
+			ssize_t rc;
+			while( (rc = read(signal_pipe[0], &s, sizeof s)) == sizeof s
+					|| rc == -1 && errno == EINTR) {
+				if( rc == sizeof s) switch(s) {
+				case SIGWINCH: screen.winched = 1; break;
+				case SIGCHLD: handle_sigchld(); break;
+				case SIGTERM: stop_requested = 1; break;
+				default: assert(0);
+				}
+			}
+			if( rc < 0 && errno != EAGAIN && errno != EWOULDBLOCK ) {
 				error(1, "read from sigwinch pipe");
 			}
-			screen.winched = 1;
-		}
-
-		if( FD_ISSET(sigchld_pipe[0], &rd) ) {
-			char buf[512];
-			if( read(sigchld_pipe[0], &buf, sizeof(buf)) < 0) {
-				error(1, "read from sigchld pipe");
-			}
-			handle_sigchld();
 		}
 
 		for_each_client(1);
