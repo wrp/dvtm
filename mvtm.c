@@ -1526,7 +1526,6 @@ handle_input(struct state *s)
 	if( s->binding == cmd_bindings && s->buf.count == 0 ) {
 		reset_entry(&s->buf);
 	}
-	draw(sel);
 }
 
 int
