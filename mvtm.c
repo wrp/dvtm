@@ -1626,26 +1626,39 @@ render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w
 		return;
 	}
 	int row = lay->type == row_layout;
-	int col = lay->type == column_layout;
+	int col = !row;
+	unsigned consumed = 0;
 	for( struct window *win = lay->lwindows; win; win = win->next ) {
 		int last = win->next == NULL;
 		struct position *p = &win->p;
-		unsigned ny = row ? y : y + p->offset * h;
-		unsigned nx = col ? x : x + p->offset * w;
-		unsigned nh = row ? h : last ? h - ny + y: p->portion * h;
-		unsigned nw = col ? w : last ? w - nx + x: p->portion * w;
+		unsigned count, nh, nw;
+		assert( p->portion > 0.0 && p->portion <= 1.0 );
+		if(row) {
+			count = last ? w - consumed : p->portion * w;
+			nh = h;
+			nw = count;
+		} else {
+			count = last ? h - consumed : p->portion * h;
+			nw = w;
+			nh = count;
+		}
 
 		if( win->c ) {
-			if( nx > 0 && nx < screen.w ) {
-				mvvline(ny, nx, ACS_VLINE, nh);
-				mvaddch(ny + nh - 1, nx, ACS_BTEE);
-				nx += 1;
-				nw -= 1;
+			unsigned vline = x > 0 && x < screen.w;
+			assert(vline < 2);
+			if( vline ) {
+				mvvline(y, x, ACS_VLINE, nh);
+				mvaddch(y + nh - 1, x, ACS_BTEE);
 			}
-			resize_client(win->c, nw, nh);
-			move_client(win->c, nx, ny);
+			resize_client(win->c, nw - vline, nh);
+			move_client(win->c, x + vline, y);
 		} else if( win->layout ) {
-			render_layout(win->layout, ny, nx, nh, nw);
+			render_layout(win->layout, y, x, nh, nw);
 		}
+		y += row ? 0 : count;
+		x += col ? 0 : count;
+		consumed += count;
 	}
+	assert( row || consumed == h );
+	assert( col || consumed == w );
 }
