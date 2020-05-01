@@ -1539,7 +1539,7 @@ main(int argc, char *argv[])
 			int s;
 			ssize_t rc;
 			while( (rc = read(signal_pipe[0], &s, sizeof s)) == sizeof s
-					|| rc == -1 && errno == EINTR) {
+					|| (rc == -1 && errno == EINTR)) {
 				if( rc == sizeof s) switch(s) {
 				case SIGWINCH: screen.winched = 1; break;
 				case SIGCHLD: handle_sigchld(); break;
