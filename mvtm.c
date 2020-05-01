@@ -1603,7 +1603,7 @@ main(int argc, char *argv[])
 				}
 			}
 
-			if (c != sel && is_content_visible(c)) {
+			if( is_content_visible(c)) {
 				draw_content(c);
 				wnoutrefresh(c->window);
 			}
