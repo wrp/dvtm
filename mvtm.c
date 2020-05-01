@@ -68,7 +68,6 @@ struct action *actions = NULL; /* actions are executed when mvtm is started */
 
 struct screen screen = { .history = SCROLL_HISTORY };
 
-struct client *sel = NULL;
 unsigned int seltags;
 static unsigned id;
 struct data_buffer copyreg;
@@ -1609,11 +1608,6 @@ main(int argc, char *argv[])
 			}
 		}
 
-		if (is_content_visible(sel)) {
-			draw_content(sel);
-			curs_set(vt_cursor_visible(sel->term));
-			wnoutrefresh(sel->window);
-		}
 		cleanup_dead_clients();
 		if( screen.winched ) {
 			resize_screen();
