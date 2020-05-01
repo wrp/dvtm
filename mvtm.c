@@ -1365,38 +1365,6 @@ handle_editor(struct client *c) {
 	wnoutrefresh(c->window);
 }
 
-int
-open_or_create_fifo(const char *name, const char **name_created, const char *env_name)
-{
-	struct stat info;
-	char *abs_name;
-	int fd;
-
-	do {
-		if ((fd = open(name, O_RDWR|O_NONBLOCK)) == -1) {
-			if (errno == ENOENT && !mkfifo(name, S_IRUSR|S_IWUSR)) {
-				*name_created = name;
-				continue;
-			}
-			error(1, "%s", name );
-		}
-	} while (fd == -1);
-
-	if (fstat(fd, &info) == -1) {
-		error(1, "%s", name);
-	} else if (!S_ISFIFO(info.st_mode)) {
-		error(0, "%s is not a named pipe", name);
-	}
-
-	if( ( abs_name = realpath(name, NULL)) == NULL ) {
-		error(1, "%s", name);
-	}
-	setenv(env_name, abs_name, 1);
-	free(abs_name);
-	return fd;
-}
-
-
 void
 parse_args(int argc, char *argv[]) {
 	char *arg;
