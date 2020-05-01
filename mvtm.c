@@ -179,12 +179,6 @@ drawbar(void) {
 	wnoutrefresh(stdscr);
 }
 
-int
-show_border(void) {
-	struct view *v = state.current_view;
-	return v && v->vclients && v->vclients[0] != NULL;
-}
-
 void
 draw_border(struct window *w) {
 	struct client *c = w->c;
@@ -193,14 +187,10 @@ draw_border(struct window *w) {
 	char border_title[128];
 	char *msg = NULL;
 
-	if( c == NULL && w->layout && w->layout->lwindows ) {
-		c = w->layout->lwindows->c;
-	}
+	assert( c != NULL );
+
 	char *title = c->title;
 
-	if( !show_border() || c == NULL ) {
-		return;
-	}
 	f = state.current_view->vfocus->c;
 	if( f == c )
 		attrs = COLOR(BLUE) | A_NORMAL;
