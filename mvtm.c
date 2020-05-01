@@ -71,7 +71,6 @@ struct screen screen = { .history = SCROLL_HISTORY };
 
 struct client *sel = NULL;
 unsigned int seltags;
-unsigned int tagset[2] = { 1, 1 };
 struct statusbar bar = { .fd = -1, .h = 1 };
 static unsigned id;
 struct data_buffer copyreg;
@@ -142,11 +141,7 @@ drawbar(void) {
 
 	for( unsigned i = 0; i < TAG_COUNT; i++ ) {
 		unsigned mask = 1 << i;
-		if( tagset[seltags] & mask ) {
-			attrset(TAG_SEL);
-		} else {
-			attrset(TAG_NORMAL);
-		}
+		attrset(TAG_NORMAL);
 		printw(TAG_SYMBOL, i + 1);
 	}
 
