@@ -246,7 +246,7 @@ draw_border(struct window *w) {
 
 void
 draw_content(struct client *c) {
-	vt_draw(c->term, c->window, c->has_title_line, 0);
+	vt_draw(c->term, c->window, 1, 0);
 }
 
 void
@@ -407,7 +407,6 @@ move_client(struct client *c, int x, int y) {
 
 void
 resize_client(struct client *c, int w, int h) {
-	bool has_title_line = show_border();
 	bool resize_window = c->p.w != w || c->p.h != h;
 	if (resize_window) {
 		debug("resizing, w: %d h: %d\n", w, h);
@@ -418,11 +417,12 @@ resize_client(struct client *c, int w, int h) {
 			c->p.h = h;
 		}
 	}
-	if (resize_window || c->has_title_line != has_title_line) {
-		c->has_title_line = has_title_line;
-		vt_resize(c->app, h - has_title_line, w);
-		if (c->editor)
-			vt_resize(c->editor, h - has_title_line, w);
+	if( resize_window ) {
+		/* Subtract 1 for title line */
+		vt_resize(c->app, h - 1, w);
+		if (c->editor) {
+			vt_resize(c->editor, h - 1, w);
+		}
 	}
 }
 
@@ -1236,7 +1236,8 @@ copymode(const char * const args[])
 	bool colored = strstr(args[0], "pager") != NULL;
 	assert(f == state.current_view->vfocus->c);
 
-	if (!(f->editor = vt_create(f->p.h - f->has_title_line, f->p.w, 0)))
+	/* subtract 1 for title line */
+	if (!(f->editor = vt_create(f->p.h - 1, f->p.w, 0)))
 		goto end;
 
 	int *to = &f->editor_fds[0];

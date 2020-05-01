@@ -142,7 +142,6 @@ struct client {
 	char editor_title[128];
 	pid_t pid;
 	unsigned short int id;
-	bool has_title_line;
 	bool urgent;
 	volatile sig_atomic_t died;
 	struct window *win;
