@@ -1626,7 +1626,6 @@ render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w
 		return;
 	}
 	int row = lay->type == row_layout;
-	int col = !row;
 	unsigned consumed = 0;
 	for( struct window *win = lay->lwindows; win; win = win->next ) {
 		int last = win->next == NULL;
@@ -1636,11 +1635,12 @@ render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w
 		assert( p->portion > 0.0 && p->portion <= 1.0 );
 		count = last ? unit - consumed : p->portion * unit;
 		nw = row ? count : w;
-		nh = col ? count : h;
+		nh = row ? h : count;
 
 		if( win->c ) {
 			unsigned vline = x > 0 && x < screen.w;
-			assert(vline < 2);
+			assert( vline < 2 );
+			assert( win->layout == NULL );
 			if( vline ) {
 				mvvline(y, x, ACS_VLINE, nh);
 				mvaddch(y + nh - 1, x, ACS_BTEE);
@@ -1649,11 +1649,13 @@ render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w
 			move_client(win->c, x + vline, y);
 		} else if( win->layout ) {
 			render_layout(win->layout, y, x, nh, nw);
+		} else {
+			assert(0);
 		}
 		y += row ? 0 : count;
-		x += col ? 0 : count;
+		x += row ? count : 0;
 		consumed += count;
 	}
 	assert( row || consumed == h );
-	assert( col || consumed == w );
+	assert( !row || consumed == w );
 }
