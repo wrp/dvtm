@@ -693,6 +693,7 @@ build_bindings(void)
 	}
 }
 
+#if 0
 const char *
 scan_fmt(const char *d, struct window *w)
 {
@@ -717,6 +718,7 @@ scan_fmt(const char *d, struct window *w)
 	}
 	return end;
 }
+#endif
 
 struct window *
 new_window(struct layout *parent, struct client *c)
@@ -724,7 +726,7 @@ new_window(struct layout *parent, struct client *c)
 	struct window *w = calloc(1, sizeof *w);
 	assert( parent != NULL );
 	if( w != NULL ) {
-		w->p = (struct position){.y = 0, .x = 0, .h = 1.0, .w = 1.0};
+		w->p = (struct position){.offset = 0, .portion = 1.0};
 		w->c = c;
 		w->enclosing_layout = parent;
 		if( c != NULL ) {
@@ -1000,20 +1002,8 @@ split_window(struct window *target)
 	assert( factor >= .5 );
 	for( w = lay->lwindows; w; w = w->next ) {
 		assert(w->enclosing_layout = lay);
-		switch(lay->type) {
-		case undetermined: assert(0); break;
-		case row_layout:
-			assert( w->p.y == 0 );
-			assert( w->p.h == 1.0 );
-			w->p.x = w->p.x * factor + offset;
-			w->p.w *= factor;
-			break;
-		case column_layout:
-			assert( w->p.x == 0 );
-			assert( w->p.w == 1.0 );
-			w->p.y = w->p.y * factor + offset;
-			w->p.h *= factor;
-		}
+		w->p.offset = w->p.offset * factor + offset;
+		w->p.portion *= factor;
 		index += offset == 0.0;
 		if( w == target ) {
 			ret->next = w->next;
@@ -1023,14 +1013,7 @@ split_window(struct window *target)
 		}
 	}
 	assert( offset > 0 );  /* target must be in the list */
-	if( lay->type == row_layout ) {
-		ret->p = (struct position){.y = 0, .h = 1.0, .w = 1.0 - factor};
-		ret->p.x = offset * index;
-	} else {
-		ret->p = (struct position){.x = 0, .h = 1.0 - factor, .w = 1.0};
-		assert(lay->type == column_layout);
-		ret->p.y = offset * index;
-	}
+	ret->p = (struct position){.offset = offset * index, .portion = 1.0 - factor};
 	ret->enclosing_layout = lay;
 	ret->layout = NULL;
 	return ret;
@@ -1784,10 +1767,10 @@ render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w
 	struct window *win = lay->lwindows;
 	for( ; win; win = win->next ) {
 		struct position *p = &win->p;
-		unsigned ny = y + p->y * h;
-		unsigned nx = x + p->x * w;
-		unsigned nh = p->h * h;
-		unsigned nw = p->w * w;
+		unsigned ny = lay->type == row_layout ? y : y + p->offset * h;
+		unsigned nx = lay->type == row_layout ? x + p->offset * w : x;
+		unsigned nh = lay->type == row_layout ? h : p->portion * h;
+		unsigned nw = lay->type == row_layout ? p->portion * w : w;
 
 		if( win->c ) {
 			if( nx > 0 && nx < screen.w ) {
