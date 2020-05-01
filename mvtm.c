@@ -1638,8 +1638,8 @@ render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w
 		struct position *p = &win->p;
 		unsigned ny = row ? y : y + p->offset * h;
 		unsigned nx = col ? x : x + p->offset * w;
-		unsigned nh = row ? h : last ? h - ny : p->portion * h;
-		unsigned nw = col ? w : last ? w - nx : p->portion * w;
+		unsigned nh = row ? h : last ? h - ny + y: p->portion * h;
+		unsigned nw = col ? w : last ? w - nx + x: p->portion * w;
 
 		if( win->c ) {
 			if( nx > 0 && nx < screen.w ) {
