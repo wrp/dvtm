@@ -248,12 +248,18 @@ set_term_title(char *new_title) {
 
 void
 focus(struct client *c) {
-	if( c == NULL && state.current_view && state.current_view->vfocus) {
+	if( ! state.current_view || ! state.current_view->vfocus) {
+		return;
+	}
+	if( c && state.current_view->vfocus == c->win ) {
+		return;
+	}
+	if( c == NULL ) {
 		c = state.current_view->vfocus->c;
 	}
-	if (sel == c || c == NULL)
+	if( c == NULL ) {
 		return;
-	sel = c;
+	}
 	state.current_view->vfocus = c->win;
 	if (c) {
 		set_term_title(c->title);
