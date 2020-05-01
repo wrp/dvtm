@@ -920,7 +920,7 @@ split_window(struct window *target)
 	}
 	if( lay->type == undetermined ) {
 		assert( count == 1 );
-		lay->type = col_layout;
+		lay->type = column_layout;
 	}
 	assert( count > 0 );
 	factor = (double)count / ( count + 1 );
@@ -989,7 +989,7 @@ split(const char * const args[])
 	}
 	struct window *w = c->win;
 	struct layout *lay = get_layout(w);
-	typeof(lay->type) t = col_layout;
+	typeof(lay->type) t = column_layout;
 	if( args[0] && args[0][0] == 'v' ) {
 		t = row_layout;
 	}
@@ -1622,20 +1622,16 @@ render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w
 	if( lay == NULL || w == 0 || h == 0 ) {
 		return;
 	}
-	struct window *win = lay->lwindows;
-	for( ; win; win = win->next ) {
+	int row = lay->type == row_layout;
+	int col = lay->type == column_layout;
+	for( struct window *win = lay->lwindows; win; win = win->next ) {
+		int last = win->next == NULL;
 		struct position *p = &win->p;
-		unsigned ny = lay->type == row_layout ? y : y + p->offset * h;
-		unsigned nh = lay->type == row_layout ? h : p->portion * h;
-		unsigned nx = lay->type == col_layout ? x : x + p->offset * w;
-		unsigned nw = lay->type == col_layout ? w : p->portion * w;
-		if( win->next == NULL ) {
-			if( lay->type == row_layout ) {
-				nw = w - nx;
-			} else {
-				nh = h - ny;
-			}
-		}
+		unsigned ny = row ? y : y + p->offset * h;
+		unsigned nx = col ? x : x + p->offset * w;
+		unsigned nh = row ? h : last ? h - ny : p->portion * h;
+		unsigned nw = col ? w : last ? w - nx : p->portion * w;
+
 		if( win->c ) {
 			if( nx > 0 && nx < screen.w ) {
 				mvvline(ny, nx, ACS_VLINE, nh);
