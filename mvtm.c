@@ -14,7 +14,6 @@
 /* TODO
   Implement Command-line mode (eg, :create arg1 args)
   Make it possible to list current key bindings.
-  Make layout more flexible, perhaps dlopenable.
   Make it possible to pass layouts on the cmd fifo.  eg, give
     dimensions like "1:100x20@10,20\n2:hxw@y,x\n..."
   Write errors somewhere.  Either in a dedidcated window
@@ -27,7 +26,7 @@
     MVTM_STATUS_URL and MVTM_CMD_URL.  We can send layout
     info, and status bar updates, etc to CMD_URL and query STATUS_URL
     for current state.
-  Consider name change: 'mtm'
+  Consider name change: eg 'mtm', 'pyx', 'pyt'
   Make tagset nameable.  As soon as we do that, we basically have
   named tabs.
 
