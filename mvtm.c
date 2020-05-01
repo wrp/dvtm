@@ -1629,7 +1629,13 @@ render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w
 		unsigned nx = lay->type == row_layout ? x + p->offset * w : x;
 		unsigned nh = lay->type == row_layout ? h : p->portion * h;
 		unsigned nw = lay->type == row_layout ? p->portion * w : w;
-
+		if( win->next == NULL ) {
+			if( lay->type == row_layout ) {
+				nw = w - nx;
+			} else {
+				nh = h - ny;
+			}
+		}
 		if( win->c ) {
 			if( nx > 0 && nx < screen.w ) {
 				mvvline(ny, nx, ACS_VLINE, nh);
