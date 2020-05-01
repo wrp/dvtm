@@ -1497,6 +1497,20 @@ handle_input(struct state *s)
 	}
 }
 
+static void
+reset_cursor(void)
+{
+	struct view *v = state.current_view;;
+
+	if( v && v->vfocus && v->vfocus->c ) {
+		struct client *c = v->vfocus->c;
+		int y, x;
+		getyx(c->window, y, x);
+		wmove(stdscr, y + c->p.y, x + c->p.x);
+		wnoutrefresh(stdscr);
+	}
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -1520,6 +1534,7 @@ main(int argc, char *argv[])
 
 		check_client_fds(&rd, &nfds);
 
+		reset_cursor();
 		doupdate();
 		r = select(nfds + 1, &rd, NULL, NULL, NULL);
 
