@@ -123,19 +123,9 @@ find_window(struct client *c, struct layout *lay)
 	return NULL;
 }
 
-/* return non-zero if c is in a window of the current view */
-bool
-isvisible(struct client *c)
-{
-	struct view * v = state.current_view;
-	assert( v != NULL );
-
-	return find_window(c, v->layout) != NULL;
-}
-
 bool
 is_content_visible(struct client *c) {
-	return c && isvisible(c);
+	return c && find_window(c, state.current_view->layout) != NULL;
 }
 
 
@@ -337,8 +327,9 @@ term_urgent_handler(Vt *term) {
 	c->urgent = true;
 	printf("\a");
 	fflush(stdout);
-	if( f != c && isvisible(c) )
+	if( f != c && find_window(c, state.current_view->layout) != NULL ) {
 		draw_border(c->win);
+	}
 }
 
 void
