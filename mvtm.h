@@ -68,7 +68,7 @@ struct window {
  * (a row layout) or the same width (a column layout).
 */
 struct layout {
-	enum { undetermined, column_layout, row_layout } type;
+	enum { undetermined, col_layout, row_layout } type;
 	struct window *lwindows;
 	size_t count;
 };

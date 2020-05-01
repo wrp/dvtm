@@ -920,7 +920,7 @@ split_window(struct window *target)
 	}
 	if( lay->type == undetermined ) {
 		assert( count == 1 );
-		lay->type = column_layout;
+		lay->type = col_layout;
 	}
 	assert( count > 0 );
 	factor = (double)count / ( count + 1 );
@@ -989,7 +989,7 @@ split(const char * const args[])
 	}
 	struct window *w = c->win;
 	struct layout *lay = get_layout(w);
-	typeof(lay->type) t = column_layout;
+	typeof(lay->type) t = col_layout;
 	if( args[0] && args[0][0] == 'v' ) {
 		t = row_layout;
 	}
@@ -1626,9 +1626,9 @@ render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w
 	for( ; win; win = win->next ) {
 		struct position *p = &win->p;
 		unsigned ny = lay->type == row_layout ? y : y + p->offset * h;
-		unsigned nx = lay->type == row_layout ? x + p->offset * w : x;
 		unsigned nh = lay->type == row_layout ? h : p->portion * h;
-		unsigned nw = lay->type == row_layout ? p->portion * w : w;
+		unsigned nx = lay->type == col_layout ? x : x + p->offset * w;
+		unsigned nw = lay->type == col_layout ? w : p->portion * w;
 		if( win->next == NULL ) {
 			if( lay->type == row_layout ) {
 				nw = w - nx;
