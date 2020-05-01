@@ -158,7 +158,7 @@ draw_border(struct window *w) {
 	} else if( c->term == c->editor ) {
 		msg = " COPY MODE ";
 		title = c->editor_title;
-		fill = ACS_BLOCK;
+		fill = ACS_CKBOARD;
 	}
 
 	wattrset(c->window, attrs);
