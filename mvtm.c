@@ -30,6 +30,11 @@
   Make tagset nameable.  As soon as we do that, we basically have
   named tabs.
 
+  Do error checking when the layout is crowded.  ie, either print
+  an error message and do not create the new client, or ... basically,
+  we need to finish implementing handling clients that aren't in a layout
+  and put new clients there.
+
   Make cleanup slower.  That is, when a client dies, do not automatically
   reap the enclosing window.  This way, any error messages will stay
   visible.  Instead, consider a command to send signal and close window,
