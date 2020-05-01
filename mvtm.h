@@ -150,7 +150,6 @@ struct client {
 
 struct client* nextvisible(struct client *c);
 void focus(struct client *c);
-void resize(struct client *c, int x, int y, int w, int h);
 extern struct screen screen;
 extern unsigned available_width, available_height;
 extern struct client *clients;

@@ -426,11 +426,6 @@ resize_client(struct client *c, int w, int h) {
 	}
 }
 
-void
-resize(struct client *c, int x, int y, int w, int h) {
-	resize_client(c, w, h);
-	move_client(c, x, y);
-}
 
 void
 sigchld_handler(int sig) {
@@ -1787,13 +1782,7 @@ main(int argc, char *argv[])
 static void
 render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w)
 {
-	/* This shouldn't be necessary, but currently resize_screen()
-	and arrange() are coupled, and we don't know the screen size
-	so cannot initialize state until resize_screen() is called.
-	But we cannot arrange until state is initialized.
-	Until  that is decoupled, just do this check
-	*/
-	if(lay == NULL ) {
+	if( lay == NULL ) {
 		return;
 	}
 	struct window *win = lay->windows;
@@ -1812,7 +1801,8 @@ render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w
 				nx += 1;
 				nw -= 1;
 			}
-			resize(win->c, nx, ny, nw, nh);
+			resize_client(win->c, nw, nh);
+			move_client(win->c, nx, ny);
 		} else if( win->layout ) {
 			render_layout(win->layout, ny, nx, nh, nw);
 		}
