@@ -1326,10 +1326,12 @@ scrollback(const char * const args[])
 }
 
 int
-send(const char * const args[]) {
-	assert(sel == state.current_view->vfocus->c);
-	if (sel && args && args[0])
-		vt_write(sel->term, args[0], strlen(args[0]));
+send(const char * const args[])
+{
+	struct client *f = state.current_view->vfocus->c;
+	if( f && args && args[0] ) {
+		vt_write(f->term, args[0], strlen(args[0]));
+	}
 	return 0;
 }
 
