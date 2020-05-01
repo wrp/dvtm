@@ -211,14 +211,6 @@ struct command {
 	struct action action;
 };
 
-struct statusbar {
-	int fd;
-	unsigned short int h;
-	unsigned short int y;
-	char text[512];
-	const char *file;
-};
-
 struct data_buffer {
 	char *data;
 	size_t len;

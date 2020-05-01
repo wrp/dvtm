@@ -70,7 +70,6 @@ struct screen screen = { .history = SCROLL_HISTORY };
 
 struct client *sel = NULL;
 unsigned int seltags;
-struct statusbar bar = { .fd = -1, .h = 1 };
 static unsigned id;
 struct data_buffer copyreg;
 volatile sig_atomic_t stop_requested = 0;
@@ -126,58 +125,6 @@ is_content_visible(struct client *c) {
 	return c && isvisible(c);
 }
 
-void
-updatebarpos(void) {
-	bar.y = screen.h;
-}
-
-void
-drawbar(void) {
-	int sx, sy, x, y, width;
-
-	getyx(stdscr, sy, sx);
-	move(bar.y, 0);
-
-	for( unsigned i = 0; i < TAG_COUNT; i++ ) {
-		unsigned mask = 1 << i;
-		attrset(TAG_NORMAL);
-		printw(TAG_SYMBOL, i + 1);
-	}
-
-	attrset(TAG_NORMAL);
-
-	if( state.mode == command_mode ) {
-		attrset(COLOR(RED) | A_REVERSE);
-	} else {
-		attrset(COLOR(DEFAULT) | A_NORMAL);
-	}
-
-	getyx(stdscr, y, x);
-	(void)y; /* ??? Is this to suppress a compiler warning?? */
-	int maxwidth = screen.w - x - 2;
-
-	addch(BAR_BEGIN);
-
-	wchar_t wbuf[sizeof bar.text];
-	size_t numchars = mbstowcs(wbuf, bar.text, sizeof bar.text);
-
-	if (numchars != (size_t)-1 && (width = wcswidth(wbuf, maxwidth)) != -1) {
-		int pos = 0;
-
-		for (size_t i = 0; i < numchars; i++) {
-			pos += wcwidth(wbuf[i]);
-			if (pos > maxwidth)
-				break;
-			addnwstr(wbuf+i, 1);
-		}
-		clrtoeol();
-	}
-
-	mvaddch(bar.y, screen.w - 1, BAR_END);
-	attrset(NORMAL_ATTR);
-	move(sy, sx);
-	wnoutrefresh(stdscr);
-}
 
 void
 draw_border(struct window *w) {
@@ -264,7 +211,6 @@ draw_layout(struct layout *L)
 void
 draw_all(void)
 {
-	drawbar();
 	if( state.current_view ) {
 		draw_layout(state.current_view->layout);
 	}
@@ -276,9 +222,8 @@ arrange(void) {
 	erase();
 	attrset(NORMAL_ATTR);
 	if(state.current_view) {
-		/* Subtract one for bar */
 		render_layout(state.current_view->layout, 0, 0,
-			screen.h - 1, screen.w);
+			screen.h, screen.w);
 	}
 	focus(NULL);
 	wnoutrefresh(stdscr);
@@ -373,7 +318,6 @@ term_urgent_handler(Vt *term) {
 	c->urgent = true;
 	printf("\a");
 	fflush(stdout);
-	drawbar();
 	if( f != c && isvisible(c) )
 		draw_border(c->win);
 }
@@ -489,7 +433,6 @@ resize_screen(void) {
 	}
 	resizeterm(screen.h, screen.w);
 	wresize(stdscr, screen.h, screen.w);
-	updatebarpos();
 	clear();
 	arrange();
 	screen.winched = 0;
@@ -870,10 +813,6 @@ cleanup(void) {
 	vt_shutdown();
 	endwin();
 	free(copyreg.data);
-	if (bar.fd > 0)
-		close(bar.fd);
-	if (bar.file)
-		unlink(bar.file);
 }
 
 int
@@ -1087,8 +1026,7 @@ create(const char * const args[]) {
 	c->id = ++id;
 	snprintf(buf, sizeof buf, "%d", c->id);
 
-	/* Subtract one for bar */
-	if (!(c->window = newwin(screen.h - 1, screen.w, 0, 0))) {
+	if (!(c->window = newwin(screen.h, screen.w, 0, 0))) {
 		free(c);
 		return 1;
 	}
@@ -1393,31 +1331,6 @@ send(const char * const args[]) {
 	return 0;
 }
 
-
-void
-handle_statusbar(void) {
-	char *p;
-	int r;
-	switch (r = read(bar.fd, bar.text, sizeof bar.text - 1)) {
-		case -1:
-			strncpy(bar.text, strerror(errno), sizeof bar.text - 1);
-			bar.text[sizeof bar.text - 1] = '\0';
-			bar.fd = -1;
-			break;
-		case 0:
-			bar.fd = -1;
-			break;
-		default:
-			bar.text[r] = '\0';
-			p = bar.text + r - 1;
-			for (; p >= bar.text && *p == '\n'; *p-- = '\0');
-			for (; p >= bar.text && *p != '\n'; --p);
-			if (p >= bar.text)
-				memmove(bar.text, p + 1, strlen(p));
-			drawbar();
-	}
-}
-
 void
 handle_editor(struct client *c) {
 	if (!copyreg.data && (copyreg.data = malloc(screen.history)))
@@ -1501,13 +1414,13 @@ parse_args(int argc, char *argv[]) {
 			push_action(&a);
 			continue;
 		}
-		if( strchr("drtsm", arg[1]) != NULL && argv[1] == NULL ) {
+		if( strchr("drtm", arg[1]) != NULL && argv[1] == NULL ) {
 			error(0, "%s requires an argument (-h for usage)", arg);
 		}
 		switch (arg[1]) {
 		case 'h':
 			printf("usage: %s [-v] [-h] [-f] [-m mod] [-d delay] "
-				"[-r lines] [-t title] [-s status-fifo] "
+				"[-r lines] [-t title] "
 				"[cmd...]\n", basename);
 			exit(EXIT_SUCCESS);
 		case 'v':
@@ -1536,9 +1449,6 @@ parse_args(int argc, char *argv[]) {
 			break;
 		case 't':
 			title = *++argv;
-			break;
-		case 's':
-			bar.fd = open_or_create_fifo(*++argv, &bar.file, "MVTM_STATUS_FIFO");
 			break;
 		default:
 			error(0, "unknown option: %s (-h for usage)", arg);
@@ -1644,8 +1554,6 @@ handle_input(struct state *s)
 	if( s->binding == cmd_bindings && s->buf.count == 0 ) {
 		reset_entry(&s->buf);
 	}
-	/* TODO: consider just using bar.text for the buffer */
-	snprintf(bar.text, sizeof bar.text, "%s", s->buf.data);
 	draw(sel);
 }
 
@@ -1669,7 +1577,6 @@ main(int argc, char *argv[])
 		set_fd_mask(STDIN_FILENO, &rd, &nfds);
 		set_fd_mask(sigwinch_pipe[0], &rd, &nfds);
 		set_fd_mask(sigchld_pipe[0], &rd, &nfds);
-		set_fd_mask(bar.fd, &rd, &nfds);
 
 		check_client_fds(&rd, &nfds);
 
@@ -1705,9 +1612,6 @@ main(int argc, char *argv[])
 			}
 			handle_sigchld();
 		}
-
-		if (bar.fd != -1 && FD_ISSET(bar.fd, &rd))
-			handle_statusbar();
 
 		for_each_client(1);
 		struct client *c;
