@@ -33,22 +33,41 @@ mov(const char * const args[])
 		return 1;
 	}
 	assert( w->enclosing_layout != NULL );
-	if( w->next == NULL ) {
+	assert( state.current_view->layout != NULL );
+	if(
+		( down && w->next == NULL )
+		|| ( up && w->prev == NULL )
+	) {
 		w = w->enclosing_layout->parent;
-	} else if( ( up || down ) && ( w->enclosing_layout->type == row_layout )) {
+	}
+	/*
+	TODO: clean this up.  This seems to work, but sometimes w is NULL.  Need to first
+	refactor everything so that the to level view points to a window rather than a layout
+	*/
+	while( ( up || down ) && w->enclosing_layout && ( w->enclosing_layout->type == row_layout )) {
 		w = w->enclosing_layout->parent;
 	}
 	if( down ) {
 		if( w == NULL ) {
-			w = state.current_view->layout->windows;
+			;
 		} else if( w->next && w->next->layout ) {
 			w = w->next->layout->windows;
 		} else {
 			w = w->next;
 		}
+	} else if( up ) {
+		if( w == NULL ) {
+			;
+		} else if( w->prev && w->prev->layout ) {
+			w = w->prev->layout->windows;
+		} else {
+			w = w->prev;
+		}
 	}
-	state.current_view->vfocus = w;
-	return 0;
+	if( w != NULL ) {
+		state.current_view->vfocus = w;
+	}
+	return w == NULL; /* 0 success, 1 failure */
 }
 
 int
