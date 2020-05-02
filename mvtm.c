@@ -646,7 +646,7 @@ new_window(struct layout *parent, struct client *c)
 	struct window *w = calloc(1, sizeof *w);
 	assert( parent != NULL );
 	if( w != NULL ) {
-		w->p = (struct position){.portion = 1.0};
+		w->portion = 1.0;
 		w->c = c;
 		w->enclosing_layout = parent;
 		if( c != NULL ) {
@@ -825,7 +825,7 @@ split_window(struct window *target)
 	assert( factor >= .5 );
 	for( w = lay->windows; w; w = w->next ) {
 		assert(w->enclosing_layout = lay);
-		w->p.portion *= factor;
+		w->portion *= factor;
 		index += found;
 		if( w == target ) {
 			ret->next = w->next;
@@ -835,7 +835,7 @@ split_window(struct window *target)
 		}
 	}
 	assert( found );  /* target must be in the list */
-	ret->p = (struct position){.portion = 1.0 - factor};
+	ret->portion = 1.0 - factor;
 	ret->enclosing_layout = lay;
 	ret->layout = NULL;
 	return ret;
@@ -1537,11 +1537,10 @@ render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w
 	unsigned consumed = 0;
 	for( struct window *win = lay->windows; win; win = win->next ) {
 		int last = win->next == NULL;
-		struct position *p = &win->p;
 		unsigned count, nh, nw;
 		unsigned unit = row ? w : h;
-		assert( p->portion > 0.0 && p->portion <= 1.0 );
-		count = last ? unit - consumed : p->portion * unit;
+		assert( win->portion > 0.0 && win->portion <= 1.0 );
+		count = last ? unit - consumed : win->portion * unit;
 		nw = row ? count : w;
 		nh = row ? h : count;
 

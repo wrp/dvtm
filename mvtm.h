@@ -42,11 +42,6 @@ struct entry_buf {
 	unsigned char *next; /* first unused char in data */
 };
 enum window_description_type { relative, absolute };
-struct position {
-	/* relative position and size */
-	/* Values between 0 and 1, indicating fraction of total available */
-	double portion;
-};
 struct abs_position {
 	/* absolute position and size */
 	unsigned short y, x;   /* position of upper left corner */
@@ -57,7 +52,7 @@ struct abs_position {
  * one client or one layout (the layout can contain multiple windows).
  */
 struct window {
-	struct position p;  /* relative to enclosing layout */
+	double portion;  /* Percent of enclosing_layout */
 	struct client *c;
 	struct layout *layout;
 	struct layout *enclosing_layout;
