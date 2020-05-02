@@ -120,16 +120,9 @@ draw_border(struct window *w) {
 	if( state.current_view->vfocus != NULL ) {
 		f = state.current_view->vfocus->c;
 	}
-	if( f == c )
-		attrs = COLOR(BLUE) | A_NORMAL;
-
-	if( f == c && state.mode == command_mode ) {
-		attrs = COLOR(RED) | A_REVERSE;
-	} else if( f == c && c->term == c->editor ) {
-		attrs = COLOR(CYAN) | A_NORMAL;
-	}
-	if( c->urgent ) {
-		attrs |= A_BLINK;
+	if( f == c ) {
+		attrs = c->term == c->editor ? COLOR(CYAN) : COLOR(BLUE);
+		attrs |= A_NORMAL;
 	}
 	if( state.mode == command_mode ) {
 		fill = ACS_BLOCK;
