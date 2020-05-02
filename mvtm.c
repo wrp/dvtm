@@ -152,10 +152,6 @@ draw_border(struct window *w) {
 	wmove(c->window, y, x);
 }
 
-void
-draw_content(struct client *c) {
-	vt_draw(c->term, c->window, 0, 0);
-}
 
 void
 draw(struct client *c) {
@@ -165,7 +161,7 @@ draw(struct client *c) {
 
 	if( c->win ) {
 		redrawwin(c->window);
-		draw_content(c);
+		vt_draw(c->term, c->window, 0, 0);
 	}
 	draw_border(c->win);
 	wnoutrefresh(c->window);
@@ -1233,7 +1229,7 @@ handle_editor(struct client *c) {
 	c->editor = NULL;
 	c->term = c->app;
 	vt_dirty(c->term);
-	draw_content(c);
+	vt_draw(c->term, c->window, 0, 0);
 	draw_border(c->win);
 	wnoutrefresh(c->window);
 }
@@ -1481,7 +1477,7 @@ main(int argc, char *argv[])
 				}
 			}
 			if( c->win ) {
-				draw_content(c);
+				vt_draw(c->term, c->window, 0, 0);
 				wnoutrefresh(c->window);
 			}
 		}
