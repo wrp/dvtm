@@ -180,14 +180,6 @@ draw_layout(struct layout *L)
 }
 
 void
-draw_all(void)
-{
-	if( state.current_view ) {
-		draw_layout(state.current_view->layout);
-	}
-}
-
-void
 arrange(void) {
 	unsigned int m = 0;
 	erase();
@@ -195,10 +187,10 @@ arrange(void) {
 	if(state.current_view) {
 		render_layout(state.current_view->layout, 0, 0,
 			screen.h, screen.w);
+		focus(NULL);
+		wnoutrefresh(stdscr);
+		draw_layout(state.current_view->layout);
 	}
-	focus(NULL);
-	wnoutrefresh(stdscr);
-	draw_all();
 }
 
 static void
@@ -960,7 +952,7 @@ toggle_mode(const char * const args[])
 		s->mode = keypress_mode;
 		s->binding = bindings;
 	}
-	draw_all();
+	draw_layout(state.current_view->layout);
 	return 0;
 }
 
