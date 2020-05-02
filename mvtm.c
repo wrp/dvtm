@@ -104,11 +104,6 @@ error(int include_errstr, const char *errstr, ...) {
 	exit(EXIT_FAILURE);
 }
 
-bool
-is_content_visible(struct client *c) {
-	return c != NULL && c->win != NULL;
-}
-
 void
 draw_border(struct window *w) {
 	struct client *c = w->c;
@@ -175,7 +170,7 @@ draw(struct client *c) {
 		return;
 	}
 
-	if (is_content_visible(c)) {
+	if( c->win ) {
 		redrawwin(c->window);
 		draw_content(c);
 	}
@@ -448,7 +443,8 @@ keypress(int code) {
 		nodelay(stdscr, FALSE);
 	}
 	struct client *c = state.current_view->vfocus->c;
-	if (is_content_visible(c)) {
+	if( c ) {
+		assert( c-> win != NULL );
 		c->urgent = false;
 		if (code == '\e')
 			vt_write(c->term, buf, len);
@@ -1193,7 +1189,7 @@ scrollback(const char * const args[])
 {
 	double pages = args[0] ? strtod(args[0], NULL) : -0.5;
 	struct client *f = state.current_view->vfocus->c;
-	if( f == NULL || !is_content_visible(f) ) {
+	if( f == NULL || f->win == NULL ) {
 		return -1;
 	}
 	if( state.buf.count ) {
@@ -1491,8 +1487,7 @@ main(int argc, char *argv[])
 					continue;
 				}
 			}
-
-			if( is_content_visible(c)) {
+			if( c->win ) {
 				draw_content(c);
 				wnoutrefresh(c->window);
 			}
