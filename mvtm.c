@@ -450,6 +450,10 @@ keypress(int code) {
 	unsigned int len = 1;
 	char buf[8] = { '\e' };
 
+	if( state.current_view->vfocus == NULL ) {
+		return;
+	}
+
 	if (code == '\e') {
 		/* pass characters following escape to the underlying app */
 		nodelay(stdscr, TRUE);
