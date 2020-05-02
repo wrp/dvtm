@@ -245,13 +245,13 @@ set_term_title(char *title)
 
 void
 focus(struct client *c) {
-	if( ! state.current_view || ! state.current_view->vfocus) {
+	if( state.current_view == NULL ) {
 		return;
 	}
 	if( c && state.current_view->vfocus == c->win ) {
 		return;
 	}
-	if( c == NULL ) {
+	if( c == NULL && state.current_view->vfocus ) {
 		c = state.current_view->vfocus->c;
 	}
 	if( c == NULL ) {
