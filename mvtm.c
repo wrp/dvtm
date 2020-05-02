@@ -67,8 +67,6 @@ void cleanup(void);
 void push_action(const struct action *a);
 static void reset_entry(struct entry_buf *);
 
-char *title;
-
 struct action *actions = NULL; /* actions are executed when mvtm is started */
 
 struct screen screen = { .history = SCROLL_HISTORY };
@@ -235,16 +233,10 @@ arrange(void) {
 }
 
 static void
-set_term_title(char *new_title) {
-	char *term, *t = title;
-	struct client *f = state.current_view->vfocus->c;
-
-	if( !t && *new_title ) {
-		t = new_title;
-	}
-
-	if (t && (term = getenv("TERM")) && !strstr(term, "linux")) {
-		printf("\033]0;%s\007", t);
+set_term_title(char *title)
+{
+	if( title ) {
+		printf("\033]0;%s\007", title);
 		fflush(stdout);
 	}
 }
@@ -1378,7 +1370,7 @@ parse_args(int argc, char *argv[]) {
 			screen.history = strtol(*++argv, NULL, 10);
 			break;
 		case 't':
-			title = *++argv;
+			state.title = *++argv;
 			break;
 		default:
 			error(0, "unknown option: %s (-h for usage)", arg);

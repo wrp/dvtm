@@ -77,9 +77,6 @@ struct view {
 	struct window *vfocus;
 	char name[32];
 };
-/*
- * struct state is the global state.
- */
 enum mode { keypress_mode, command_mode };
 struct state {
 	enum mode mode;
@@ -93,6 +90,7 @@ struct state {
 	unsigned viewcount;
 	struct view *current_view;
 	const char *shell;
+	const char *title;
 	struct client *clients;
 };
 
