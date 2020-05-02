@@ -42,7 +42,7 @@ struct entry_buf {
 	unsigned char *next; /* first unused char in data */
 };
 enum window_description_type { relative, absolute };
-struct abs_position {
+struct position {
 	/* absolute position and size */
 	unsigned short y, x;   /* position of upper left corner */
 	unsigned short h, w;   /* height and width */
@@ -127,7 +127,7 @@ struct client {
 	int editor_fds[2];
 	volatile sig_atomic_t editor_died;
 	const char *cmd;
-	struct abs_position p;
+	struct position p;
 	char title[128];
 	char editor_title[128];
 	pid_t pid;
