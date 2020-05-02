@@ -1088,9 +1088,7 @@ end:
 static struct client *
 select_client(const struct view *v)
 {
-	struct client *c;
-
-	c = state.current_view->vfocus->c;
+	struct client *c = NULL;
 	if( state.buf.count != 0 ) {
 		struct client *t;
 		if( v == NULL ) {
@@ -1109,6 +1107,8 @@ select_client(const struct view *v)
 				}
 			}
 		}
+	} else if( state.current_view->vfocus != NULL ) {
+		c = state.current_view->vfocus->c;
 	}
 	return c;
 }
