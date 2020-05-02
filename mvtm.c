@@ -168,13 +168,12 @@ draw(struct client *c) {
 }
 
 static void
-draw_layout(struct layout *L)
+draw_window(struct window *w)
 {
-	struct window *w;
-	if( L != NULL ) {
-		for( w = L->windows; w; w = w->next ) {
-			draw(w->c);
-			draw_layout(w->layout);
+	for( ; w; w = w->next ) {
+		draw(w->c);
+		if( w->layout ) {
+			draw_window(w->layout->windows);
 		}
 	}
 }
@@ -189,7 +188,9 @@ arrange(void) {
 			screen.h, screen.w);
 		focus(NULL);
 		wnoutrefresh(stdscr);
-		draw_layout(state.current_view->layout);
+		if(state.current_view->layout) {
+			draw_window(state.current_view->layout->windows);
+		}
 	}
 }
 
@@ -952,7 +953,9 @@ toggle_mode(const char * const args[])
 		s->mode = keypress_mode;
 		s->binding = bindings;
 	}
-	draw_layout(state.current_view->layout);
+	if(state.current_view->layout) {
+		draw_window(state.current_view->layout->windows);
+	}
 	return 0;
 }
 
