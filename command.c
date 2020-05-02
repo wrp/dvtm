@@ -31,7 +31,7 @@ mov(const char * const args[])
 		if( w == NULL ) {
 			;
 		} else if( w->next && w->next->layout ) {
-			w = w->next->layout->lwindows;
+			w = w->next->layout->windows;
 		} else {
 			w = w->next;
 		}

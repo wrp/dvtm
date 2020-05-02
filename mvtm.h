@@ -70,7 +70,7 @@ struct window {
 */
 struct layout {
 	enum { undetermined, column_layout, row_layout } type;
-	struct window *lwindows;
+	struct window *windows;
 	size_t count;
 };
 struct view {

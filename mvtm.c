@@ -106,7 +106,7 @@ static struct window *
 find_window(struct client *c, struct layout *lay)
 {
 	assert( lay != NULL );
-	for( struct window *w = lay->lwindows; w; w = w->next ) {
+	for( struct window *w = lay->windows; w; w = w->next ) {
 		if( w->layout ) {
 			struct window *t;
 			if( (t = find_window(c, w->layout)) != NULL ) {
@@ -202,7 +202,7 @@ draw_layout(struct layout *L)
 {
 	struct window *w;
 	if( L != NULL ) {
-		for( w = L->lwindows; w; w = w->next ) {
+		for( w = L->windows; w; w = w->next ) {
 			draw(w->c);
 			draw_layout(w->layout);
 		}
@@ -660,7 +660,7 @@ new_layout(struct window *w)
 			c = w->c;
 			assert( c == NULL || c->win == w );
 		}
-		if( (ret->lwindows = new_window(ret, c)) == NULL ) {
+		if( (ret->windows = new_window(ret, c)) == NULL ) {
 			free(ret);
 			ret = NULL;
 		}
@@ -688,7 +688,7 @@ init_state(struct state *s)
 	if( s->views->layout == NULL) {
 		error(0, "out of memory");
 	}
-	s->views->vfocus = s->views->layout->lwindows;
+	s->views->vfocus = s->views->layout->windows;
 	s->current_view = s->views;
 }
 
@@ -813,7 +813,7 @@ split_window(struct window *target)
 	assert( count > 0 );
 	factor = (double)count / ( count + 1 );
 	assert( factor >= .5 );
-	for( w = lay->lwindows; w; w = w->next ) {
+	for( w = lay->windows; w; w = w->next ) {
 		assert(w->enclosing_layout = lay);
 		w->p.offset = w->p.offset * factor + offset;
 		w->p.portion *= factor;
@@ -836,10 +836,10 @@ split_window(struct window *target)
 struct window *
 find_empty_window(struct layout *layout)
 {
-	if( layout == NULL || layout->lwindows == NULL ) {
+	if( layout == NULL || layout->windows == NULL ) {
 		return NULL;
 	}
-	struct window *w = layout->lwindows;
+	struct window *w = layout->windows;
 	for( ; w; w = w->next ) {
 		struct window *t;
 		if( w->c == NULL && w->layout == NULL ) {
@@ -884,7 +884,7 @@ split(const char * const args[])
 	if( lay->type != undetermined ) {
 		if( lay->type != t ) {
 			lay = w->layout = new_layout(w);
-			state.current_view->vfocus = lay->lwindows;
+			state.current_view->vfocus = lay->windows;
 			w->c = NULL;
 		}
 	}
@@ -1526,7 +1526,7 @@ render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w
 	}
 	int row = lay->type == row_layout;
 	unsigned consumed = 0;
-	for( struct window *win = lay->lwindows; win; win = win->next ) {
+	for( struct window *win = lay->windows; win; win = win->next ) {
 		int last = win->next == NULL;
 		struct position *p = &win->p;
 		unsigned count, nh, nw;
