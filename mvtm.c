@@ -827,14 +827,6 @@ transition_with_send(const char * const args[])
 	return 0;
 }
 
-int
-toggle_borders(const char * const args[])
-{
-	state.hide_borders = !state.hide_borders;
-	draw_all();
-	return 0;
-}
-
 static struct layout *
 get_layout(struct window *w)
 {

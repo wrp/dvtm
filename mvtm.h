@@ -85,7 +85,6 @@ struct state {
 	const struct key_binding *binding;
 	int signal;  /* Signal sent by killclient */
 	int runinall;
-	int hide_borders;
 	struct view *views;
 	unsigned viewcount;
 	struct view *current_view;
