@@ -57,6 +57,7 @@ struct window {
 	struct layout *layout;
 	struct layout *enclosing_layout;
 	struct window *next;
+	struct window *prev;
 };
 /*
  * A layout is a set of windows, each having either the same height

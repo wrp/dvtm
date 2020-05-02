@@ -830,6 +830,10 @@ split_window(struct window *target)
 		if( w == target ) {
 			ret->next = w->next;
 			w->next = ret;
+			ret->prev = w;
+			if( ret->next ) {
+				ret->next->prev = ret;
+			}
 			w = ret;
 			found = 1;
 		}
