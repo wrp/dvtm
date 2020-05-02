@@ -104,28 +104,10 @@ error(int include_errstr, const char *errstr, ...) {
 	exit(EXIT_FAILURE);
 }
 
-/* Return the window associated with a given client, or NULL */
-static struct window *
-find_window(struct client *c, struct window *w)
-{
-	for( ; w; w = w->next ) {
-		if( w->c == c ) {
-			return w;
-		} else if( w->layout ) {
-			struct window *t;
-			if( (t = find_window(c, w->layout->windows)) != NULL ) {
-				return t;
-			}
-		}
-	}
-	return NULL;
-}
-
 bool
 is_content_visible(struct client *c) {
-	return c && find_window(c, state.current_view->layout->windows) != NULL;
+	return c != NULL && c->win != NULL;
 }
-
 
 void
 draw_border(struct window *w) {
