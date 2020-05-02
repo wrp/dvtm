@@ -528,8 +528,10 @@ push_binding(struct key_binding *b, const unsigned char *keys, const struct acti
 		}
 		push_binding(t->next, keys + 1, a);
 	} else {
+		if( t->next != NULL ) {
+			return 1; /* conflicting binding */
+		}
 		memcpy(&t->action, a, sizeof t->action);
-		t->next = NULL;
 	}
 	return 0;
 }
@@ -578,7 +580,7 @@ build_bindings(void)
 		}
 		const char *args[] = {e[2], e[3], e[4]};
 		if( internal_bind(command_mode, (unsigned char *)e[0], cmd, args) ) {
-			error(0, "failed to bind to %s", e[1]);
+			error(0, "conflicting binding for '%s'", e[0]);
 		}
 	}
 	for( int i=0; i < 10; i++ ) {
@@ -586,7 +588,7 @@ build_bindings(void)
 		const char *args[] = { buf, NULL };
 		buf[0] = '0' + i;
 		if( internal_bind(command_mode, (unsigned char *)buf, digit, args) ) {
-			error(0, "failed to bind to '%d'", i);
+			error(0, "conflicting binding for '%d'", i);
 		}
 	}
 
