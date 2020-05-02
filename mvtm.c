@@ -670,6 +670,7 @@ new_layout(struct window *w)
 			free(ret);
 			ret = NULL;
 		}
+		ret->parent = w;
 	}
 	return ret;
 }

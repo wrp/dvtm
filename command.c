@@ -26,12 +26,22 @@ digit(const char *const args[])
 int
 mov(const char * const args[])
 {
+	struct window *w = state.current_view->vfocus;
+	if( w == NULL ) {
+		return 1;
+	}
+	assert( w->enclosing_layout != NULL );
 	if( !strcmp(args[0], "down") ) {
-		struct window *w = state.current_view->vfocus;
+		if( w->enclosing_layout->type == row_layout
+				|| w->next == NULL ) {
+			w = w->enclosing_layout->parent;
+		}
 		if( w == NULL ) {
 			;
 		} else if( w->next && w->next->layout ) {
 			w = w->next->layout->windows;
+		} else if( ! w->next ) {
+			w = w->enclosing_layout->parent;
 		} else {
 			w = w->next;
 		}

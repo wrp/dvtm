@@ -71,6 +71,7 @@ struct window {
 struct layout {
 	enum { undetermined, column_layout, row_layout } type;
 	struct window *windows;
+	struct window *parent; /* The enclosing window */
 	size_t count;
 };
 struct view {
