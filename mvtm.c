@@ -213,6 +213,7 @@ set_term_title(char *title)
 
 void
 focus(struct client *c) {
+	struct window *old = NULL;
 	if( state.current_view == NULL ) {
 		return;
 	}
@@ -225,12 +226,19 @@ focus(struct client *c) {
 	if( c == NULL ) {
 		return;
 	}
+	if( state.current_view->vfocus && c->win != state.current_view->vfocus ) {
+		old = state.current_view->vfocus;
+	}
 	state.current_view->vfocus = c->win;
 	if (c) {
 		set_term_title(c->title);
 		c->urgent = false;
 		draw_border(c->win);
 		wnoutrefresh(c->window);
+	}
+	if( old ) {
+		draw_border(old);
+		wnoutrefresh(old->c->window);
 	}
 	curs_set(c && vt_cursor_visible(c->term));
 }
