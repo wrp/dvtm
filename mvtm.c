@@ -26,7 +26,7 @@
     MVTM_STATUS_URL and MVTM_CMD_URL.  We can send layout
     info, and status bar updates, etc to CMD_URL and query STATUS_URL
     for current state.
-  Consider name change: eg 'mtm', 'pyx', 'pyt'
+  Consider name change: eg 'stm', 'pyx', 'pyt', 'pym' (latter too pythonic)
   Make tagset nameable.  As soon as we do that, we basically have
   named tabs.
 
