@@ -537,15 +537,14 @@ push_binding(struct key_binding *b, const unsigned char *keys, const struct acti
 }
 
 /*
- * Wrapper around the external facing bind(), which
+ * Wrappers around the external facing bind(), which
  * may at some point be used as a command to allow
  * run time override of bingings.  The data in args
  * is *not* copied, so the caller must ensure that
  * they are non-volatile. (eg, don't pass a stack variable).
  */
 static int
-internal_bind(enum mode m, unsigned char *keys, command *func,
-	const char * args[])
+internal_bind(enum mode m, unsigned char *keys, command *f, const char * args[])
 {
 	struct action a = {0};
 	typeof(bindings) b;
@@ -554,11 +553,18 @@ internal_bind(enum mode m, unsigned char *keys, command *func,
 	case keypress_mode: b = bindings; break;;
 	case command_mode: b = cmd_bindings; break;;
 	}
-	a.cmd = func;
+	a.cmd = f;
 	for(int i = 0; *args && i < MAX_ARGS; args++ ) {
 		a.args[i] = *args;
 	}
 	return push_binding(b, keys, &a);
+}
+static int
+xinternal_bind(enum mode m, unsigned char *keys, command *f, const char *args[])
+{
+	if( internal_bind(m, keys, f, args) ) {
+		error(0, "conflicting binding for '%s'", keys);
+	}
 }
 
 static void
@@ -569,7 +575,7 @@ build_bindings(void)
 	char const *args[2] = { mod_binding, NULL };
 	state.binding = bindings = xcalloc(1u << CHAR_BIT, sizeof *bindings);
 	cmd_bindings = xcalloc(1u << CHAR_BIT, sizeof *cmd_bindings);
-	internal_bind(keypress_mode, (unsigned char *)mod_binding,
+	xinternal_bind(keypress_mode, (unsigned char *)mod_binding,
 		transition_no_send, args );
 
 	for( b = mod_bindings; b[0][0]; b++) {
@@ -579,20 +585,16 @@ build_bindings(void)
 			error(0, "couldn't find %s", e[1]);
 		}
 		const char *args[] = {e[2], e[3], e[4]};
-		if( internal_bind(command_mode, (unsigned char *)e[0], cmd, args) ) {
-			error(0, "conflicting binding for '%s'", e[0]);
-		}
+		xinternal_bind(command_mode, (unsigned char *)e[0], cmd, args);
 	}
 	for( int i=0; i < 10; i++ ) {
 		char *buf = xcalloc(2, 1);
 		const char *args[] = { buf, NULL };
 		buf[0] = '0' + i;
-		if( internal_bind(command_mode, (unsigned char *)buf, digit, args) ) {
-			error(0, "conflicting binding for '%d'", i);
-		}
+		xinternal_bind(command_mode, (unsigned char *)buf, digit, args);
 	}
 
-	internal_bind(command_mode, (unsigned char *)mod_binding,
+	xinternal_bind(command_mode, (unsigned char *)mod_binding,
 		transition_with_send, args );
 	for( b = keypress_bindings; b[0][0]; b++) {
 		char **e = *b;
@@ -601,9 +603,7 @@ build_bindings(void)
 			error(0, "couldn't find %s", e[1]);
 		}
 		const char *args[] = {e[2], e[3], e[4]};
-		if( internal_bind(keypress_mode, (unsigned char *)e[0], cmd, args) ) {
-			error(0, "failed to bind to %s", e[1]);
-		}
+		xinternal_bind(keypress_mode, (unsigned char *)e[0], cmd, args);
 	}
 }
 
