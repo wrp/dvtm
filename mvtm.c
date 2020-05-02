@@ -516,23 +516,20 @@ xcalloc(size_t count, size_t size)
 
 
 static int
-push_binding(struct key_binding *b, const unsigned char *keys, const struct action *a, int loop)
+push_binding(struct key_binding *b, const unsigned char *keys, const struct action *a)
 {
 	struct key_binding *t = b + keys[0];
 	if( t->action.cmd != NULL ) {
 		return 1; /* conflicting binding */
 	}
-	if( keys[1] && loop ) {
-		return 1; /* invalid binding */
-	}
 	if( keys[1] ) {
 		if( t->next == NULL ) {
 			t->next = xcalloc(1u << CHAR_BIT, sizeof *t->next);
 		}
-		push_binding(t->next, keys + 1, a, 0);
+		push_binding(t->next, keys + 1, a);
 	} else {
 		memcpy(&t->action, a, sizeof t->action);
-		t->next = loop ? t : NULL;
+		t->next = NULL;
 	}
 	return 0;
 }
@@ -545,7 +542,7 @@ push_binding(struct key_binding *b, const unsigned char *keys, const struct acti
  * they are non-volatile. (eg, don't pass a stack variable).
  */
 static int
-internal_bind(enum mode m, int loop, unsigned char *keys, command *func,
+internal_bind(enum mode m, unsigned char *keys, command *func,
 	const char * args[])
 {
 	struct action a = {0};
@@ -559,7 +556,7 @@ internal_bind(enum mode m, int loop, unsigned char *keys, command *func,
 	for(int i = 0; *args && i < MAX_ARGS; args++ ) {
 		a.args[i] = *args;
 	}
-	return push_binding(b, keys, &a, loop);
+	return push_binding(b, keys, &a);
 }
 
 static void
@@ -570,7 +567,7 @@ build_bindings(void)
 	char const *args[2] = { mod_binding, NULL };
 	state.binding = bindings = xcalloc(1u << CHAR_BIT, sizeof *bindings);
 	cmd_bindings = xcalloc(1u << CHAR_BIT, sizeof *cmd_bindings);
-	internal_bind(keypress_mode, 0, (unsigned char *)mod_binding,
+	internal_bind(keypress_mode, (unsigned char *)mod_binding,
 		transition_no_send, args );
 
 	for( b = mod_bindings; b[0][0]; b++) {
@@ -580,7 +577,7 @@ build_bindings(void)
 			error(0, "couldn't find %s", e[1]);
 		}
 		const char *args[] = {e[2], e[3], e[4]};
-		if( internal_bind(command_mode, 0, (unsigned char *)e[0], cmd, args) ) {
+		if( internal_bind(command_mode, (unsigned char *)e[0], cmd, args) ) {
 			error(0, "failed to bind to %s", e[1]);
 		}
 	}
@@ -588,12 +585,12 @@ build_bindings(void)
 		char *buf = xcalloc(2, 1);
 		const char *args[] = { buf, NULL };
 		buf[0] = '0' + i;
-		if( internal_bind(command_mode, 0, (unsigned char *)buf, digit, args) ) {
+		if( internal_bind(command_mode, (unsigned char *)buf, digit, args) ) {
 			error(0, "failed to bind to '%d'", i);
 		}
 	}
 
-	internal_bind(command_mode, 0, (unsigned char *)mod_binding,
+	internal_bind(command_mode, (unsigned char *)mod_binding,
 		transition_with_send, args );
 	for( b = keypress_bindings; b[0][0]; b++) {
 		char **e = *b;
@@ -602,7 +599,7 @@ build_bindings(void)
 			error(0, "couldn't find %s", e[1]);
 		}
 		const char *args[] = {e[2], e[3], e[4]};
-		if( internal_bind(keypress_mode, 0, (unsigned char *)e[0], cmd, args) ) {
+		if( internal_bind(keypress_mode, (unsigned char *)e[0], cmd, args) ) {
 			error(0, "failed to bind to %s", e[1]);
 		}
 	}
@@ -798,7 +795,7 @@ bind(const char * const args[])
 	for(int i = 0; i < 3; i++ ) {
 		a.args[i] = args[i+2];
 	}
-	return push_binding(bindings, binding, &a, 0);
+	return push_binding(bindings, binding, &a);
 }
 
 int
