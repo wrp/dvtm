@@ -684,24 +684,16 @@ clamp( char ** d, char *e, int count, size_t *r)
 }
 
 void
-create_views(void)
-{
-	struct view *v;
-
-	state.views = v = xcalloc(state.viewcount = 1, sizeof *v);
-	v->layout = new_layout(NULL);
-	if( v->layout == NULL) {
-		error(0, "out of memory");
-	}
-	v->vfocus = v->layout->lwindows;
-	state.current_view = v;
-}
-
-void
 init_state(struct state *s)
 {
 	reset_entry(&s->buf);
-	create_views();
+	s->views = xcalloc(s->viewcount = 1, sizeof *s->views);
+	s->views->layout = new_layout(NULL);
+	if( s->views->layout == NULL) {
+		error(0, "out of memory");
+	}
+	s->views->vfocus = s->views->layout->lwindows;
+	s->current_view = s->views;
 }
 
 static void
