@@ -74,7 +74,6 @@ struct screen screen = { .history = SCROLL_HISTORY };
 unsigned int seltags;
 static unsigned id;
 struct data_buffer copyreg;
-volatile sig_atomic_t stop_requested = 0;
 int signal_pipe[] = {-1, -1};
 
 void
@@ -776,7 +775,7 @@ destroy(struct client *c) {
 			state.current_view->vfocus = state.clients->win;
 		}
 	} else {
-		stop_requested = 1;
+		state.stop_requested = 1;
 	}
 	if( c->win ) {
 		c->win->c = NULL;
@@ -1241,7 +1240,7 @@ paste(const char * const args[])
 
 int
 quit(const char * const args[]) {
-	stop_requested = 1;
+	state.stop_requested = 1;
 	return 0;
 }
 
@@ -1504,7 +1503,7 @@ main(int argc, char *argv[])
 		a->cmd(a->args);
 	}
 
-	while( !stop_requested ) {
+	while( !state.stop_requested ) {
 		int r, nfds = 0;
 		fd_set rd;
 
@@ -1540,7 +1539,7 @@ main(int argc, char *argv[])
 				if( rc == sizeof s) switch(s) {
 				case SIGWINCH: screen.winched = 1; break;
 				case SIGCHLD: handle_sigchld(); break;
-				case SIGTERM: stop_requested = 1; break;
+				case SIGTERM: state.stop_requested = 1; break;
 				default: assert(0);
 				}
 			}

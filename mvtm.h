@@ -92,6 +92,7 @@ struct state {
 	const char *shell;
 	const char *title;
 	struct client *clients;
+	int stop_requested;
 };
 
 /*
