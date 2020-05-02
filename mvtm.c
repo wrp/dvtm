@@ -128,7 +128,7 @@ is_content_visible(struct client *c) {
 void
 draw_border(struct window *w) {
 	struct client *c = w->c;
-	struct client *f;
+	struct client *f = NULL;
 	int x, y, attrs = NORMAL_ATTR;
 	char border_title[128];
 	char *msg = NULL;
@@ -138,7 +138,9 @@ draw_border(struct window *w) {
 
 	char *title = c->title;
 
-	f = state.current_view->vfocus->c;
+	if( state.current_view->vfocus != NULL ) {
+		f = state.current_view->vfocus->c;
+	}
 	if( f == c )
 		attrs = COLOR(BLUE) | A_NORMAL;
 
