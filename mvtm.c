@@ -317,15 +317,12 @@ term_title_handler(Vt *term, const char *title) {
 }
 
 void
-term_urgent_handler(Vt *term) {
+term_urgent_handler(Vt *term)
+{
 	struct client *c = (struct client *)vt_data_get(term);
-	struct client *f = state.current_view->vfocus->c;
 	c->urgent = true;
 	printf("\a");
 	fflush(stdout);
-	if( f != c && find_window(c, state.current_view->layout->windows) != NULL ) {
-		draw_border(c->win);
-	}
 }
 
 void
