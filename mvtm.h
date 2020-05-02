@@ -45,7 +45,6 @@ enum window_description_type { relative, absolute };
 struct position {
 	/* relative position and size */
 	/* Values between 0 and 1, indicating fraction of total available */
-	double offset;
 	double portion;
 };
 struct abs_position {

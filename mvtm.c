@@ -646,7 +646,7 @@ new_window(struct layout *parent, struct client *c)
 	struct window *w = calloc(1, sizeof *w);
 	assert( parent != NULL );
 	if( w != NULL ) {
-		w->p = (struct position){.offset = 0, .portion = 1.0};
+		w->p = (struct position){.portion = 1.0};
 		w->c = c;
 		w->enclosing_layout = parent;
 		if( c != NULL ) {
@@ -807,7 +807,7 @@ split_window(struct window *target)
 {
 	struct window *w;
 	double factor;
-	double offset = 0.0;
+	int found = 0;
 	struct layout *lay = target->layout ? target->layout : target->enclosing_layout;
 	unsigned count = lay->count;
 	struct window *ret = new_window(lay, NULL); /* increments lay->count */
@@ -825,18 +825,17 @@ split_window(struct window *target)
 	assert( factor >= .5 );
 	for( w = lay->windows; w; w = w->next ) {
 		assert(w->enclosing_layout = lay);
-		w->p.offset = w->p.offset * factor + offset;
 		w->p.portion *= factor;
-		index += offset == 0.0;
+		index += found;
 		if( w == target ) {
 			ret->next = w->next;
 			w->next = ret;
-			offset = 1.0 - factor;
 			w = ret;
+			found = 1;
 		}
 	}
-	assert( offset > 0 );  /* target must be in the list */
-	ret->p = (struct position){.offset = offset * index, .portion = 1.0 - factor};
+	assert( found );  /* target must be in the list */
+	ret->p = (struct position){.portion = 1.0 - factor};
 	ret->enclosing_layout = lay;
 	ret->layout = NULL;
 	return ret;
