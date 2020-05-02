@@ -27,26 +27,27 @@ int
 mov(const char * const args[])
 {
 	struct window *w = state.current_view->vfocus;
+	int up = !strcmp(args[0], "up");
+	int down = !strcmp(args[0], "down");
 	if( w == NULL ) {
 		return 1;
 	}
 	assert( w->enclosing_layout != NULL );
-	if( !strcmp(args[0], "down") ) {
-		if( w->enclosing_layout->type == row_layout
-				|| w->next == NULL ) {
-			w = w->enclosing_layout->parent;
-		}
+	if( w->next == NULL ) {
+		w = w->enclosing_layout->parent;
+	} else if( ( up || down ) && ( w->enclosing_layout->type == row_layout )) {
+		w = w->enclosing_layout->parent;
+	}
+	if( down ) {
 		if( w == NULL ) {
-			;
+			w = state.current_view->layout->windows;
 		} else if( w->next && w->next->layout ) {
 			w = w->next->layout->windows;
-		} else if( ! w->next ) {
-			w = w->enclosing_layout->parent;
 		} else {
 			w = w->next;
 		}
-		state.current_view->vfocus = w;
 	}
+	state.current_view->vfocus = w;
 	return 0;
 }
 
