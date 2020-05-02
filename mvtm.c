@@ -30,6 +30,9 @@
   Make tagset nameable.  As soon as we do that, we basically have
   named tabs.
 
+  Make the top-level entity a window with a layout rather than a layout
+  with a window.
+
   Do error checking when the layout is crowded.  ie, either print
   an error message and do not create the new client, or ... basically,
   we need to finish implementing handling clients that aren't in a layout
