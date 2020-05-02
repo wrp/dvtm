@@ -43,9 +43,15 @@ mov(const char * const args[])
 	/*
 	TODO: clean this up.  This seems to work, but sometimes w is NULL.  Need to first
 	refactor everything so that the to level view points to a window rather than a layout
+	Also, we'll want to keep a "last_focus" pointer in the layout so that we return
+	to the right place when walking around the screen (eg, down up should be
+	the identity operation)
 	*/
-	while( ( up || down ) && w->enclosing_layout && ( w->enclosing_layout->type == row_layout )) {
-		w = w->enclosing_layout->parent;
+	while( w && ( up || down ) && w->enclosing_layout
+			&& ( w->enclosing_layout->type == row_layout )) {
+		if( (w = w->enclosing_layout->parent) == NULL ) {
+			break;
+		}
 	}
 	if( down ) {
 		if( w == NULL ) {
