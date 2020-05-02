@@ -106,17 +106,16 @@ error(int include_errstr, const char *errstr, ...) {
 
 /* Return the window associated with a given client, or NULL */
 static struct window *
-find_window(struct client *c, struct layout *lay)
+find_window(struct client *c, struct window *w)
 {
-	assert( lay != NULL );
-	for( struct window *w = lay->windows; w; w = w->next ) {
-		if( w->layout ) {
+	for( ; w; w = w->next ) {
+		if( w->c == c ) {
+			return w;
+		} else if( w->layout ) {
 			struct window *t;
-			if( (t = find_window(c, w->layout)) != NULL ) {
+			if( (t = find_window(c, w->layout->windows)) != NULL ) {
 				return t;
 			}
-		} else if( w->c == c ) {
-			return w;
 		}
 	}
 	return NULL;
@@ -124,7 +123,7 @@ find_window(struct client *c, struct layout *lay)
 
 bool
 is_content_visible(struct client *c) {
-	return c && find_window(c, state.current_view->layout) != NULL;
+	return c && find_window(c, state.current_view->layout->windows) != NULL;
 }
 
 
@@ -324,7 +323,7 @@ term_urgent_handler(Vt *term) {
 	c->urgent = true;
 	printf("\a");
 	fflush(stdout);
-	if( f != c && find_window(c, state.current_view->layout) != NULL ) {
+	if( f != c && find_window(c, state.current_view->layout->windows) != NULL ) {
 		draw_border(c->win);
 	}
 }
