@@ -819,6 +819,12 @@ transition_no_send(const char * const args[])
 }
 
 int
+mov(const char * const args[])
+{
+	return 0;
+}
+
+int
 transition_with_send(const char * const args[])
 {
 	assert(state.mode == command_mode);
