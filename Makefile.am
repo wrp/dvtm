@@ -26,4 +26,4 @@ mvtm.1: mvtm.txt
 mvtm-editor.1: mvtm-editor.txt
 	asciidoctor -a ver=${PACKAGE_VERSION} -b manpage $<
 
-mvtm_SOURCES = mvtm.c vt.c keybindings.c
+mvtm_SOURCES = mvtm.c vt.c keybindings.c command.c

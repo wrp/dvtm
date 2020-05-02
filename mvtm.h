@@ -1,3 +1,4 @@
+#include "config.h"
 #include <assert.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -143,8 +144,6 @@ struct client {
 };
 
 
-struct client* nextvisible(struct client *c);
-void focus(struct client *c);
 extern struct screen screen;
 extern unsigned available_width, available_height;
 extern char *title;
@@ -196,9 +195,10 @@ struct key_binding {
 	struct action action;
 	struct key_binding *next;
 };
-extern int parse_binding(struct action *a, const char *d);
+extern struct key_binding *bindings;
 extern char *mod_bindings[][MAX_BIND];
 extern char *keypress_bindings[][MAX_BIND];
+extern struct state state;
 
 struct command {
 	const char *name;
@@ -249,6 +249,14 @@ int ESCDELAY;
 #define TAG_SYMBOL   "[%d]" /* format string for the tag in the status bar */
 #define TAG_SEL      (COLOR(BLUE) | A_BOLD)       /* attributes for the currently selected tags */
 #define TAG_NORMAL   (COLOR(DEFAULT) | A_NORMAL)  /* attributes for unselected empty tags */
+
+/* common function declarations */
+extern struct client* nextvisible(struct client *c);
+extern void focus(struct client *c);
+extern void keypress(int code);
+extern int parse_binding(struct action *a, const char *d);
+extern int push_binding(struct key_binding *b, const unsigned char *keys,
+	const struct action *a);
 
 /* commands for use by keybindings */
 command bind;
