@@ -26,6 +26,17 @@ digit(const char *const args[])
 int
 mov(const char * const args[])
 {
+	if( !strcmp(args[0], "down") ) {
+		struct window *w = state.current_view->vfocus;
+		if( w == NULL ) {
+			;
+		} else if( w->next && w->next->layout ) {
+			w = w->next->layout->lwindows;
+		} else {
+			w = w->next;
+		}
+		state.current_view->vfocus = w;
+	}
 	return 0;
 }
 
