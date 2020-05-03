@@ -1495,7 +1495,7 @@ main(int argc, char *argv[])
 
 
 /* Update the client's internal data structures to be at the specified position
-Also draw horizontal lines.  Yikes, this needs to be split out
+Also draw horizontal lines.  Yikes, this needs to be split out.
 */
 static void
 render_window(struct window *win, unsigned y, unsigned x, unsigned h, unsigned w)
