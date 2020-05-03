@@ -158,12 +158,15 @@ draw(struct client *c) {
 	if( c == NULL ) {
 		return;
 	}
-
-	if( c->win ) {
-		redrawwin(c->window);
-		vt_draw(c->term, c->window, 0, 0);
-	}
+	assert( c->win != NULL );
+	unsigned vline = c->p.x > 0 && c->p.x < screen.w;
+	redrawwin(c->window);
+	vt_draw(c->term, c->window, 0, 0);
 	draw_border(c->win);
+	if( vline ) {
+		mvwvline(c->window, 0, 0, ACS_VLINE, c->p.h);
+		mvwaddch(c->window, c->p.h - 1, 0, ACS_BTEE);
+	}
 	wnoutrefresh(c->window);
 }
 
@@ -1496,25 +1499,6 @@ main(int argc, char *argv[])
 	return 0;
 }
 
-
-/* Update the client's internal data structures to be at the specified position
-Also draw horizontal lines.  Yikes, this needs to be split out.
-*/
-static void
-render_window(struct window *win, unsigned y, unsigned x, unsigned h, unsigned w)
-{
-	unsigned vline = x > 0 && x < screen.w;
-	assert( vline < 2 );
-	assert( win->layout == NULL );
-	assert( win->c != NULL );
-	if( vline ) {
-		mvvline(y, x, ACS_VLINE, h);
-		mvaddch(y + h - 1, x, ACS_BTEE);
-	}
-	resize_client(win->c, w - vline, h);
-	move_client(win->c, x + vline, y);
-}
-
 static void
 render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w)
 {
@@ -1533,7 +1517,9 @@ render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w
 		nh = row ? h : count;
 
 		if( win->c ) {
-			render_window(win, y, x, nh, nw);
+			assert( win->layout == NULL );
+			resize_client(win->c, nw, nh);
+			move_client(win->c, x, y);
 		} else if( win->layout ) {
 			render_layout(win->layout, y, x, nh, nw);
 		}
