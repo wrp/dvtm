@@ -316,8 +316,6 @@ resize_client(struct client *c, int w, int h) {
 			c->p.w = w;
 			c->p.h = h;
 		}
-	}
-	if( resize_window ) {
 		/* Subtract 1 for title line */
 		vt_resize(c->app, h - 1, w);
 		if (c->editor) {
