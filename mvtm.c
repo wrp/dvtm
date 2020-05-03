@@ -164,8 +164,8 @@ draw(struct client *c) {
 	vt_draw(c->term, c->window, 0, 0);
 	draw_border(c->win);
 	if( vline ) {
-		mvwvline(c->window, 0, 0, ACS_VLINE, c->p.h);
-		mvwaddch(c->window, c->p.h - 1, 0, ACS_BTEE);
+		mvvline(c->p.y, c->p.x - 1, ACS_VLINE, c->p.h);
+		mvaddch(c->p.y + c->p.h - 1, c->p.x - 1, ACS_BTEE);
 	}
 	wnoutrefresh(c->window);
 }
@@ -1518,8 +1518,8 @@ render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w
 
 		if( win->c ) {
 			assert( win->layout == NULL );
-			resize_client(win->c, nw, nh);
-			move_client(win->c, x, y);
+			resize_client(win->c, nw - (x > 0), nh);
+			move_client(win->c, x + (x > 0), y);
 		} else if( win->layout ) {
 			render_layout(win->layout, y, x, nh, nw);
 		}
