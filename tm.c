@@ -848,6 +848,7 @@ split(const char * const args[])
 	if( c == NULL ) {
 		return -1;
 	}
+	const char *pargs[] = { NULL, NULL };
 	struct window *w = c->win;
 	struct layout *lay = get_layout(w);
 	typeof(lay->type) t = column_layout;
@@ -863,62 +864,51 @@ split(const char * const args[])
 		}
 	}
 	lay->type = t;
-	create(NULL);
+	create(pargs);
 	return 0;
+}
+
+struct client *
+new_client(const char *cmd, const char *title)
+{
+	const char *pargs[4] = { state.shell, cmd ? "-c" : NULL, cmd, NULL };
+	char buf[8];
+	const char *env[] = { "TM_WINDOW_ID", buf, NULL };
+	struct client *c = calloc(1, sizeof *c);
+	if( c != NULL ) {
+		if( (c->window = newwin(screen.h, screen.w, 0, 0)) == NULL ) {
+			goto err1;
+		}
+		c->term = c->app = vt_create(screen.h, screen.w, screen.history);
+		if( c->term == NULL ) {
+			goto err2;
+		}
+		c->cmd = cmd ? cmd : state.shell;
+		sanitize_string(title ? title : c->cmd, c->title, sizeof c->title);
+		c->id = ++id;
+		snprintf(buf, sizeof buf, "%d", c->id);
+		c->pid = vt_forkpty(c->term, state.shell, pargs, NULL, env, NULL, NULL);
+		vt_data_set(c->term, c);
+		vt_title_handler_set(c->term, term_title_handler);
+		vt_urgent_handler_set(c->term, term_urgent_handler);
+		applycolorrules(c);
+		c->p.x = 0;
+		c->p.y = 0;
+	}
+	return c;
+err2:
+	delwin(c->window);
+err1:
+	free(c);
+	return NULL;
 }
 
 int
 create(const char * const args[]) {
-	const char *pargs[4] = { state.shell, NULL };
-	char buf[8];
-	const char *env[] = {
-		"TM_WINDOW_ID", buf,
-		NULL
-	};
-
-	if (args && args[0]) {
-		pargs[1] = "-c";
-		pargs[2] = args[0];
-		pargs[3] = NULL;
-	}
-	struct client *c = calloc(1, sizeof *c);
-	if (!c)
-		return 1;
-	c->id = ++id;
-	snprintf(buf, sizeof buf, "%d", c->id);
-
-	if (!(c->window = newwin(screen.h, screen.w, 0, 0))) {
-		free(c);
+	struct client *c = new_client(args[0], args[1]);
+	if( c == NULL ) {
 		return 1;
 	}
-
-	c->term = c->app = vt_create(screen.h, screen.w, screen.history);
-	if (!c->term) {
-		delwin(c->window);
-		free(c);
-		return 1;
-	}
-
-	if (args && args[0]) {
-		c->cmd = args[0];
-	} else {
-		c->cmd = state.shell;
-	}
-
-	if( args && args[1] ) {
-		sanitize_string(args[1], c->title, sizeof c->title);
-	} else {
-		sanitize_string(c->cmd, c->title, sizeof c->title);
-	}
-
-	c->pid = vt_forkpty(c->term, state.shell, pargs, NULL, env, NULL, NULL);
-	vt_data_set(c->term, c);
-	vt_title_handler_set(c->term, term_title_handler);
-	vt_urgent_handler_set(c->term, term_urgent_handler);
-	applycolorrules(c);
-	c->p.x = 0;
-	c->p.y = 0;
-	debug("client with pid %d forked\n", c->pid);
 	push_client_to_view(state.current_view, c);
 	c->next = state.clients;
 	state.clients = c;
