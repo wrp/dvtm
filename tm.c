@@ -1505,11 +1505,11 @@ render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w
 
 		if( x > 0 ) {
 			if( win->div ) {
-				wresize(win->div->window, h, 1);
+				wresize(win->div->window, nh, 1);
 				mvwin(win->div->window, y, x);
 			} else {
 				win->div = xcalloc(1 , sizeof *win->div);
-				win->div->window = newwin(h, 1, y, x);
+				win->div->window = newwin(nh, 1, y, x);
 			}
 		}
 		if( win->c ) {
