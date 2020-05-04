@@ -40,34 +40,18 @@ mov(const char * const args[])
 	) {
 		w = w->enclosing_layout->parent;
 	}
-	/*
-	TODO: clean this up.  This seems to work, but sometimes w is NULL.  Need to first
-	refactor everything so that the to level view points to a window rather than a layout
-	Also, we'll want to keep a "last_focus" pointer in the layout so that we return
-	to the right place when walking around the screen (eg, down up should be
-	the identity operation)
-	*/
-	while( w && ( up || down ) && w->enclosing_layout
+	while( w && ( up || down )
 			&& ( w->enclosing_layout->type == row_layout )) {
-		if( (w = w->enclosing_layout->parent) == NULL ) {
-			break;
-		}
+		w = w->enclosing_layout->parent;
 	}
-	if( down ) {
-		if( w == NULL ) {
-			;
-		} else if( w->next && w->next->layout ) {
-			w = w->next->layout->windows;
-		} else {
+	if( w != NULL ) {
+		if( down ) {
 			w = w->next;
-		}
-	} else if( up ) {
-		if( w == NULL ) {
-			;
-		} else if( w->prev && w->prev->layout ) {
-			w = w->prev->layout->windows;
-		} else {
+		} else if( up ) {
 			w = w->prev;
+		}
+		if( w->layout ) {
+			w = w->layout->windows;
 		}
 	}
 	if( w != NULL ) {
