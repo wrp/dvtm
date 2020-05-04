@@ -1168,16 +1168,16 @@ int
 scrollback(const char * const args[])
 {
 	double pages = args[0] ? strtod(args[0], NULL) : -0.5;
-	struct client *f = state.current_view->vfocus->c;
-	if( f == NULL || f->win == NULL ) {
+	struct window *w = state.current_view->vfocus;
+	if( w->c == NULL || w->c->win == NULL ) {
 		return -1;
 	}
 	if( state.buf.count ) {
 		pages *= state.buf.count;
 	}
-	vt_scroll(f->term,  pages * f->p.h);
-	draw(f);
-	curs_set(vt_cursor_visible(f->term));
+	vt_scroll(w->c->term,  pages * w->c->p.h);
+	draw(w->c);
+	curs_set(vt_cursor_visible(w->c->term));
 	return 0;
 }
 
