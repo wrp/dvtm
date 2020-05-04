@@ -1455,10 +1455,10 @@ main(int argc, char *argv[])
 						c->died = true;
 					continue;
 				}
-			}
-			if( c->win ) {
-				vt_draw(c->term, c->window, 0, 0);
-				wnoutrefresh(c->window);
+				if( c->win ) {
+					vt_draw(c->term, c->window, 0, 0);
+					wnoutrefresh(c->window);
+				}
 			}
 		}
 
