@@ -44,28 +44,38 @@ mov(const char * const args[])
 	int vertical = (dir == up) || (dir == down);
 	assert( w->enclosing_layout != NULL );
 	assert( state.current_view->layout != NULL );
-	while( w != NULL && (
-			(forward && w->next == NULL)
-			|| (!forward && w->prev == NULL )
-			|| (vertical && ( w->enclosing_layout->type == row_layout ))
-			|| (!vertical && ( w->enclosing_layout->type == column_layout ))
-		)
-	) {
-		w = w->enclosing_layout->parent;
+	if( state.buf.count == 0 ) {
+		state.buf.count =1;
 	}
-	if( w != NULL ) {
-		switch(dir) {
-		case right:
-		case down:
-			w = w->next;
-			break;
-		case left:
-		case up:
-			w = w->prev;
+	while( state.buf.count-- ) {
+		while( w != NULL && (
+				(forward && w->next == NULL)
+				|| (!forward && w->prev == NULL )
+				|| (vertical && ( w->enclosing_layout->type == row_layout ))
+				|| (!vertical && ( w->enclosing_layout->type == column_layout ))
+			)
+		) {
+			w = w->enclosing_layout->parent;
 		}
-	}
-	if( w && w->layout ) {
-		w = w->layout->windows;
+		if( w != NULL ) {
+			switch(dir) {
+			case right:
+			case down:
+				w = w->next;
+				break;
+			case left:
+			case up:
+				w = w->prev;
+			}
+		}
+		if( w && w->layout ) {
+			w = w->layout->windows;
+		}
+		if( w && w->enclosing_layout == state.current_view->layout
+			&& (( forward && w->next == NULL)
+				|| ( !forward && w->prev == NULL)) ) {
+			break;
+		}
 	}
 	if( w != NULL ) {
 		state.current_view->vfocus = w;
