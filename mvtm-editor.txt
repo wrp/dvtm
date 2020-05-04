@@ -1,38 +1,38 @@
 
 
-= MVTM-EDITOR (1)
+= {name}-EDITOR (1)
 William R. Pursell; Marc André Tanner; Dmitry Bogatov
 :doctype: manpage
 :man manual: BSD General Commands Manual
-:man source: mvtm-editor {version}
+:man source: {name}-editor {version}
 :man version: {version}
 
 == NAME
-mvtm-editor - use a text editor as a filter
+{name}-editor - use a text editor as a filter
 
 == SYNOPSIS
-*mvtm-editor* [ARGS...]
+*{name}-editor* [ARGS...]
 
 == DESCRIPTION
-mvtm-editor is a file buffering utility used by mvtm(1)
+{name}-editor is a file buffering utility used by {name}(1)
 to implement its copy mode. It reads standard input and
 saves it to a temporary file, then opens an editor ($MVTM_EDITOR,
 $DVTM_EDITOR, $VISUAL, $EDITOR, or, if all of those are unset, vi),
 and writes the data to stdout if the editor exits succesfully.
 
 If the invoked editor terminates with a non-zero exit status
-mvtm-editor does not output anything.
+{name}-editor does not output anything.
 
 == ENVIRONMENT VARIABLES
 === TMPDIR
-The temporary used will have the path $TMPDIR/mvtm-editor.XXXXXX
+The temporary used will have the path $TMPDIR/{name}-editor.XXXXXX
 
 === MVTM_EDITOR, DVTM_EDITOR, VISUAL, EDITOR
 These variables are checked in order.  The first that is set will be
 used to invoke the editor.  If all are unset, "vi" will be used.
 
 == FILES
-A temporary file with a template $TMPDIR/mvtm-editor.XXXXXX will be used
+A temporary file with a template $TMPDIR/{name}-editor.XXXXXX will be used
 to store stdin.  Its name is passed to the invoked editor as its final argument.
 
 /dev/tty is opened to obtain a controlling tty which is used for the

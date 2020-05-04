@@ -24,6 +24,6 @@ mvtm.1: mvtm.txt
 	asciidoctor -a name=${PACKAGE} -a ver=${PACKAGE_VERSION} -b manpage $<
 
 mvtm-editor.1: mvtm-editor.txt
-	asciidoctor -a ver=${PACKAGE_VERSION} -b manpage $<
+	asciidoctor -a name=${PACKAGE} -a ver=${PACKAGE_VERSION} -b manpage $<
 
 mvtm_SOURCES = mvtm.c vt.c keybindings.c command.c
