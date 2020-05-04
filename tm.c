@@ -162,8 +162,8 @@ draw(struct client *c) {
 	vt_draw(c->term, c->window, 0, 0);
 	draw_border(w);
 	if( w->div ) {
-		mvwvline(c->win->div->window, 0, 0, ACS_VLINE, c->p.h);
-		mvwaddch(c->win->div->window, c->p.h - 1, 0, ACS_BTEE);
+		mvwvline(w->div->window, 0, 0, ACS_VLINE, c->p.h);
+		mvwaddch(w->div->window, w->div->p.h - 1, 0, ACS_BTEE);
 		wnoutrefresh(c->win->div->window);
 	}
 	wnoutrefresh(c->window);
@@ -1487,6 +1487,21 @@ main(int argc, char *argv[])
 }
 
 static void
+status_window(struct status_window **n, int y, int x, int h, int w)
+{
+	struct position p = { y, x, h, w };
+	struct status_window *win = *n;
+	if( win ) {
+		wresize(win->window, h, w);
+		mvwin(win->window, y, x);
+	} else {
+		win = *n = xcalloc(1 , sizeof **n);
+		win->window = newwin(h, w, y, x);
+	}
+	win->p = p;
+}
+
+static void
 render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w)
 {
 	if( lay == NULL || w == 0 || h == 0 ) {
@@ -1505,23 +1520,11 @@ render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w
 
 		if( win->c ) {
 			if( row && x > 0 ) {
-				if( win->div ) {
-					wresize(win->div->window, nh, 1);
-					mvwin(win->div->window, y, x);
-				} else {
-					win->div = xcalloc(1 , sizeof *win->div);
-					win->div->window = newwin(nh, 1, y, x);
-				}
+				status_window( &win->div, y, x, nh, 1 );
 				nw -= 1;
 				x += 1;
 			}
-			if( win->title ) {
-				wresize(win->title->window, 1, nw);
-				mvwin(win->title->window, y + nh - 1, x);
-			} else {
-				win->title = xcalloc(1 , sizeof *win->title);
-				win->title->window = newwin(1, nw, y + nh - 1, x);
-			}
+			status_window( &win->title, y + nh - 1, x, 1, nw );
 			nh -= 1;
 			assert( win->layout == NULL );
 			resize_client(win->c, nw, nh);
