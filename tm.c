@@ -1503,18 +1503,19 @@ render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w
 		nw = row ? count : w;
 		nh = row ? h : count;
 
-		if( x > 0 ) {
-			if( win->div ) {
-				wresize(win->div->window, nh, 1);
-				mvwin(win->div->window, y, x);
-			} else {
-				win->div = xcalloc(1 , sizeof *win->div);
-				win->div->window = newwin(nh, 1, y, x);
-			}
-		}
 		if( win->c ) {
+			if( x > 0 ) {
+				if( win->div ) {
+					wresize(win->div->window, nh, 1);
+					mvwin(win->div->window, y, x);
+				} else {
+					win->div = xcalloc(1 , sizeof *win->div);
+					win->div->window = newwin(nh, 1, y, x);
+				}
+				nw -= 1;
+			}
 			assert( win->layout == NULL );
-			resize_client(win->c, nw - (x > 0), nh);
+			resize_client(win->c, nw, nh);
 			move_client(win->c, x + (x > 0), y);
 		} else if( win->layout ) {
 			render_layout(win->layout, y, x, nh, nw);
