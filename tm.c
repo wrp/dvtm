@@ -12,6 +12,17 @@
  */
 
 /* TODO
+  Make cleanup slower.  That is, when a client dies, do not automatically
+  reap the enclosing window.  This way, any error messages will stay
+  visible.  Instead, consider a command to send signal and close window,
+  another to just close the window (after the client is dead).  This
+  requires that we figure out how to disassociate a client from the view
+  and reattach it to a window.  Also, that will allow us to implement
+  resize commands, which may pinch a window out of the layout, as well
+  as zoom to fullscreen.
+
+  History of layouts.  eg, should be able to undo and go back in history.
+
   Implement Command-line mode (eg, :create arg1 args)
   Make it possible to list current key bindings.
   Make it possible to pass layouts on the cmd fifo.  eg, give
@@ -34,11 +45,6 @@
   an error message and do not create the new client, or ... basically,
   we need to finish implementing handling clients that aren't in a layout
   and put new clients there.
-
-  Make cleanup slower.  That is, when a client dies, do not automatically
-  reap the enclosing window.  This way, any error messages will stay
-  visible.  Instead, consider a command to send signal and close window,
-  another to just close the window (after the client is dead)
  */
 #include "config.h"
 #include "package.h"
