@@ -1516,7 +1516,7 @@ render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w
 		count = last ? unit - consumed : win->portion * unit;
 		nw = row ? count : w;
 		nh = row ? h : count;
-		if( row && x > 0 ) {
+		if( row && x > 0 && win != lay->windows) {
 			status_window( &win->div, y, x, nh, 1 );
 			nw -= 1;
 			x += 1;
