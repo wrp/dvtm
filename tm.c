@@ -931,9 +931,6 @@ toggle_mode(const char * const args[])
 		s->mode = keypress_mode;
 		s->binding = bindings;
 	}
-	if(state.current_view->layout) {
-		draw_window(state.current_view->layout->windows);
-	}
 	return 0;
 }
 
