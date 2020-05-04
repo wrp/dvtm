@@ -123,7 +123,7 @@ struct state {
 
 struct client {
 	WINDOW *window;
-	Vt *term;
+	Vt *term; /* depending on mode, points to app or editor */
 	Vt *editor, *app;
 	int editor_fds[2];
 	int editor_died;
@@ -134,7 +134,7 @@ struct client {
 	pid_t pid;
 	unsigned short int id;
 	bool urgent;
-	volatile sig_atomic_t died;
+	int died;
 	struct window *win;
 	struct client *next;
 };
