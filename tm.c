@@ -120,13 +120,8 @@ draw_title(struct window *w) {
 
 	mvwhline(w->title->window, 0, 0, fill, w->title->p.w);
 	snprintf(border_title, MIN(w->title->p.w, sizeof border_title),
-		"%s%s#%d (%ld)",
-		w->title->p.w > 32 ? title : "",
-		w->title->p.w > 32 ? " | " : "",
-		w->c->id,
-		(long)w->c->pid
-	);
-	mvwprintw(w->title->window, 0, 2, "[%s]", border_title);
+		"#%d (%ld) | %s", w->c->id, (long)w->c->pid, title);
+	mvwprintw(w->title->window, 0, 2, " %s ", border_title);
 	if( msg != NULL ) {
 		int start = strlen(border_title) + 4 + 2;
 		if( w->title->p.w > start + strlen(msg) + 2 ) {
