@@ -126,7 +126,7 @@ struct client {
 	Vt *term;
 	Vt *editor, *app;
 	int editor_fds[2];
-	volatile sig_atomic_t editor_died;
+	int editor_died;
 	const char *cmd;
 	struct position p;
 	char title[128];
