@@ -102,39 +102,34 @@ error(int include_errstr, const char *errstr, ...) {
 
 void
 draw_border(struct window *w) {
-	struct client *c = w->c;
 	int attrs = NORMAL_ATTR;
 	char border_title[128];
 	char *msg = NULL;
 	chtype fill = ACS_HLINE;
 
-	assert( c != NULL );
+	assert( w->c != NULL );
 	if( w->title == NULL ) {
 		return;
 	}
-
-	char *title = c->title;
-
-	if( state.mode == command_mode ) {
-		fill = ACS_BLOCK;
-	} else if( c->term == c->editor ) {
+	char *title = w->c->title;
+	if( w->c->term == w->c->editor ) {
 		msg = " COPY MODE ";
-		title = c->editor_title;
+		title = w->c->editor_title;
 		fill = ACS_CKBOARD;
 	}
 
-	mvwhline(w->title->window, 0, 0, fill, c->p.w);
-	snprintf(border_title, MIN(c->p.w, sizeof border_title),
+	mvwhline(w->title->window, 0, 0, fill, w->title->p.w);
+	snprintf(border_title, MIN(w->title->p.w, sizeof border_title),
 		"%s%s#%d (%ld)",
-		c->p.w > 32 ? title : "",
-		c->p.w > 32 ? " | " : "",
-		c->id,
-		(long)c->pid
+		w->title->p.w > 32 ? title : "",
+		w->title->p.w > 32 ? " | " : "",
+		w->c->id,
+		(long)w->c->pid
 	);
 	mvwprintw(w->title->window, 0, 2, "[%s]", border_title);
 	if( msg != NULL ) {
 		int start = strlen(border_title) + 4 + 2;
-		if( c->p.w > start + strlen(msg) + 2 ) {
+		if( w->title->p.w > start + strlen(msg) + 2 ) {
 			mvwprintw(w->title->window, 0, start, "%s", msg);
 		}
 	}
