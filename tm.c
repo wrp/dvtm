@@ -151,29 +151,28 @@ draw_border(struct window *w) {
 
 
 void
-draw(struct client *c) {
-	if( c == NULL ) {
-		return;
-	}
-	struct window *w = c->win;
+draw(struct window *w)
+{
+	struct status_window *sw;
 	assert( w != NULL );
-	unsigned vline = c->p.x > 0 && c->p.x < screen.w;
-	redrawwin(c->window);
-	vt_draw(c->term, c->window, 0, 0);
-	draw_border(w);
-	if( w->div ) {
-		mvwvline(w->div->window, 0, 0, ACS_VLINE, c->p.h);
-		mvwaddch(w->div->window, w->div->p.h - 1, 0, ACS_BTEE);
-		wnoutrefresh(c->win->div->window);
+	if( w->c ) {
+		redrawwin(w->c->window);
+		vt_draw(w->c->term, w->c->window, 0, 0);
+		wnoutrefresh(w->c->window);
+		draw_border(w);
 	}
-	wnoutrefresh(c->window);
+	if( (sw = w->div) != NULL ) {
+		mvwvline(sw->window, 0, 0, ACS_VLINE, sw->p.h -1);
+		mvwaddch(sw->window, sw->p.h - 1, 0, ACS_BTEE);
+		wnoutrefresh(w->div->window);
+	}
 }
 
 static void
 draw_window(struct window *w)
 {
 	for( ; w; w = w->next ) {
-		draw(w->c);
+		draw(w);
 		if( w->layout ) {
 			draw_window(w->layout->windows);
 		}
@@ -1176,7 +1175,7 @@ scrollback(const char * const args[])
 		pages *= state.buf.count;
 	}
 	vt_scroll(w->c->term,  pages * w->c->p.h);
-	draw(w->c);
+	draw(w);
 	curs_set(vt_cursor_visible(w->c->term));
 	return 0;
 }
