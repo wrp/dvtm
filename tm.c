@@ -104,12 +104,15 @@ void
 draw_border(struct window *w) {
 	struct client *c = w->c;
 	struct client *f = NULL;
-	int x, y, attrs = NORMAL_ATTR;
+	int attrs = NORMAL_ATTR;
 	char border_title[128];
 	char *msg = NULL;
 	chtype fill = ACS_HLINE;
 
 	assert( c != NULL );
+	if( w->title == NULL ) {
+		return;
+	}
 
 	char *title = c->title;
 
@@ -128,9 +131,7 @@ draw_border(struct window *w) {
 		fill = ACS_CKBOARD;
 	}
 
-	wattrset(c->window, attrs);
-	getyx(c->window, y, x);
-	mvwhline(c->window, c->p.h-1, 0, fill, c->p.w);
+	mvwhline(w->title->window, 0, 0, fill, c->p.w);
 	snprintf(border_title, MIN(c->p.w, sizeof border_title),
 		"%s%s#%d (%ld)",
 		c->p.w > 32 ? title : "",
@@ -138,14 +139,14 @@ draw_border(struct window *w) {
 		c->id,
 		(long)c->pid
 	);
-	mvwprintw(c->window, c->p.h-1, 2, "[%s]", border_title);
+	mvwprintw(w->title->window, 0, 2, "[%s]", border_title);
 	if( msg != NULL ) {
 		int start = strlen(border_title) + 4 + 2;
 		if( c->p.w > start + strlen(msg) + 2 ) {
-			mvwprintw(c->window, c->p.h-1, start, "%s", msg);
+			mvwprintw(w->title->window, 0, start, "%s", msg);
 		}
 	}
-	wmove(c->window, y, x);
+	wnoutrefresh(w->title->window);
 }
 
 
@@ -154,12 +155,13 @@ draw(struct client *c) {
 	if( c == NULL ) {
 		return;
 	}
-	assert( c->win != NULL );
+	struct window *w = c->win;
+	assert( w != NULL );
 	unsigned vline = c->p.x > 0 && c->p.x < screen.w;
 	redrawwin(c->window);
 	vt_draw(c->term, c->window, 0, 0);
-	draw_border(c->win);
-	if( vline ) {
+	draw_border(w);
+	if( w->div ) {
 		mvwvline(c->win->div->window, 0, 0, ACS_VLINE, c->p.h);
 		mvwaddch(c->win->div->window, c->p.h - 1, 0, ACS_BTEE);
 		wnoutrefresh(c->win->div->window);
@@ -306,20 +308,18 @@ move_client(struct client *c, int x, int y) {
 }
 
 void
-resize_client(struct client *c, int w, int h) {
-	bool resize_window = c->p.w != w || c->p.h != h;
-	if (resize_window) {
-		debug("resizing, w: %d h: %d\n", w, h);
-		if (wresize(c->window, h, w) == ERR) {
+resize_client(struct client *c, int w, int h)
+{
+	if( c->p.w != w || c->p.h != h ) {
+		if( wresize(c->window, h, w) == ERR ) {
 			eprint("error resizing, w: %d h: %d\n", w, h);
 		} else {
 			c->p.w = w;
 			c->p.h = h;
 		}
-		/* Subtract 1 for title line */
-		vt_resize(c->app, h - 1, w);
-		if (c->editor) {
-			vt_resize(c->editor, h - 1, w);
+		vt_resize(c->app, h, w);
+		if( c->editor ) {
+			vt_resize(c->editor, h, w);
 		}
 	}
 }
@@ -1504,7 +1504,7 @@ render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w
 		nh = row ? h : count;
 
 		if( win->c ) {
-			if( x > 0 ) {
+			if( row && x > 0 ) {
 				if( win->div ) {
 					wresize(win->div->window, nh, 1);
 					mvwin(win->div->window, y, x);
@@ -1513,15 +1513,24 @@ render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w
 					win->div->window = newwin(nh, 1, y, x);
 				}
 				nw -= 1;
+				x += 1;
 			}
+			if( win->title ) {
+				wresize(win->title->window, 1, nw);
+				mvwin(win->title->window, y + nh - 1, x);
+			} else {
+				win->title = xcalloc(1 , sizeof *win->title);
+				win->title->window = newwin(1, nw, y + nh - 1, x);
+			}
+			nh -= 1;
 			assert( win->layout == NULL );
 			resize_client(win->c, nw, nh);
-			move_client(win->c, x + (x > 0), y);
+			move_client(win->c, x, y);
 		} else if( win->layout ) {
 			render_layout(win->layout, y, x, nh, nw);
 		}
 		y += row ? 0 : count;
-		x += row ? count : 0;
+		x += row ? nw : 0;
 		consumed += count;
 	}
 	assert( row || consumed == h );
