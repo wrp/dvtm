@@ -23,11 +23,12 @@
     path,for example, we should see an error message.  copymode needs
     to read the error stream and print somewhere.  (See previous TODO)
   Consider name change: eg 'stm', 'pyx', 'pyt', 'pym' (latter too pythonic)
-  Make tagset nameable.  As soon as we do that, we basically have
+  Enable multiple views.
+  Stop selecting on clients that are not in the current view. (There's no
+  point in updating non-visible clients, except maybe to set urgent flag.  Until
+  we figure out how to deal with the urgent flag...)
+  Make views nameable.  As soon as we do that, we basically have
   named tabs.
-
-  Make the top-level entity a window with a layout rather than a layout
-  with a window.
 
   Do error checking when the layout is crowded.  ie, either print
   an error message and do not create the new client, or ... basically,
