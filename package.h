@@ -41,7 +41,6 @@ struct entry_buf {
 	int count;
 	unsigned char *next; /* first unused char in data */
 };
-enum window_description_type { relative, absolute };
 struct position {
 	/* absolute position and size */
 	unsigned short y, x;   /* position of upper left corner */
