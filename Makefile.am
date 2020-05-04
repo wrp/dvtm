@@ -1,6 +1,6 @@
 
-bin_PROGRAMS = mvtm mvtm-editor
-man1_MANS = mvtm.1 mvtm-editor.1
+bin_PROGRAMS = tm tm-editor
+man1_MANS = tm.1 tm-editor.1
 AM_CPPFLAGS = -D_DARWIN_C_SOURCE -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 \
 	-D_XOPEN_SOURCE_EXTENDED
 LIBS = -lncursesw -lutil
@@ -8,8 +8,8 @@ LIBS = -lncursesw -lutil
 CLEANFILES = *.gcda *.gcno *.gcov version *.1
 
 EXTRA_DIST = build-aux/package-version \
-	mvtm.txt mvtm.1 \
-	mvtm-editor.txt mvtm-editor.1 \
+	tm.txt tm.1 \
+	tm-editor.txt tm-editor.1 \
 	version
 
 .PHONY: version
@@ -20,10 +20,10 @@ version:
 	&& mv config.h.new config.h; }
 
 
-mvtm.1: mvtm.txt
+tm.1: tm.txt
 	asciidoctor -a name=${PACKAGE} -a ver=${PACKAGE_VERSION} -b manpage $<
 
-mvtm-editor.1: mvtm-editor.txt
+tm-editor.1: tm-editor.txt
 	asciidoctor -a name=${PACKAGE} -a ver=${PACKAGE_VERSION} -b manpage $<
 
-mvtm_SOURCES = mvtm.c vt.c keybindings.c command.c
+tm_SOURCES = tm.c vt.c keybindings.c command.c

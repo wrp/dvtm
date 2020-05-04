@@ -1,4 +1,4 @@
-#include "mvtm.h"
+#include "package.h"
 int
 bind(const char * const args[])
 {

@@ -1,5 +1,5 @@
 #include "config.h"
-#include "mvtm.h"
+#include "package.h"
 
 char esc[] = { ESC, 0 };
 

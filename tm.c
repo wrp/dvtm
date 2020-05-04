@@ -19,13 +19,9 @@
   Write errors somewhere.  Either in a dedidcated window
     or in the status bar.  Write any final error to stderr
     on exit.  Probably should read initialization from stdin.
-  Need to check errors in copymode.  If mvtm-editor is not in the
+  Need to check errors in copymode.  If tm-editor is not in the
     path,for example, we should see an error message.  copymode needs
     to read the error stream and print somewhere.  (See previous TODO)
-  Get rid of status.fifo and command.fifo, instead use
-    MVTM_STATUS_URL and MVTM_CMD_URL.  We can send layout
-    info, and status bar updates, etc to CMD_URL and query STATUS_URL
-    for current state.
   Consider name change: eg 'stm', 'pyx', 'pyt', 'pym' (latter too pythonic)
   Make tagset nameable.  As soon as we do that, we basically have
   named tabs.
@@ -44,7 +40,7 @@
   another to just close the window (after the client is dead)
  */
 #include "config.h"
-#include "mvtm.h"
+#include "package.h"
 
 struct key_binding *bindings;     /* keypress_mode bindings */
 struct key_binding *cmd_bindings;  /* command_mode bindings */
@@ -685,7 +681,7 @@ setup(void) {
 	build_bindings();
 	getshell();
 	setlocale(LC_CTYPE, "");
-	setenv("MVTM", VERSION, 1);
+	setenv("TM_VERSION", VERSION, 1);
 	initscr();
 	start_color(); /* initializes globals COLORS and COLOR_PAIRS */
 	noecho();
@@ -876,7 +872,7 @@ create(const char * const args[]) {
 	const char *pargs[4] = { state.shell, NULL };
 	char buf[8];
 	const char *env[] = {
-		"MVTM_WINDOW_ID", buf,
+		"TM_WINDOW_ID", buf,
 		NULL
 	};
 
@@ -1299,7 +1295,7 @@ parse_args(int argc, char *argv[]) {
 		struct action defaults = { create, { NULL } };
 		push_action(&defaults);
 	}
-	if( getenv("MVTM") && ! force ) {
+	if( getenv("TM_VERSION") && ! force ) {
 		error(0, "Nested session prevented.  Use -f to allow");
 	}
 	return;

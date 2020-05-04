@@ -1,16 +1,16 @@
-# mvtm - modal virtual terminal manager
+# tm - terminal manager
 
-mvtm is a fork of
+tm is a fork of
 [dvtm](http://www.brain-dump.org/projects/dvtm/)
 bringing modes to the terminal manager.
 
 ## Quickstart
 
-mvtm is a window manager.  When you start mvtm, you get a single window
-with a pty running your default SHELL.  To send commands to mvtm,
+tm is a window manager.  When you start tm, you get a single window
+with a pty running your default SHELL.  To send commands to tm,
 enter the `MOD` keysequence, which by default is `CTRL+g`.  Hitting
 `MOD` puts you in `command` mode, in which key sequences are interpreted
-by mvtm to manipulate the windows.  To transition back to `keypress`
+by tm to manipulate the windows.  To transition back to `keypress`
 mode, you may press `RETURN`, `MOD`, or `ESC`.  Pressing `ESC` or
 `RETURN` transitions mode without sending a key to the underlying pty,
 while pressing `MOD` transitions and sends the keystroke.  To quit, use

@@ -10,11 +10,11 @@
 /config.sub
 /configure
 /depcomp
-/mvtm
-/mvtm-editor
+/tm
+/tm-editor
 /install-sh
 /ltmain.sh
 /missing
-/mvtm.1
-/mvtm-editor.1
-/mvtm.log
+/tm.1
+/tm-editor.1
+/tm.log
