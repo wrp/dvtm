@@ -974,8 +974,7 @@ copymode(const char * const args[])
 	bool colored = strstr(args[0], "pager") != NULL;
 	assert(f == state.current_view->vfocus->c);
 
-	/* subtract 1 for title line */
-	if (!(f->editor = vt_create(f->p.h - 1, f->p.w, 0)))
+	if (!(f->editor = vt_create(f->p.h, f->p.w, 0)))
 		goto end;
 
 	int *to = &f->editor_fds[0];
