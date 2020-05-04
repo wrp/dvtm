@@ -1859,7 +1859,7 @@ void vt_init(void)
 	init_colors();
 	is_utf8_locale();
 	char *t = getenv("MVTM_TERM");
-	snprintf(vt_term, sizeof vt_term, "%s%s", t ? t : "mvtm",
+	snprintf(vt_term, sizeof vt_term, "%s%s", t ? t : PACKAGE,
 		COLORS >= 256 ? "-256color" : "");
 }
 

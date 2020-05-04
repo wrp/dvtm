@@ -15,6 +15,7 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
+#include "config.h"
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -76,7 +77,7 @@ get_default_editor(void)
 static void
 build_template(char *name, size_t s)
 {
-	char *template = "mvtm-editor.XXXXXX";
+	char *template = PACKAGE "-editor.XXXXXX";
 	char *tmpdir = getenv("TMPDIR");
 	int length = 0;
 

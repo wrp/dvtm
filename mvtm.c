@@ -70,7 +70,7 @@ void cleanup(void);
 void push_action(const struct action *a);
 static void reset_entry(struct entry_buf *);
 
-struct action *actions = NULL; /* actions are executed when mvtm is started */
+struct action *actions = NULL; /* actions are executed at startup  */
 
 struct screen screen = { .history = SCROLL_HISTORY };
 
