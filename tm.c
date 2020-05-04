@@ -1517,13 +1517,12 @@ render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w
 		count = last ? unit - consumed : win->portion * unit;
 		nw = row ? count : w;
 		nh = row ? h : count;
-
+		if( row && x > 0 ) {
+			status_window( &win->div, y, x, nh, 1 );
+			nw -= 1;
+			x += 1;
+		}
 		if( win->c ) {
-			if( row && x > 0 ) {
-				status_window( &win->div, y, x, nh, 1 );
-				nw -= 1;
-				x += 1;
-			}
 			status_window( &win->title, y + nh - 1, x, 1, nw );
 			nh -= 1;
 			assert( win->layout == NULL );
