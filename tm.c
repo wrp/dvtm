@@ -103,7 +103,6 @@ error(int include_errstr, const char *errstr, ...) {
 void
 draw_border(struct window *w) {
 	struct client *c = w->c;
-	struct client *f = NULL;
 	int attrs = NORMAL_ATTR;
 	char border_title[128];
 	char *msg = NULL;
@@ -116,13 +115,6 @@ draw_border(struct window *w) {
 
 	char *title = c->title;
 
-	if( state.current_view->vfocus != NULL ) {
-		f = state.current_view->vfocus->c;
-	}
-	if( f == c ) {
-		attrs = c->term == c->editor ? COLOR(CYAN) : COLOR(BLUE);
-		attrs |= A_NORMAL;
-	}
 	if( state.mode == command_mode ) {
 		fill = ACS_BLOCK;
 	} else if( c->term == c->editor ) {
