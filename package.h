@@ -54,6 +54,8 @@ struct position {
 struct window {
 	double portion;  /* Percent of enclosing_layout */
 	struct client *c;
+	struct status_window *title;
+	struct status_window *div;
 	struct layout *layout;
 	struct layout *enclosing_layout;
 	struct window *next;
@@ -121,6 +123,11 @@ struct state {
 
 */
 
+struct status_window {
+	WINDOW *window;
+	struct position p;
+};
+
 struct client {
 	WINDOW *window;
 	Vt *term; /* depending on mode, points to app or editor */
@@ -136,7 +143,7 @@ struct client {
 	bool urgent;
 	int died;
 	struct window *win;
-	struct client *next;
+	struct client *next; /* Global list of clients */
 };
 
 
