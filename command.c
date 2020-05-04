@@ -26,33 +26,49 @@ digit(const char *const args[])
 int
 mov(const char * const args[])
 {
+	enum { up, left, down, right } dir;
 	struct window *w = state.current_view->vfocus;
-	int up = !strcmp(args[0], "up");
-	int down = !strcmp(args[0], "down");
 	if( w == NULL ) {
 		return 1;
 	}
+	if( !strcmp(args[0], "up") ) {
+		dir = up;
+	} else if( !strcmp(args[0], "down") ) {
+		dir = down;
+	} else if( !strcmp(args[0], "left") ) {
+		dir = left;
+	} else if( !strcmp(args[0], "right") ) {
+		dir = right;
+	}
+	int forward = (dir == down) || (dir == right);
+	int vertical = (dir == up) || (dir == down);
 	assert( w->enclosing_layout != NULL );
 	assert( state.current_view->layout != NULL );
 	if(
-		( down && w->next == NULL )
-		|| ( up && w->prev == NULL )
+		( forward && w->next == NULL )
+		|| ( !forward && w->prev == NULL )
 	) {
 		w = w->enclosing_layout->parent;
 	}
-	while( w && ( up || down )
-			&& ( w->enclosing_layout->type == row_layout )) {
+	while( w && vertical && ( w->enclosing_layout->type == row_layout )) {
+		w = w->enclosing_layout->parent;
+	}
+	while( w && ! vertical && ( w->enclosing_layout->type == column_layout )) {
 		w = w->enclosing_layout->parent;
 	}
 	if( w != NULL ) {
-		if( down ) {
+		switch(dir) {
+		case right:
+		case down:
 			w = w->next;
-		} else if( up ) {
+			break;
+		case left:
+		case up:
 			w = w->prev;
 		}
-		if( w->layout ) {
-			w = w->layout->windows;
-		}
+	}
+	if( w && w->layout ) {
+		w = w->layout->windows;
 	}
 	if( w != NULL ) {
 		state.current_view->vfocus = w;
