@@ -100,8 +100,8 @@ error(int include_errstr, const char *errstr, ...) {
 	exit(EXIT_FAILURE);
 }
 
-void
-draw_border(struct window *w) {
+static void
+draw_title(struct window *w) {
 	int attrs = NORMAL_ATTR;
 	char border_title[128];
 	char *msg = NULL;
@@ -146,7 +146,7 @@ draw(struct window *w)
 		redrawwin(w->c->window);
 		vt_draw(w->c->term, w->c->window, 0, 0);
 		wnoutrefresh(w->c->window);
-		draw_border(w);
+		draw_title(w);
 	}
 	if( (sw = w->div) != NULL ) {
 		mvwvline(sw->window, 0, 0, ACS_VLINE, sw->p.h -1);
@@ -214,11 +214,11 @@ focus(struct client *c) {
 	if (c) {
 		set_term_title(c->title);
 		c->urgent = false;
-		draw_border(c->win);
+		draw_title(c->win);
 		wnoutrefresh(c->window);
 	}
 	if( old ) {
-		draw_border(old);
+		draw_title(old);
 		wnoutrefresh(old->c->window);
 	}
 	curs_set(c && vt_cursor_visible(c->term));
@@ -267,7 +267,7 @@ term_title_handler(Vt *term, const char *title) {
 	if( f == c ) {
 		set_term_title(c->title);
 	}
-	draw_border(c->win);
+	draw_title(c->win);
 	applycolorrules(c);
 }
 
@@ -516,9 +516,11 @@ internal_bind(enum mode m, unsigned char *keys, command *f, const char * args[])
 static int
 xinternal_bind(enum mode m, unsigned char *keys, command *f, const char *args[])
 {
-	if( internal_bind(m, keys, f, args) ) {
+	int rv;
+	if( ( rv = internal_bind(m, keys, f, args)) != 0 ) {
 		error(0, "conflicting binding for '%s'", keys);
 	}
+	return rv;
 }
 
 static void
@@ -1027,7 +1029,7 @@ copymode(const char * const args[])
 
 end:
 	assert(state.mode == command_mode);
-	draw_border(f->win);
+	draw_title(f->win);
 	toggle_mode(NULL);
 	return 0;
 }
@@ -1207,7 +1209,7 @@ handle_editor(struct client *c) {
 	c->term = c->app;
 	vt_dirty(c->term);
 	vt_draw(c->term, c->window, 0, 0);
-	draw_border(c->win);
+	draw_title(c->win);
 	wnoutrefresh(c->window);
 }
 
