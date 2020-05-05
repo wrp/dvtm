@@ -653,6 +653,8 @@ setup(void) {
 	getshell();
 	setlocale(LC_CTYPE, "");
 	setenv("STM_VERSION", VERSION, 1);
+	use_env(false);
+	use_tioctl(true);
 	initscr();
 	start_color(); /* initializes globals COLORS and COLOR_PAIRS */
 	noecho();
