@@ -1337,11 +1337,13 @@ handle_input(struct state *s)
 	int code = s->code = getch();
 	if( code < 0 || code > 1 << CHAR_BIT ) {
 		keypress(code);
-	} else if( NULL == (b = keybinding(code, s->binding))
-			&& s->mode == keypress_mode) {
+	} else if( NULL == (b = keybinding(code, s->binding)) ) {
+		if( s->mode == command_mode) {
+			toggle_mode(NULL);
+		}
 		assert(s->binding == bindings);
 		keypress(code);
-	} else if( b != NULL ) {
+	} else {
 		*s->buf.next++ = code;
 		*s->buf.next = '\0';
 		if(b->action.cmd != NULL) {
@@ -1356,8 +1358,6 @@ handle_input(struct state *s)
 		} else {
 			s->binding = b;
 		}
-	} else {
-		s->binding = cmd_bindings;
 	}
 	if( s->binding == cmd_bindings && s->buf.count == 0 ) {
 		reset_entry(&s->buf);
