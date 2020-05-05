@@ -69,6 +69,7 @@ struct layout {
 struct view {
 	struct layout *layout;
 	struct window *vfocus;
+	struct view *next;
 	char name[32];
 };
 enum mode { keypress_mode, command_mode };
@@ -80,7 +81,6 @@ struct state {
 	int signal;  /* Signal sent by killclient */
 	int runinall;
 	struct view *views;
-	unsigned viewcount;
 	struct view *current_view;
 	const char *shell;
 	const char *title;

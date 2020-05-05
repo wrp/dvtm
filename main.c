@@ -625,7 +625,7 @@ void
 init_state(struct state *s)
 {
 	reset_entry(&s->buf);
-	s->views = xcalloc(s->viewcount = 1, sizeof *s->views);
+	s->views = xcalloc(1, sizeof *s->views);
 	s->views->layout = new_layout(NULL);
 	if( s->views->layout == NULL) {
 		error(0, "out of memory");
@@ -1030,7 +1030,7 @@ select_client(const struct view *v)
 		struct client *t;
 		if( v == NULL ) {
 			struct view *v = state.views;
-			for( ; v < state.views + state.viewcount; v++ ) {
+			for( ; v < state.views; v = v->next ) {
 				if( (t = select_client(v)) != NULL ) {
 					c = t;
 					break;
