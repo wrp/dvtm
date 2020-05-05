@@ -196,16 +196,12 @@ focus(struct window *w)
 	struct window *old = NULL;
 	assert( state.current_view != NULL );
 	assert( w != NULL );
+	assert( w->c != NULL );
 	if( w == state.current_view->vfocus ) {
 		return;
 	}
 	struct client *c = w->c;
-	if( c == NULL && state.current_view->vfocus ) {
-		c = state.current_view->vfocus->c;
-	}
-	if( state.current_view->vfocus && c->win != state.current_view->vfocus ) {
-		old = state.current_view->vfocus;
-	}
+	old = state.current_view->vfocus;
 	state.current_view->vfocus = c->win;
 	if (c) {
 		set_term_title(c->title);
