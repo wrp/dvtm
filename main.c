@@ -194,13 +194,9 @@ void
 focus(struct window *w)
 {
 	struct window *old = NULL;
-	if( state.current_view == NULL ) {
-		return;
-	}
+	assert( state.current_view != NULL );
+	assert( w != NULL );
 	if( w == state.current_view->vfocus ) {
-		return;
-	}
-	if( w == NULL ) {
 		return;
 	}
 	struct client *c = w->c;
