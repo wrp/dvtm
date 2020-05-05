@@ -48,7 +48,7 @@
   and put new clients there.
  */
 #include "config.h"
-#include "package.h"
+#include "main.h"
 
 struct key_binding *bindings;     /* keypress_mode bindings */
 struct key_binding *cmd_bindings;  /* command_mode bindings */

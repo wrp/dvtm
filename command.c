@@ -1,4 +1,4 @@
-#include "package.h"
+#include "main.h"
 int
 bind(const char * const args[])
 {

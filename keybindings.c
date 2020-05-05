@@ -1,5 +1,5 @@
 #include "config.h"
-#include "package.h"
+#include "main.h"
 
 char esc[] = { ESC, 0 };
 
