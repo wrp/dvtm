@@ -80,7 +80,7 @@ mov(const char * const args[])
 	if( w != NULL ) {
 		focus(w);
 	}
-	return w == NULL; /* 0 success, 1 failure */
+	return w == NULL ? -1 : 0; /* < 0 forces transition to keypress mode */
 }
 
 int
