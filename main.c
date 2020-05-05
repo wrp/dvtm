@@ -173,7 +173,6 @@ arrange(void) {
 	if(state.current_view) {
 		render_layout(state.current_view->layout, 0, 0,
 			screen.h, screen.w);
-		focus(NULL);
 		wnoutrefresh(stdscr);
 		if(state.current_view->layout) {
 			draw_window(state.current_view->layout->windows);
