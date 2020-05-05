@@ -269,27 +269,21 @@ term_urgent_handler(Vt *term)
 }
 
 void
-move_client(struct client *c, int x, int y) {
-	if (c->p.x == x && c->p.y == y)
-		return;
-	debug("moving, x: %d y: %d\n", x, y);
-	if (mvwin(c->window, y, x) == ERR) {
-		eprint("error moving, x: %d y: %d\n", x, y);
-	} else {
-		c->p.x = x;
-		c->p.y = y;
+move_client(struct client *c, int x, int y)
+{
+	if( mvwin(c->window, y, x) == ERR ) {
+		eprint("error moving client %d to %d, %d\n", c->id, y, x);
 	}
 }
 
 void
 resize_client(struct client *c, int w, int h)
 {
-	if( c->p.w != w || c->p.h != h ) {
+	int y, x;
+	getmaxyx(c->window, y, x);
+	if( x != w || y != h ) {
 		if( wresize(c->window, h, w) == ERR ) {
 			eprint("error resizing, w: %d h: %d\n", w, h);
-		} else {
-			c->p.w = w;
-			c->p.h = h;
 		}
 		vt_resize(c->app, h, w);
 		if( c->editor ) {
@@ -875,8 +869,6 @@ new_client(const char *cmd, const char *title)
 		vt_title_handler_set(c->term, term_title_handler);
 		vt_urgent_handler_set(c->term, term_urgent_handler);
 		applycolorrules(c);
-		c->p.x = 0;
-		c->p.y = 0;
 	}
 	return c;
 err2:
@@ -965,6 +957,7 @@ get_bindings(char **b)
 int
 copymode(const char * const args[])
 {
+	int y, x;
 	struct client *f = state.current_view->vfocus->c;
 
 	if (!args || !args[0] || !f || f->editor)
@@ -973,7 +966,8 @@ copymode(const char * const args[])
 	bool colored = strstr(args[0], "pager") != NULL;
 	assert(f == state.current_view->vfocus->c);
 
-	if (!(f->editor = vt_create(f->p.h, f->p.w, 0)))
+	getmaxyx(f->window, y, x);
+	if (!(f->editor = vt_create(y, x, 0)))
 		goto end;
 
 	int *to = &f->editor_fds[0];
@@ -1149,6 +1143,7 @@ redraw(const char * const args[]) {
 int
 scrollback(const char * const args[])
 {
+	int y, x;
 	double pages = args[0] ? strtod(args[0], NULL) : -0.5;
 	struct window *w = state.current_view->vfocus;
 	if( w->c == NULL || w->c->win == NULL ) {
@@ -1157,7 +1152,8 @@ scrollback(const char * const args[])
 	if( state.buf.count ) {
 		pages *= state.buf.count;
 	}
-	vt_scroll(w->c->term,  pages * w->c->p.h);
+	getmaxyx(w->c->window, y, x);
+	vt_scroll(w->c->term,  pages * y);
 	draw(w);
 	curs_set(vt_cursor_visible(w->c->term));
 	return 0;

@@ -129,7 +129,6 @@ struct client {
 	int editor_fds[2];
 	int editor_died;
 	const char *cmd;
-	struct position p;
 	char title[128];
 	char editor_title[128];
 	pid_t pid;
