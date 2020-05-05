@@ -84,17 +84,13 @@ mov(const char * const args[])
 }
 
 int
-transition_no_send(const char * const args[])
+change_state(const char * const args[])
 {
-	toggle_mode(NULL);
-	return 0;
-}
-
-int
-transition_with_send(const char * const args[])
-{
-	assert(state.mode == command_mode);
-	keypress(state.code);
-	toggle_mode(NULL);
+	if( ! strcmp(args[0], "command" )) {
+		toggle_mode(command_mode);
+	} else {
+		toggle_mode(keypress_mode);
+		keypress(state.code);
+	}
 	return 0;
 }

@@ -248,6 +248,7 @@ extern void keypress(int code);
 extern int parse_binding(struct action *a, const char *d);
 extern int push_binding(struct key_binding *b, const unsigned char *keys,
 	const struct action *a);
+extern void toggle_mode(enum mode);
 
 /* commands for use by keybindings */
 command bind;
@@ -267,6 +268,4 @@ command scrollback;
 command send;
 command toggleview;
 command split;
-command toggle_mode;
-command transition_no_send;
-command transition_with_send;
+command change_state;

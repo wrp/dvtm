@@ -510,11 +510,11 @@ build_bindings(void)
 {
 	binding_description *b = mod_bindings;
 	char mod_binding[] = { modifier_key, '\0' };
-	char const *args[2] = { mod_binding, NULL };
+	char const *margs[] = { mod_binding, "command", NULL };
 	state.binding = bindings = xcalloc(1u << CHAR_BIT, sizeof *bindings);
 	cmd_bindings = xcalloc(1u << CHAR_BIT, sizeof *cmd_bindings);
 	xinternal_bind(keypress_mode, (unsigned char *)mod_binding,
-		transition_no_send, args );
+		change_state, margs );
 
 	for( b = mod_bindings; b[0][0]; b++) {
 		char **e = *b;
@@ -532,8 +532,9 @@ build_bindings(void)
 		xinternal_bind(command_mode, (unsigned char *)buf, digit, args);
 	}
 
+	margs[1] = "keypress";
 	xinternal_bind(command_mode, (unsigned char *)mod_binding,
-		transition_with_send, args );
+		change_state, margs );
 	for( b = keypress_bindings; b[0][0]; b++) {
 		char **e = *b;
 		command *cmd = get_function(e[1]);
@@ -903,25 +904,25 @@ reset_entry(struct entry_buf *e)
 	*e->next = '\0';
 }
 
-int
-toggle_mode(const char * const args[])
+void
+toggle_mode(enum mode new)
 {
 	struct state *s = &state;
 	struct window *f = state.current_view->vfocus;
 	reset_entry(&s->buf);
-	switch(s->mode) {
-	case keypress_mode:
+	switch(new) {
+	case command_mode:
 		s->mode = command_mode;
 		s->binding = cmd_bindings;
 		curs_set(0);
 		break;
-	case command_mode:
+	case keypress_mode:
 		s->mode = keypress_mode;
 		s->binding = bindings;
 		curs_set(f && f->c && vt_cursor_visible(f->c->term));
 	}
 	focus(f);
-	return 0;
+	return;
 }
 
 size_t
@@ -1020,7 +1021,7 @@ copymode(const char * const args[])
 end:
 	assert(state.mode == command_mode);
 	draw_title(f->win);
-	toggle_mode(NULL);
+	toggle_mode(keypress_mode);
 	return 0;
 }
 
@@ -1055,10 +1056,11 @@ select_client(const struct view *v)
 int
 focus_transition(const char * const args[])
 {
+	assert(state.mode == command_mode);
 	struct client *c = select_client(state.current_view);
 	if( c != NULL ) {
 		focus(c->win);
-		toggle_mode(NULL);
+		toggle_mode(keypress_mode);
 	}
 	return 0;
 }
@@ -1119,7 +1121,7 @@ paste(const char * const args[])
 		vt_write(f->term, copyreg.data, copyreg.len);
 	}
 	assert(state.mode == command_mode);
-	toggle_mode(NULL);
+	toggle_mode(keypress_mode);
 	return 0;
 }
 
@@ -1339,7 +1341,7 @@ handle_input(struct state *s)
 		keypress(code);
 	} else if( NULL == (b = keybinding(code, s->binding)) ) {
 		if( s->mode == command_mode) {
-			toggle_mode(NULL);
+			toggle_mode(keypress_mode);
 		}
 		assert(s->binding == bindings);
 		keypress(code);

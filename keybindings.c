@@ -5,8 +5,6 @@ char esc[] = { ESC, 0 };
 
 /* Bindings following MOD */
 binding_description mod_bindings[] = {
-	{ esc,    "transition_no_send" },
-	{ "\x0d", "transition_no_send" },
 	{ "xx",  "killclient" },
 	{ "qq",  "quit" },
 	{ "B",   "copymode", PACKAGE "-pager", "bindings" },
@@ -49,8 +47,6 @@ static struct command_name names[] = {
 	entry(quit),
 	entry(redraw),
 	entry(scrollback),
-	entry(transition_no_send),
-	entry(transition_with_send),
 	entry(split),
 	{NULL},
 };
