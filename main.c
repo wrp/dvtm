@@ -195,7 +195,8 @@ set_term_title(char *title)
 
 
 void
-focus(struct client *c) {
+focus(struct client *c)
+{
 	struct window *old = NULL;
 	if( state.current_view == NULL ) {
 		return;
@@ -223,7 +224,6 @@ focus(struct client *c) {
 		draw_title(old);
 		wnoutrefresh(old->c->window);
 	}
-	curs_set(c && vt_cursor_visible(c->term));
 }
 
 void
@@ -927,16 +927,20 @@ int
 toggle_mode(const char * const args[])
 {
 	struct state *s = &state;
+	struct window *f = state.current_view->vfocus;
 	reset_entry(&s->buf);
 	switch(s->mode) {
 	case keypress_mode:
 		s->mode = command_mode;
 		s->binding = cmd_bindings;
+		curs_set(0);
 		break;
 	case command_mode:
 		s->mode = keypress_mode;
 		s->binding = bindings;
+		curs_set(f && f->c && vt_cursor_visible(f->c->term));
 	}
+
 	return 0;
 }
 
