@@ -78,7 +78,7 @@ mov(const char * const args[])
 		}
 	}
 	if( w != NULL ) {
-		state.current_view->vfocus = w;
+		focus(w);
 	}
 	return w == NULL; /* 0 success, 1 failure */
 }
