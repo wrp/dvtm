@@ -114,6 +114,10 @@ draw_title(struct window *w) {
 	char border_title[128];
 	chtype fill = ACS_HLINE;
 
+	if( state.current_view->vfocus == w && state.mode == command_mode ) {
+		attrs = A_REVERSE;
+	}
+
 	assert( w->c != NULL );
 	if( w->title == NULL ) {
 		return;
@@ -124,6 +128,7 @@ draw_title(struct window *w) {
 		fill = ACS_CKBOARD;
 	}
 
+	wattrset(w->title->window, attrs);
 	mvwhline(w->title->window, 0, 0, fill, w->title->p.w);
 	snprintf(border_title, MIN(w->title->p.w, sizeof border_title),
 		"#%d (%ld) | %s", w->c->id, (long)w->c->pid, title);
