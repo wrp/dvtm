@@ -41,11 +41,6 @@ struct entry_buf {
 	int count;
 	unsigned char *next; /* first unused char in data */
 };
-struct position {
-	/* absolute position and size */
-	unsigned short y, x;   /* position of upper left corner */
-	unsigned short h, w;   /* height and width */
-};
 /*
  * A window is a specified chunk of screen which contains either at most
  * one client or one layout (the layout can contain multiple windows).
