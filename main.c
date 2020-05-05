@@ -1348,10 +1348,11 @@ handle_input(struct state *s)
 	} else {
 		*s->buf.next++ = code;
 		*s->buf.next = '\0';
-		if(b->action.cmd != NULL) {
-			b->action.cmd(b->action.args);
-			/* Some actions change s->mode. */
-			if( s->mode == command_mode )  {
+		if( b->action.cmd != NULL ) {
+			if( b->action.cmd(b->action.args) < 0 ) {
+				change_mode(keypress_mode);
+			} else if( s->mode == command_mode ) {
+				/* Some actions change s->mode. */
 				s->binding = cmd_bindings;
 			}
 			if( b->action.cmd != digit ) {
