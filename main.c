@@ -193,25 +193,19 @@ set_term_title(char *title)
 void
 focus(struct window *w)
 {
-	struct window *old = NULL;
 	assert( state.current_view != NULL );
 	assert( w != NULL );
 	assert( w->c != NULL );
-	if( w == state.current_view->vfocus ) {
-		return;
-	}
-	struct client *c = w->c;
-	old = state.current_view->vfocus;
-	state.current_view->vfocus = c->win;
-	if (c) {
-		set_term_title(c->title);
-		c->urgent = false;
-		draw_title(c->win);
-		wnoutrefresh(c->window);
-	}
-	if( old ) {
-		draw_title(old);
-		wnoutrefresh(old->c->window);
+	struct window *old = state.current_view->vfocus;
+
+	state.current_view->vfocus = w;
+	draw_title(old);
+	wnoutrefresh(old->c->window);
+	set_term_title(w->c->title);
+	w->c->urgent = false;
+	if( old != w ) {
+		draw_title(w);
+		wnoutrefresh(w->c->window);
 	}
 }
 
