@@ -53,8 +53,8 @@ struct position {
 struct window {
 	double portion;  /* Percent of enclosing_layout */
 	struct client *c;
-	struct status_window *title;
-	struct status_window *div;
+	WINDOW *title;
+	WINDOW *div;
 	struct layout *layout;
 	struct layout *enclosing_layout;
 	struct window *next;
@@ -121,11 +121,6 @@ struct state {
    window contains col:.2,.5,.7
 
 */
-
-struct status_window {
-	WINDOW *window;
-	struct position p;
-};
 
 struct client {
 	WINDOW *window;

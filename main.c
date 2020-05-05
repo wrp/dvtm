@@ -109,9 +109,11 @@ error(int include_errstr, const char *errstr, ...) {
 }
 
 static void
-draw_title(struct window *w) {
+draw_title(struct window *w)
+{
 	int attrs = NORMAL_ATTR;
 	char border_title[128];
+	int y, x;
 	chtype fill = ACS_HLINE;
 
 	if( state.current_view->vfocus == w && state.mode == command_mode ) {
@@ -127,20 +129,19 @@ draw_title(struct window *w) {
 		title = w->c->editor_title;
 		fill = ACS_CKBOARD;
 	}
-
-	wattrset(w->title->window, attrs);
-	mvwhline(w->title->window, 0, 0, fill, w->title->p.w);
-	snprintf(border_title, MIN(w->title->p.w, sizeof border_title),
+	getmaxyx(w->title, y, x);
+	wattrset(w->title, attrs);
+	mvwhline(w->title, 0, 0, fill, x);
+	snprintf(border_title, MIN(x, sizeof border_title),
 		"#%d (%ld) | %s", w->c->id, (long)w->c->pid, title);
-	mvwprintw(w->title->window, 0, 2, " %s ", border_title);
-	wnoutrefresh(w->title->window);
+	mvwprintw(w->title, 0, 2, " %s ", border_title);
+	wnoutrefresh(w->title);
 }
 
 
 void
 draw(struct window *w)
 {
-	struct status_window *sw;
 	assert( w != NULL );
 	if( w->c ) {
 		redrawwin(w->c->window);
@@ -148,10 +149,12 @@ draw(struct window *w)
 		wnoutrefresh(w->c->window);
 		draw_title(w);
 	}
-	if( (sw = w->div) != NULL ) {
-		mvwvline(sw->window, 0, 0, ACS_VLINE, sw->p.h -1);
-		mvwaddch(sw->window, sw->p.h - 1, 0, ACS_BTEE);
-		wnoutrefresh(w->div->window);
+	if( w->div != NULL ) {
+		int y, x;
+		getmaxyx(w->div, y, x);
+		mvwvline(w->div, 0, 0, ACS_VLINE, y - 1);
+		mvwaddch(w->div, y - 1, 0, ACS_BTEE);
+		wnoutrefresh(w->div);
 	}
 }
 
@@ -1466,18 +1469,15 @@ main(int argc, char *argv[])
 }
 
 static void
-status_window(struct status_window **n, int y, int x, int h, int w)
+init_window(WINDOW **n, int y, int x, int h, int w)
 {
-	struct position p = { y, x, h, w };
-	struct status_window *win = *n;
+	WINDOW *win = *n;
 	if( win ) {
-		wresize(win->window, h, w);
-		mvwin(win->window, y, x);
+		wresize(win, h, w);
+		mvwin(win, y, x);
 	} else {
-		win = *n = xcalloc(1 , sizeof **n);
-		win->window = newwin(h, w, y, x);
+		*n = newwin(h, w, y, x);
 	}
-	win->p = p;
 }
 
 static void
@@ -1497,12 +1497,12 @@ render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w
 		nw = row ? count : w;
 		nh = row ? h : count;
 		if( row && x > 0 && win != lay->windows) {
-			status_window( &win->div, y, x, nh, 1 );
+			init_window( &win->div, y, x, nh, 1 );
 			nw -= 1;
 			x += 1;
 		}
 		if( win->c ) {
-			status_window( &win->title, y + nh - 1, x, 1, nw );
+			init_window( &win->title, y + nh - 1, x, 1, nw );
 			nh -= 1;
 			assert( win->layout == NULL );
 			resize_client(win->c, nw, nh);
