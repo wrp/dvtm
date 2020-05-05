@@ -87,9 +87,9 @@ int
 change_state(const char * const args[])
 {
 	if( ! strcmp(args[0], "command" )) {
-		toggle_mode(command_mode);
+		change_mode(command_mode);
 	} else {
-		toggle_mode(keypress_mode);
+		change_mode(keypress_mode);
 		keypress(state.code);
 	}
 	return 0;

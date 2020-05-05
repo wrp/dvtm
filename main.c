@@ -905,7 +905,7 @@ reset_entry(struct entry_buf *e)
 }
 
 void
-toggle_mode(enum mode new)
+change_mode(enum mode new)
 {
 	struct state *s = &state;
 	struct window *f = state.current_view->vfocus;
@@ -1021,7 +1021,7 @@ copymode(const char * const args[])
 end:
 	assert(state.mode == command_mode);
 	draw_title(f->win);
-	toggle_mode(keypress_mode);
+	change_mode(keypress_mode);
 	return 0;
 }
 
@@ -1060,7 +1060,7 @@ focus_transition(const char * const args[])
 	struct client *c = select_client(state.current_view);
 	if( c != NULL ) {
 		focus(c->win);
-		toggle_mode(keypress_mode);
+		change_mode(keypress_mode);
 	}
 	return 0;
 }
@@ -1121,7 +1121,7 @@ paste(const char * const args[])
 		vt_write(f->term, copyreg.data, copyreg.len);
 	}
 	assert(state.mode == command_mode);
-	toggle_mode(keypress_mode);
+	change_mode(keypress_mode);
 	return 0;
 }
 
@@ -1341,7 +1341,7 @@ handle_input(struct state *s)
 		keypress(code);
 	} else if( NULL == (b = keybinding(code, s->binding)) ) {
 		if( s->mode == command_mode) {
-			toggle_mode(keypress_mode);
+			change_mode(keypress_mode);
 		}
 		assert(s->binding == bindings);
 		keypress(code);
