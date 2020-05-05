@@ -567,14 +567,15 @@ scan_fmt(const char *d, struct window *w)
 }
 #endif
 
-struct window *
-new_window(struct layout *parent, struct client *c)
+static struct window *
+new_window(struct layout *parent, struct client *c, WINDOW *window)
 {
 	struct window *w = calloc(1, sizeof *w);
 	assert( parent != NULL );
 	if( w != NULL ) {
 		w->portion = 1.0;
 		w->c = c;
+		w->client = window;
 		w->enclosing_layout = parent;
 		if( c != NULL ) {
 			c->win = w;
@@ -596,7 +597,7 @@ new_layout(struct window *w)
 			c = w->c;
 			assert( c == NULL || c->win == w );
 		}
-		if( (ret->windows = new_window(ret, c)) == NULL ) {
+		if( (ret->windows = new_window(ret, c, w ? w->client : NULL)) == NULL ) {
 			free(ret);
 			ret = NULL;
 		}
@@ -745,7 +746,7 @@ split_window(struct window *target)
 	int found = 0;
 	struct layout *lay = target->layout ? target->layout : target->enclosing_layout;
 	unsigned count = lay->count;
-	struct window *ret = new_window(lay, NULL); /* increments lay->count */
+	struct window *ret = new_window(lay, NULL, NULL); /* increments lay->count */
 	unsigned index = 0;
 
 	if( ret == NULL ) {
