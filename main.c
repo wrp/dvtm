@@ -228,16 +228,16 @@ applycolorrules(struct client *c) {
 	vt_default_colors_set(c->term, attrs, fg, bg);
 }
 
-/* copy title to dest, compressing whitespace and discarding non-printable */
+/* copy src to dest, compressing whitespace and discarding non-printable */
 static void
-sanitize_string(const char *title, char *dest, size_t siz)
+sanitize_string(const char *src, char *dest, size_t siz)
 {
 	char *d = dest;
 	char *e = dest + siz - 1;
-	for( ; title && *title && d < e; title += 1 ) {
-		if( isprint(*title) && ! isspace(*title)) {
-			*d++ = *title;
-		} else if( d > dest && d[-1] != ' ') {
+	for( ; src && *src && d < e; src += 1 ) {
+		if( isprint(*src) && !isspace(*src) ) {
+			*d++ = *src;
+		} else if( d > dest && d[-1] != ' ' ) {
 			*d++ = ' ';
 		}
 	}
