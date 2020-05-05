@@ -21,19 +21,20 @@
   resize commands, which may pinch a window out of the layout, as well
   as zoom to fullscreen.
 
+  features:
   History of layouts.  eg, should be able to undo and go back in history.
+  Rebalance a layout.
+  List current key bindings.
+  Command-line mode (eg, :create arg1 args)
+  Error message window.
+  Write any final error to stderr on exit.
 
-  Implement Command-line mode (eg, :create arg1 args)
-  Make it possible to list current key bindings.
   Make it possible to pass layouts on the cmd fifo.  eg, give
     dimensions like "1:100x20@10,20\n2:hxw@y,x\n..."
-  Write errors somewhere.  Either in a dedidcated window
-    or in the status bar.  Write any final error to stderr
-    on exit.  Probably should read initialization from stdin.
   Need to check errors in copymode.  If tm-editor is not in the
     path,for example, we should see an error message.  copymode needs
     to read the error stream and print somewhere.  (See previous TODO)
-  Consider name change: eg 'stm', 'pyx', 'pyt', 'pym' (latter too pythonic)
+  Consider name change: eg 'stm', 'sttm' (simple tiling terminal manager)
   Enable multiple views.
   Stop selecting on clients that are not in the current view. (There's no
   point in updating non-visible clients, except maybe to set urgent flag.  Until
