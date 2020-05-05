@@ -172,7 +172,6 @@ draw_window(struct window *w)
 void
 arrange(void) {
 	unsigned int m = 0;
-	erase();
 	attrset(NORMAL_ATTR);
 	if(state.current_view) {
 		render_layout(state.current_view->layout, 0, 0,
@@ -706,12 +705,18 @@ setup(void) {
 void
 destroy(struct client *c) {
 	struct view *v = state.current_view;
+	int x, y;
+	time_t t;
 
 	if( state.current_view->vfocus->c == c ) {
 		state.current_view->vfocus = NULL;
 	}
-	werase(c->window);
+	time(&t);
+	getyx(c->window, y, x);
+	wprintw(c->window, "%sprocess %ld terminated %s",
+		x ? "\n" : "", (long)c->pid, ctime(&t));
 	wnoutrefresh(c->window);
+	doupdate();
 	vt_destroy(c->term);
 	delwin(c->window);
 	if(state.clients == c) {

@@ -13,6 +13,7 @@
 #include <sys/wait.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <time.h>
 #include <fcntl.h>
 #include <curses.h>
 #include <stdio.h>
