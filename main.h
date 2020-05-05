@@ -255,7 +255,7 @@ int ESCDELAY;
 
 /* common function declarations */
 extern struct client* nextvisible(struct client *c);
-extern void focus(struct client *c);
+extern void focus(struct window *);
 extern void keypress(int code);
 extern int parse_binding(struct action *a, const char *d);
 extern int push_binding(struct key_binding *b, const unsigned char *keys,

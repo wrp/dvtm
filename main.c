@@ -192,20 +192,21 @@ set_term_title(char *title)
 
 
 void
-focus(struct client *c)
+focus(struct window *w)
 {
 	struct window *old = NULL;
 	if( state.current_view == NULL ) {
 		return;
 	}
-	if( c && state.current_view->vfocus == c->win ) {
+	if( w == state.current_view->vfocus ) {
 		return;
 	}
+	if( w == NULL ) {
+		return;
+	}
+	struct client *c = w->c;
 	if( c == NULL && state.current_view->vfocus ) {
 		c = state.current_view->vfocus->c;
-	}
-	if( c == NULL ) {
-		return;
 	}
 	if( state.current_view->vfocus && c->win != state.current_view->vfocus ) {
 		old = state.current_view->vfocus;
@@ -906,7 +907,7 @@ create(const char * const args[]) {
 	push_client_to_view(state.current_view, c);
 	c->next = state.clients;
 	state.clients = c;
-	focus(c);
+	focus(c->win);
 	arrange();
 
 	return 0;
@@ -1072,7 +1073,7 @@ focus_transition(const char * const args[])
 {
 	struct client *c = select_client(state.current_view);
 	if( c != NULL ) {
-		focus(c);
+		focus(c->win);
 		toggle_mode(NULL);
 	}
 	return 0;
@@ -1083,7 +1084,7 @@ focusn(const char * const args[])
 {
 	struct client *c = select_client(state.current_view);
 	if( c != NULL ) {
-		focus(c);
+		focus(c->win);
 	}
 	return 0;
 }
