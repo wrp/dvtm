@@ -357,13 +357,7 @@ resize_screen(void) {
 	screen.winched = 0;
 }
 
-/*
- * Find a keybinding the matches the entry_buf.  If there
- * are multiple possible keybindings, this will return
- * a struct key_binding with an emtpy action and a non-empty
- * next.
- */
-const struct key_binding *
+static const struct key_binding *
 keybinding(unsigned char k, const struct key_binding *r)
 {
 	assert(r != NULL);
