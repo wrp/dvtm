@@ -112,7 +112,6 @@ static void
 draw_title(struct window *w) {
 	int attrs = NORMAL_ATTR;
 	char border_title[128];
-	char *msg = NULL;
 	chtype fill = ACS_HLINE;
 
 	assert( w->c != NULL );
@@ -121,7 +120,6 @@ draw_title(struct window *w) {
 	}
 	char *title = w->c->title;
 	if( w->c->term == w->c->editor ) {
-		msg = " COPY MODE ";
 		title = w->c->editor_title;
 		fill = ACS_CKBOARD;
 	}
@@ -130,12 +128,6 @@ draw_title(struct window *w) {
 	snprintf(border_title, MIN(w->title->p.w, sizeof border_title),
 		"#%d (%ld) | %s", w->c->id, (long)w->c->pid, title);
 	mvwprintw(w->title->window, 0, 2, " %s ", border_title);
-	if( msg != NULL ) {
-		int start = strlen(border_title) + 4 + 2;
-		if( w->title->p.w > start + strlen(msg) + 2 ) {
-			mvwprintw(w->title->window, 0, start, "%s", msg);
-		}
-	}
 	wnoutrefresh(w->title->window);
 }
 
