@@ -10,11 +10,8 @@
 /config.sub
 /configure
 /depcomp
-/tm
-/tm-editor
 /install-sh
 /ltmain.sh
 /missing
-/tm.1
-/tm-editor.1
-/tm.log
+/stm-editor.1
+/stm.1

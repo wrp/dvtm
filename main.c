@@ -672,7 +672,7 @@ setup(void) {
 	build_bindings();
 	getshell();
 	setlocale(LC_CTYPE, "");
-	setenv("TM_VERSION", VERSION, 1);
+	setenv("STM_VERSION", VERSION, 1);
 	initscr();
 	start_color(); /* initializes globals COLORS and COLOR_PAIRS */
 	noecho();
@@ -870,7 +870,7 @@ new_client(const char *cmd, const char *title)
 {
 	const char *pargs[4] = { state.shell, cmd ? "-c" : NULL, cmd, NULL };
 	char buf[8];
-	const char *env[] = { "TM_WINDOW_ID", buf, NULL };
+	const char *env[] = { "STM_WINDOW_ID", buf, NULL };
 	struct client *c = calloc(1, sizeof *c);
 	if( c != NULL ) {
 		if( (c->window = newwin(screen.h, screen.w, 0, 0)) == NULL ) {
@@ -1278,7 +1278,7 @@ parse_args(int argc, char *argv[]) {
 		struct action defaults = { create, { NULL } };
 		push_action(&defaults);
 	}
-	if( getenv("TM_VERSION") && ! force ) {
+	if( getenv("STM_VERSION") && ! force ) {
 		error(0, "Nested session prevented.  Use -f to allow");
 	}
 	return;

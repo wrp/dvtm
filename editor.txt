@@ -16,7 +16,7 @@ William R. Pursell; Marc André Tanner; Dmitry Bogatov
 == DESCRIPTION
 {name}-editor is a file buffering utility used by {name}(1)
 to implement its copy mode. It reads standard input and
-saves it to a temporary file, then opens an editor ($TM_EDITOR,
+saves it to a temporary file, then opens an editor ($STM_EDITOR,
 $DVTM_EDITOR, $VISUAL, $EDITOR, or, if all of those are unset, vi),
 and writes the data to stdout if the editor exits succesfully.
 
@@ -27,7 +27,7 @@ If the invoked editor terminates with a non-zero exit status
 === TMPDIR
 The temporary used will have the path $TMPDIR/{name}-editor.XXXXXX
 
-=== TM_EDITOR, DVTM_EDITOR, VISUAL, EDITOR
+=== STM_EDITOR, DVTM_EDITOR, VISUAL, EDITOR
 These variables are checked in order.  The first that is set will be
 used to invoke the editor.  If all are unset, "vi" will be used.
 

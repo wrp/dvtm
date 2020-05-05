@@ -58,7 +58,7 @@ error(int errnum, const char *msg, ...)
 const char *
 get_default_editor(void)
 {
-	const char *editor = getenv("TM_EDITOR");
+	const char *editor = getenv("STM_EDITOR");
 	if( editor == NULL ) {
 		editor = getenv("DVTM_EDITOR");
 	}
