@@ -923,7 +923,7 @@ toggle_mode(const char * const args[])
 		s->binding = bindings;
 		curs_set(f && f->c && vt_cursor_visible(f->c->term));
 	}
-
+	focus(f);
 	return 0;
 }
 
