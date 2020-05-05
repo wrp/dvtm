@@ -36,7 +36,6 @@ struct screen {
 	int h;
 	int winched;
 };
-struct client;
 struct entry_buf {
 	unsigned char data[128];;
 	int count;
