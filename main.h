@@ -48,6 +48,7 @@ struct entry_buf {
 struct window {
 	double portion;  /* Percent of enclosing_layout */
 	struct client *c;
+	WINDOW *client;
 	WINDOW *title;
 	WINDOW *div;
 	struct layout *layout;
@@ -118,7 +119,6 @@ struct state {
 */
 
 struct client {
-	WINDOW *window;
 	Vt *term; /* depending on mode, points to app or editor */
 	Vt *editor, *app;
 	int editor_fds[2];

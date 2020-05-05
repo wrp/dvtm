@@ -144,9 +144,9 @@ draw(struct window *w)
 {
 	assert( w != NULL );
 	if( w->c ) {
-		redrawwin(w->c->window);
-		vt_draw(w->c->term, w->c->window, 0, 0);
-		wnoutrefresh(w->c->window);
+		redrawwin(w->client);
+		vt_draw(w->c->term, w->client, 0, 0);
+		wnoutrefresh(w->client);
 		draw_title(w);
 	}
 	if( w->div != NULL ) {
@@ -203,12 +203,12 @@ focus(struct window *w)
 
 	state.current_view->vfocus = w;
 	draw_title(old);
-	wnoutrefresh(old->c->window);
+	wnoutrefresh(old->client);
 	set_term_title(w->c->title);
 	w->c->urgent = false;
 	if( old != w ) {
 		draw_title(w);
-		wnoutrefresh(w->c->window);
+		wnoutrefresh(w->client);
 	}
 }
 
@@ -268,26 +268,26 @@ term_urgent_handler(Vt *term)
 	fflush(stdout);
 }
 
-void
-move_client(struct client *c, int x, int y)
+static void
+move_client(WINDOW *w, int x, int y, int id)
 {
-	if( mvwin(c->window, y, x) == ERR ) {
-		eprint("error moving client %d to %d, %d\n", c->id, y, x);
+	if( mvwin(w, y, x) == ERR ) {
+		eprint("error moving client %d to %d, %d\n", id, y, x);
 	}
 }
 
-void
-resize_client(struct client *c, int w, int h)
+static void
+resize_client(struct window *win, int w, int h)
 {
 	int y, x;
-	getmaxyx(c->window, y, x);
+	getmaxyx(win->client, y, x);
 	if( x != w || y != h ) {
-		if( wresize(c->window, h, w) == ERR ) {
+		if( wresize(win->client, h, w) == ERR ) {
 			eprint("error resizing, w: %d h: %d\n", w, h);
 		}
-		vt_resize(c->app, h, w);
-		if( c->editor ) {
-			vt_resize(c->editor, h, w);
+		vt_resize(win->c->app, h, w);
+		if( win->c->editor ) {
+			vt_resize(win->c->editor, h, w);
 		}
 	}
 }
@@ -692,13 +692,13 @@ destroy(struct client *c) {
 		state.current_view->vfocus = NULL;
 	}
 	time(&t);
-	getyx(c->window, y, x);
-	wprintw(c->window, "%sprocess %ld terminated %s",
+	getyx(c->win->client, y, x);
+	wprintw(c->win->client, "%sprocess %ld terminated %s",
 		x ? "\n" : "", (long)c->pid, ctime(&t));
-	wnoutrefresh(c->window);
+	wnoutrefresh(c->win->client);
 	doupdate();
 	vt_destroy(c->term);
-	delwin(c->window);
+	delwin(c->win->client);
 	if(state.clients == c) {
 		state.clients = c->next;
 	} else for( struct client *cp = state.clients; cp; cp = cp->next ) {
@@ -813,6 +813,11 @@ push_client_to_view(struct view *v, struct client *c)
 	}
 	w->c = c;
 	c->win = w;
+	if( (w->client = newwin(screen.h, screen.w, 0, 0)) == NULL ) {
+		/* The error processing mechansim needs a complete overhaul.
+		Punting on that for now.*/
+		eprint("foobaru");
+	}
 }
 
 int
@@ -853,12 +858,9 @@ new_client(const char *cmd, const char *title)
 	const char *env[] = { "STM_WINDOW_ID", buf, NULL };
 	struct client *c = calloc(1, sizeof *c);
 	if( c != NULL ) {
-		if( (c->window = newwin(screen.h, screen.w, 0, 0)) == NULL ) {
-			goto err1;
-		}
 		c->term = c->app = vt_create(screen.h, screen.w, screen.history);
 		if( c->term == NULL ) {
-			goto err2;
+			goto err1;
 		}
 		c->cmd = cmd ? cmd : state.shell;
 		sanitize_string(title ? title : c->cmd, c->title, sizeof c->title);
@@ -871,8 +873,6 @@ new_client(const char *cmd, const char *title)
 		applycolorrules(c);
 	}
 	return c;
-err2:
-	delwin(c->window);
 err1:
 	free(c);
 	return NULL;
@@ -966,7 +966,7 @@ copymode(const char * const args[])
 	bool colored = strstr(args[0], "pager") != NULL;
 	assert(f == state.current_view->vfocus->c);
 
-	getmaxyx(f->window, y, x);
+	getmaxyx(f->win->client, y, x);
 	if (!(f->editor = vt_create(y, x, 0)))
 		goto end;
 
@@ -1133,8 +1133,8 @@ redraw(const char * const args[]) {
 	for_each_client(1);
 	while( (c = for_each_client(0)) != NULL ) {
 		vt_dirty(c->term);
-		wclear(c->window);
-		wnoutrefresh(c->window);
+		wclear(c->win->client);
+		wnoutrefresh(c->win->client);
 	}
 	resize_screen();
 	return 0;
@@ -1152,7 +1152,7 @@ scrollback(const char * const args[])
 	if( state.buf.count ) {
 		pages *= state.buf.count;
 	}
-	getmaxyx(w->c->window, y, x);
+	getmaxyx(w->client, y, x);
 	vt_scroll(w->c->term,  pages * y);
 	draw(w);
 	curs_set(vt_cursor_visible(w->c->term));
@@ -1198,9 +1198,9 @@ handle_editor(struct client *c) {
 	c->editor = NULL;
 	c->term = c->app;
 	vt_dirty(c->term);
-	vt_draw(c->term, c->window, 0, 0);
+	vt_draw(c->term, c->win->client, 0, 0);
 	draw_title(c->win);
-	wnoutrefresh(c->window);
+	wnoutrefresh(c->win->client);
 }
 
 void
@@ -1367,15 +1367,8 @@ reset_cursor(void)
 {
 	struct view *v = state.current_view;;
 
-	if( v && v->vfocus && v->vfocus->c ) {
-		struct client *c = v->vfocus->c;
-		int y, x;
-		/*
-		getyx(c->window, y, x);
-		wmove(stdscr, y + c->p.y, x + c->p.x);
-		wnoutrefresh(stdscr);
-		*/
-		wnoutrefresh(c->window);
+	if( v && v->vfocus && v->vfocus->client ) {
+		wnoutrefresh(v->vfocus->client);
 	}
 }
 
@@ -1448,8 +1441,8 @@ main(int argc, char *argv[])
 					continue;
 				}
 				if( c->win ) {
-					vt_draw(c->term, c->window, 0, 0);
-					wnoutrefresh(c->window);
+					vt_draw(c->term, c->win->client, 0, 0);
+					wnoutrefresh(c->win->client);
 				}
 			}
 		}
@@ -1501,8 +1494,8 @@ render_layout(struct layout *lay, unsigned y, unsigned x, unsigned h, unsigned w
 			init_window( &win->title, y + nh - 1, x, 1, nw );
 			nh -= 1;
 			assert( win->layout == NULL );
-			resize_client(win->c, nw, nh);
-			move_client(win->c, x, y);
+			resize_client(win, nw, nh);
+			move_client(win->client, x, y, win->c->id);
 		} else if( win->layout ) {
 			render_layout(win->layout, y, x, nh, nw);
 		}
